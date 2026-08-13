@@ -1,14 +1,16 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ListingSchema } from "@real-estate/validation";
 import { Agent } from "@real-estate/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { FormLabel } from "@/components/ui/form-label";
+import { Combobox } from "@/components/ui/combobox";
 import { EmbeddedMapPreview } from "./EmbeddedMapPreview";
-import { AlertCircle, Save, ArrowLeft, Tag } from "lucide-react";
+import { Save, ArrowLeft, MapPin, Building, FileText, Search, AlertCircle } from "lucide-react";
 import { z } from "zod";
 import { useState } from "react";
 
@@ -38,18 +40,38 @@ const FEATURE_OPTIONS = [
   "Golf Course Lot",
 ];
 
-import { Combobox } from "@/components/ui/combobox";
-
 const STATE_OPTIONS = [
-  { value: "LA", label: "Louisiana (LA)" },
-  { value: "MS", label: "Mississippi (MS)" },
-  { value: "AL", label: "Alabama (AL)" },
+  { value: "LA", label: "Louisiana" },
+  { value: "MS", label: "Mississippi" },
+  { value: "AL", label: "Alabama" },
 ];
 
 const PROPERTY_TYPE_OPTIONS = [
   { value: "Single Family", label: "Single Family" },
   { value: "Condo / Townhouse", label: "Condo / Townhouse" },
   { value: "Land / Lot", label: "Land / Lot" },
+  { value: "Commercial", label: "Commercial" },
+];
+
+const PROPERTY_STYLE_OPTIONS = [
+  { value: "Craftsman", label: "Craftsman" },
+  { value: "Traditional", label: "Traditional" },
+  { value: "Modern / Contemporary", label: "Modern / Contemporary" },
+  { value: "Creole Cottage", label: "Creole Cottage" },
+  { value: "French Provincial", label: "French Provincial" },
+];
+
+const LISTING_TYPE_OPTIONS = [
+  { value: "Residential Sales", label: "Residential Sales" },
+  { value: "Commercial Lease", label: "Commercial Lease" },
+  { value: "Land Sale", label: "Land Sale" },
+];
+
+const LISTING_OFFICE_OPTIONS = [
+  { value: "off-la-01", label: "Mandeville Central Office (LA)" },
+  { value: "off-la-02", label: "New Orleans French Quarter (LA)" },
+  { value: "off-ms-01", label: "Gulfport Beachfront (MS)" },
+  { value: "off-al-01", label: "Mobile Bay Harbor (AL)" },
 ];
 
 export function ListingEssentialsForm({
@@ -61,12 +83,14 @@ export function ListingEssentialsForm({
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(
     initialValues?.features || ["Quartz Countertops", "2-Car Garage"]
   );
+  const [featureSearch, setFeatureSearch] = useState("");
 
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
+    clearErrors,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(ListingSchema),
@@ -74,39 +98,41 @@ export function ListingEssentialsForm({
       id: initialValues?.id || `list-${Date.now()}`,
       mlsNumber: initialValues?.mlsNumber || `MLS-2026-${Math.floor(1000 + Math.random() * 9000)}`,
       address: {
-        street: initialValues?.address?.street || "104 Magnolia Lane",
-        city: initialValues?.address?.city || "Covington",
+        street: initialValues?.address?.street || "123 South Oak Street",
+        city: initialValues?.address?.city || "Hammond",
         state: initialValues?.address?.state || "LA",
-        zip: initialValues?.address?.zip || "70433",
+        zip: initialValues?.address?.zip || "70403",
       },
+      addressLine2: initialValues?.addressLine2 || "",
+      subdivision: initialValues?.subdivision || "",
       price: initialValues?.price || 450000,
       status: initialValues?.status || "active",
       listingAgentId: initialValues?.listingAgentId || agents[0]?.id || "agent-1",
-      description: initialValues?.description || "Beautiful property with modern features and open layout.",
+      description: initialValues?.description || "Beautiful property with public records verified details.",
       legalDescription: initialValues?.legalDescription || "LOT 12 SQ 4 SUBDIVISION PH 1",
-      mapCoordinates: initialValues?.mapCoordinates || { lat: 30.4755, lng: -90.1009 },
+      mapCoordinates: initialValues?.mapCoordinates || { lat: 30.5044, lng: -90.4612 },
       photos: initialValues?.photos || [
         { url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800", order: 1 },
       ],
       features: selectedFeatures,
       lastUpdatedAt: new Date().toISOString(),
-      propertyType: initialValues?.propertyType || "Single Family",
-      propertyStyle: initialValues?.propertyStyle || "Craftsman",
-      beds: initialValues?.beds || 4,
-      fullBaths: initialValues?.fullBaths || 3,
-      halfBaths: initialValues?.halfBaths || 1,
-      buildingAreaSqft: initialValues?.buildingAreaSqft || 2800,
+      propertyType: initialValues?.propertyType || "",
+      propertyStyle: initialValues?.propertyStyle || "",
+      beds: initialValues?.beds ?? undefined,
+      fullBaths: initialValues?.fullBaths ?? undefined,
+      halfBaths: initialValues?.halfBaths ?? undefined,
+      buildingAreaSqft: initialValues?.buildingAreaSqft ?? undefined,
+      lotSizeAcres: initialValues?.lotSizeAcres ?? undefined,
+      yearBuilt: initialValues?.yearBuilt ?? undefined,
+      parkingPlaces: initialValues?.parkingPlaces ?? undefined,
       newConstruction: initialValues?.newConstruction || false,
       listingType: initialValues?.listingType || "Residential Sales",
-      listDate: initialValues?.listDate || "2026-08-01",
-      expirationDate: initialValues?.expirationDate || "2027-02-01",
-      listingOfficeId: initialValues?.listingOfficeId || "off-la-01",
+      listDate: initialValues?.listDate || "2026-08-10",
+      expirationDate: initialValues?.expirationDate || "2026-08-10",
+      anticipatedLaunchDate: initialValues?.anticipatedLaunchDate || "2026-08-10",
+      listingOfficeId: initialValues?.listingOfficeId || "",
     },
   });
-
-  const stateVal = watch("address.state");
-  const propertyTypeVal = watch("propertyType");
-  const listingAgentIdVal = watch("listingAgentId");
 
   const agentOptions = agents.map((a) => ({
     value: a.id,
@@ -121,6 +147,10 @@ export function ListingEssentialsForm({
     setValue("features", updated);
   };
 
+  const filteredFeatures = FEATURE_OPTIONS.filter((f) =>
+    f.toLowerCase().includes(featureSearch.toLowerCase())
+  );
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Banner Note matching spec reference */}
@@ -134,131 +164,308 @@ export function ListingEssentialsForm({
         </div>
       </div>
 
-      {/* 3-Column Layout Matching Specification Reference */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* 3-Column Layout Matching Screenshot exact structure */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Column 1: Location */}
-        <Card className="space-y-4 p-6">
-          <h3 className="text-base font-semibold text-card-foreground border-b border-border pb-3">
-            1. Location
-          </h3>
+        <Card className="p-5 space-y-4">
+          <div className="flex items-center gap-2 border-b border-border pb-3">
+            <MapPin className="size-4 text-muted-foreground" />
+            <h3 className="text-base font-semibold text-foreground">Location</h3>
+          </div>
 
           <EmbeddedMapPreview
-            address={initialValues?.address?.street || "104 Magnolia Lane"}
-            city={initialValues?.address?.city || "Covington"}
-            state={initialValues?.address?.state || "LA"}
+            address="123 South Oak Street"
+            city="Hammond"
+            state="LA"
           />
 
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Address Line 1</label>
-              <Input {...register("address.street")} className="bg-background border-input text-xs" />
+              <FormLabel required htmlFor="address.street">Address Line 1</FormLabel>
+              <Input
+                id="address.street"
+                {...register("address.street", { onChange: () => clearErrors("address.street") })}
+                placeholder="123 South Oak Street"
+                className={`h-10 text-sm ${errors.address?.street ? "border-red-500 ring-1 ring-red-500" : ""}`}
+              />
+              {errors.address?.street && (
+                <p className="text-red-500 text-xs mt-1">{errors.address.street.message}</p>
+              )}
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Address Line 2 (Optional)</label>
-              <Input {...register("addressLine2")} className="bg-background border-input text-xs" />
+              <FormLabel htmlFor="addressLine2">Address Line 2</FormLabel>
+              <Input
+                id="addressLine2"
+                {...register("addressLine2")}
+                placeholder="Address Line 2"
+                className="h-10 text-sm"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Subdivision</label>
-                <Input {...register("subdivision")} className="bg-background border-input text-xs" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">City</label>
-                <Input {...register("address.city")} className="bg-background border-input text-xs" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">State</label>
-                <Combobox
-                  options={STATE_OPTIONS}
-                  value={stateVal}
-                  onChange={(val) => setValue("address.state", val, { shouldValidate: true })}
-                  placeholder="Select state..."
-                  searchPlaceholder="Search state..."
-                  className="h-9 text-xs"
+                <FormLabel htmlFor="subdivision">Subdivision</FormLabel>
+                <Input
+                  id="subdivision"
+                  {...register("subdivision")}
+                  placeholder="Subdivision"
+                  className="h-10 text-sm"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Zip Code</label>
-                <Input {...register("address.zip")} className="bg-background border-input text-xs" />
+                <FormLabel required htmlFor="address.city">City</FormLabel>
+                <Input
+                  id="address.city"
+                  {...register("address.city", { onChange: () => clearErrors("address.city") })}
+                  placeholder="Hammond"
+                  className={`h-10 text-sm ${errors.address?.city ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                />
+                {errors.address?.city && (
+                  <p className="text-red-500 text-xs mt-1">{errors.address.city.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <FormLabel required>State</FormLabel>
+                <Controller
+                  name="address.state"
+                  control={control}
+                  render={({ field }) => (
+                    <Combobox
+                      options={STATE_OPTIONS}
+                      value={field.value}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        clearErrors("address.state");
+                      }}
+                      placeholder="Select State"
+                      searchPlaceholder="Search State..."
+                      className={`h-10 text-sm w-full ${errors.address?.state ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                    />
+                  )}
+                />
+                {errors.address?.state && (
+                  <p className="text-red-500 text-xs mt-1">{errors.address.state.message}</p>
+                )}
+              </div>
+              <div className="space-y-1">
+                <FormLabel required htmlFor="address.zip">Zip</FormLabel>
+                <Input
+                  id="address.zip"
+                  {...register("address.zip", { onChange: () => clearErrors("address.zip") })}
+                  placeholder="70403"
+                  className={`h-10 text-sm ${errors.address?.zip ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                />
+                {errors.address?.zip && (
+                  <p className="text-red-500 text-xs mt-1">{errors.address.zip.message}</p>
+                )}
               </div>
             </div>
           </div>
         </Card>
 
-        {/* Column 2: Property Information & Features */}
-        <Card className="space-y-4 p-6">
-          <h3 className="text-base font-semibold text-card-foreground border-b border-border pb-3">
-            2. Property Info &amp; Features
-          </h3>
+        {/* Column 2: Property Information & Property Features */}
+        <div className="space-y-6">
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center gap-2 border-b border-border pb-3">
+              <Building className="size-4 text-muted-foreground" />
+              <h3 className="text-base font-semibold text-foreground">Property Information</h3>
+            </div>
 
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Property Type</label>
-                <Combobox
-                  options={PROPERTY_TYPE_OPTIONS}
-                  value={propertyTypeVal}
-                  onChange={(val) => setValue("propertyType", val, { shouldValidate: true })}
-                  placeholder="Select type..."
-                  searchPlaceholder="Search type..."
-                  className="h-9 text-xs"
+                <FormLabel required>Property Type</FormLabel>
+                <Controller
+                  name="propertyType"
+                  control={control}
+                  render={({ field }) => (
+                    <Combobox
+                      options={PROPERTY_TYPE_OPTIONS}
+                      value={field.value}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        clearErrors("propertyType");
+                      }}
+                      placeholder="Select Property Type"
+                      searchPlaceholder="Search Property Type..."
+                      className={`h-10 text-sm w-full ${errors.propertyType ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                    />
+                  )}
+                />
+                {errors.propertyType && (
+                  <p className="text-red-500 text-xs mt-1">{errors.propertyType.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <FormLabel required>Property Style</FormLabel>
+                <Controller
+                  name="propertyStyle"
+                  control={control}
+                  render={({ field }) => (
+                    <Combobox
+                      options={PROPERTY_STYLE_OPTIONS}
+                      value={field.value}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        clearErrors("propertyStyle");
+                      }}
+                      placeholder="Select Property Style"
+                      searchPlaceholder="Search Style..."
+                      className={`h-10 text-sm w-full ${errors.propertyStyle ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                    />
+                  )}
+                />
+                {errors.propertyStyle && (
+                  <p className="text-red-500 text-xs mt-1">{errors.propertyStyle.message}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <FormLabel required htmlFor="beds">Beds</FormLabel>
+                  <Input
+                    id="beds"
+                    type="number"
+                    {...register("beds", {
+                      valueAsNumber: true,
+                      onChange: () => clearErrors("beds"),
+                    })}
+                    placeholder="Beds"
+                    className={`h-10 text-sm ${errors.beds ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                  />
+                  {errors.beds && (
+                    <p className="text-red-500 text-xs mt-1">{errors.beds.message}</p>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <FormLabel htmlFor="fullBaths">Baths</FormLabel>
+                  <Input
+                    id="fullBaths"
+                    type="number"
+                    {...register("fullBaths", {
+                      valueAsNumber: true,
+                      onChange: () => clearErrors("fullBaths"),
+                    })}
+                    placeholder="Full Bath"
+                    className={`h-10 text-sm ${errors.fullBaths ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <FormLabel htmlFor="halfBaths">Half Bath</FormLabel>
+                  <Input
+                    id="halfBaths"
+                    type="number"
+                    {...register("halfBaths", {
+                      valueAsNumber: true,
+                      onChange: () => clearErrors("halfBaths"),
+                    })}
+                    placeholder="Half Bath"
+                    className="h-10 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <FormLabel htmlFor="buildingAreaSqft">Building Area (Sq. Ft.)</FormLabel>
+                  <Input
+                    id="buildingAreaSqft"
+                    type="number"
+                    {...register("buildingAreaSqft", {
+                      valueAsNumber: true,
+                      onChange: () => clearErrors("buildingAreaSqft"),
+                    })}
+                    placeholder="in SqFt"
+                    className={`h-10 text-sm ${errors.buildingAreaSqft ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <FormLabel htmlFor="lotSizeAcres">Lot Size (Acres)</FormLabel>
+                  <Input
+                    id="lotSizeAcres"
+                    type="number"
+                    step="0.01"
+                    {...register("lotSizeAcres", {
+                      valueAsNumber: true,
+                      onChange: () => clearErrors("lotSizeAcres"),
+                    })}
+                    placeholder="in Acres"
+                    className={`h-10 text-sm ${errors.lotSizeAcres ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <FormLabel htmlFor="yearBuilt">Year Built</FormLabel>
+                  <Input
+                    id="yearBuilt"
+                    type="number"
+                    {...register("yearBuilt", { valueAsNumber: true })}
+                    placeholder="Year Built"
+                    className="h-10 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <FormLabel htmlFor="parkingPlaces">Parking Places</FormLabel>
+                  <Input
+                    id="parkingPlaces"
+                    type="number"
+                    {...register("parkingPlaces", { valueAsNumber: true })}
+                    placeholder="# of Parking Places"
+                    className="h-10 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="newConstruction"
+                  {...register("newConstruction")}
+                  className="size-4 rounded border-input bg-background accent-primary"
+                />
+                <label htmlFor="newConstruction" className="text-xs text-foreground cursor-pointer select-none">
+                  New Construction (To Be Built)
+                </label>
+              </div>
+            </div>
+          </Card>
+
+          {/* Property Features section */}
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center gap-2 border-b border-border pb-3">
+              <FileText className="size-4 text-muted-foreground" />
+              <h3 className="text-base font-semibold text-foreground">Property Features</h3>
+            </div>
+
+            <div className="space-y-3">
+              <div className="relative">
+                <Search className="size-3.5 text-muted-foreground absolute left-3 top-3" />
+                <Input
+                  value={featureSearch}
+                  onChange={(e) => setFeatureSearch(e.target.value)}
+                  placeholder="Search Features ..."
+                  className="pl-9 h-10 text-xs"
                 />
               </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Property Style</label>
-                <Input {...register("propertyStyle")} className="bg-background border-input text-xs" />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Beds</label>
-                <Input type="number" {...register("beds", { valueAsNumber: true })} className="bg-background border-input text-xs" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Full Baths</label>
-                <Input type="number" {...register("fullBaths", { valueAsNumber: true })} className="bg-background border-input text-xs" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Half Baths</label>
-                <Input type="number" {...register("halfBaths", { valueAsNumber: true })} className="bg-background border-input text-xs" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Building Area (sq ft)</label>
-                <Input type="number" {...register("buildingAreaSqft", { valueAsNumber: true })} className="bg-background border-input text-xs" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Lot Size (acres)</label>
-                <Input type="number" step="0.01" {...register("lotSizeAcres", { valueAsNumber: true })} className="bg-background border-input text-xs" />
-              </div>
-            </div>
-
-            {/* Tag-style Features Selection */}
-            <div className="space-y-2 pt-2 border-t border-border">
-              <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                <Tag className="size-3.5 text-primary" /> Select Property Features
-              </label>
               <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
-                {FEATURE_OPTIONS.map((feat) => {
+                {filteredFeatures.map((feat) => {
                   const isSelected = selectedFeatures.includes(feat);
                   return (
                     <button
                       key={feat}
                       type="button"
                       onClick={() => toggleFeature(feat)}
-                      className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
-                        isSelected
-                          ? "bg-primary text-primary-foreground border border-primary"
-                          : "bg-muted text-muted-foreground border border-border hover:bg-accent hover:text-accent-foreground"
-                      }`}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${isSelected
+                        ? "bg-primary text-primary-foreground border border-primary"
+                        : "bg-muted text-muted-foreground border border-border hover:bg-accent hover:text-accent-foreground"
+                        }`}
                     >
                       {feat}
                     </button>
@@ -266,51 +473,151 @@ export function ListingEssentialsForm({
                 })}
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
 
-        {/* Column 3: Listing Details */}
-        <Card className="space-y-4 p-6">
-          <h3 className="text-base font-semibold text-card-foreground border-b border-border pb-3">
-            3. Listing Detail
-          </h3>
+        {/* Column 3: Listing Detail */}
+        <Card className="p-5 space-y-4">
+          <div className="flex items-center gap-2 border-b border-border pb-3">
+            <FileText className="size-4 text-muted-foreground" />
+            <h3 className="text-base font-semibold text-foreground">Listing Detail</h3>
+          </div>
 
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">List Price ($)</label>
-              <Input type="number" {...register("price", { valueAsNumber: true })} className="bg-background border-input text-xs font-bold text-primary" />
+              <FormLabel required>Listing Type</FormLabel>
+              <Controller
+                name="listingType"
+                control={control}
+                render={({ field }) => (
+                  <Combobox
+                    options={LISTING_TYPE_OPTIONS}
+                    value={field.value}
+                    onChange={(val) => {
+                      field.onChange(val);
+                      clearErrors("listingType");
+                    }}
+                    placeholder="Select Listing Type"
+                    searchPlaceholder="Search Listing Type..."
+                    className={`h-10 text-sm w-full ${errors.listingType ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                  />
+                )}
+              />
+              {errors.listingType && (
+                <p className="text-red-500 text-xs mt-1">{errors.listingType.message}</p>
+              )}
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">MLS Number</label>
-              <Input {...register("mlsNumber")} className="bg-background border-input text-xs font-mono" />
+              <FormLabel required htmlFor="price">List Price</FormLabel>
+              <div className="relative flex items-center">
+                <span className="absolute left-3 text-sm text-muted-foreground">$</span>
+                <Input
+                  id="price"
+                  type="number"
+                  {...register("price", {
+                    valueAsNumber: true,
+                    onChange: () => clearErrors("price"),
+                  })}
+                  placeholder="List Price"
+                  className={`pl-7 pr-9 h-10 text-sm font-semibold ${errors.price ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                />
+                <span className="absolute right-3 text-xs text-muted-foreground">.00</span>
+              </div>
+              {errors.price && (
+                <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <FormLabel required htmlFor="listDate">List Date</FormLabel>
+                <Input
+                  id="listDate"
+                  type="date"
+                  {...register("listDate", { onChange: () => clearErrors("listDate") })}
+                  className={`h-10 text-sm ${errors.listDate ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                />
+                {errors.listDate && (
+                  <p className="text-red-500 text-xs mt-1">{errors.listDate.message}</p>
+                )}
+              </div>
+              <div className="space-y-1">
+                <FormLabel required htmlFor="expirationDate">Expiration Date</FormLabel>
+                <Input
+                  id="expirationDate"
+                  type="date"
+                  {...register("expirationDate", { onChange: () => clearErrors("expirationDate") })}
+                  className={`h-10 text-sm ${errors.expirationDate ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                />
+                {errors.expirationDate && (
+                  <p className="text-red-500 text-xs mt-1">{errors.expirationDate.message}</p>
+                )}
+              </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Listing Agent</label>
-              <Combobox
-                options={agentOptions}
-                value={listingAgentIdVal}
-                onChange={(val) => setValue("listingAgentId", val, { shouldValidate: true })}
-                placeholder="Select agent..."
-                searchPlaceholder="Search agent..."
-                className="h-9 text-xs"
+              <FormLabel htmlFor="anticipatedLaunchDate">Anticipated Launch Date</FormLabel>
+              <Input
+                id="anticipatedLaunchDate"
+                type="date"
+                {...register("anticipatedLaunchDate")}
+                className="h-10 text-sm"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Description</label>
-              <textarea
-                {...register("description")}
-                rows={3}
-                className="w-full rounded-md bg-background border border-input text-xs p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              <FormLabel required>Listing Office</FormLabel>
+              <Controller
+                name="listingOfficeId"
+                control={control}
+                render={({ field }) => (
+                  <Combobox
+                    options={LISTING_OFFICE_OPTIONS}
+                    value={field.value}
+                    onChange={(val) => {
+                      field.onChange(val);
+                      clearErrors("listingOfficeId");
+                    }}
+                    placeholder="-- Select Listing Office --"
+                    searchPlaceholder="Search Office..."
+                    className={`h-10 text-sm w-full ${errors.listingOfficeId ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                  />
+                )}
               />
+              {errors.listingOfficeId && (
+                <p className="text-red-500 text-xs mt-1">{errors.listingOfficeId.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <FormLabel required>Listing Agent</FormLabel>
+              <Controller
+                name="listingAgentId"
+                control={control}
+                render={({ field }) => (
+                  <Combobox
+                    options={agentOptions}
+                    value={field.value}
+                    onChange={(val) => {
+                      field.onChange(val);
+                      clearErrors("listingAgentId");
+                    }}
+                    placeholder="Select Listing Agent"
+                    searchPlaceholder="Search Agent..."
+                    className={`h-10 text-sm w-full ${errors.listingAgentId ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                  />
+                )}
+              />
+              {errors.listingAgentId && (
+                <p className="text-red-500 text-xs mt-1">{errors.listingAgentId.message}</p>
+              )}
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Form Action Buttons */}
+      {/* Action Footer */}
       <div className="flex items-center justify-between border-t border-border pt-4">
         {onBack && (
           <Button type="button" variant="outline" onClick={onBack} className="text-xs">
