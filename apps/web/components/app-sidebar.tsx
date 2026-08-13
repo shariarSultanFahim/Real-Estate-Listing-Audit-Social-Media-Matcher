@@ -139,11 +139,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           <SidebarMenuButton
                             asChild
                             isActive={isActive}
-                            className={`text-xs px-3 py-2 rounded-md transition-colors ${
-                              isActive
-                                ? "bg-indigo-600/20 text-indigo-300 font-semibold border border-indigo-500/30"
-                                : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/60"
-                            }`}
+                            className={`text-xs px-3 py-2 rounded-md transition-colors ${isActive
+                              ? "bg-indigo-600/20 text-indigo-300 font-semibold border border-indigo-500/30"
+                              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/60"
+                              }`}
                           >
                             <Link href={subItem.url}>{subItem.title}</Link>
                           </SidebarMenuButton>
@@ -157,7 +156,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </Collapsible>
         ))}
       </SidebarContent>
-      <SidebarRail />
     </Sidebar>
   )
 }
