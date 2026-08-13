@@ -16,7 +16,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { FloatingCanvas } from "@/components/three/FloatingCanvas";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -42,9 +41,6 @@ export default function DashboardLayout({
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="relative min-h-screen w-full bg-slate-950 text-slate-100 flex overflow-hidden">
-        {/* Three.js Background Animation */}
-        <FloatingCanvas />
-
         {/* Collapsible AppSidebar Component */}
         <AppSidebar />
 
