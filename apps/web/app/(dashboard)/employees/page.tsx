@@ -28,11 +28,13 @@ const PERMISSION_LABELS: Record<Permission, string> = {
   "users:edit": "Edit User",
 };
 
+import { useQueryState, parseAsString } from "nuqs";
+
 export default function EmployeesPage() {
   const router = useRouter();
   const { data: users = [], isLoading } = useUsers();
-  const [search, setSearch] = useState("");
-  const [accountTypeFilter, setAccountTypeFilter] = useState<string>("all");
+  const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""));
+  const [accountTypeFilter, setAccountTypeFilter] = useQueryState("type", parseAsString.withDefault("all"));
 
   const canCreateUsers = usePermission("users:create");
 

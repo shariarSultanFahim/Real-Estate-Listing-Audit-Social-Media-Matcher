@@ -9,11 +9,13 @@ import { MatchResult } from "@real-estate/types";
 import { RequirePermission } from "@/components/auth/RequirePermission";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 
+import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
+
 export default function SocialMatcherPage() {
   const matchAgents = useMatchAgents();
 
-  const [queryCity, setQueryCity] = useState("Covington");
-  const [queryPrice, setQueryPrice] = useState(450000);
+  const [queryCity, setQueryCity] = useQueryState("city", parseAsString.withDefault("Covington"));
+  const [queryPrice, setQueryPrice] = useQueryState("price", parseAsInteger.withDefault(450000));
   const [matchResults, setMatchResults] = useState<MatchResult[] | null>(null);
 
   const handleSearch = (data: { city: string; price: number }) => {

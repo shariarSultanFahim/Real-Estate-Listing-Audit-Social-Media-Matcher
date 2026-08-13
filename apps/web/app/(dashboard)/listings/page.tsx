@@ -12,16 +12,21 @@ import { RequirePermission } from "@/components/auth/RequirePermission";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
 
+import { useQueryState, parseAsString, parseAsStringEnum } from "nuqs";
+
 export default function ListingsAuditPage() {
   const { data: listings = [], isLoading: isLoadingListings } = useListings();
   const { data: discrepancies = [], isLoading: isLoadingDiscrepancies } = useDiscrepancies();
   const { data: agents = [], isLoading: isLoadingAgents } = useAgents();
 
-  // State default: "onlyWithIssues" per explicit client spec requirement
-  const [viewMode, setViewMode] = useState<"onlyWithIssues" | "all">("onlyWithIssues");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedField, setSelectedField] = useState("all");
-  const [selectedSite, setSelectedSite] = useState("all");
+  // URL search state via NUQS
+  const [viewMode, setViewMode] = useQueryState(
+    "view",
+    parseAsStringEnum<"onlyWithIssues" | "all">(["onlyWithIssues", "all"]).withDefault("onlyWithIssues")
+  );
+  const [searchQuery, setSearchQuery] = useQueryState("q", parseAsString.withDefault(""));
+  const [selectedField, setSelectedField] = useQueryState("field", parseAsString.withDefault("all"));
+  const [selectedSite, setSelectedSite] = useQueryState("site", parseAsString.withDefault("all"));
 
   const isLoading = isLoadingListings || isLoadingDiscrepancies || isLoadingAgents;
 

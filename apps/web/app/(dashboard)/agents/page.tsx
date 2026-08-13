@@ -17,6 +17,8 @@ import { Combobox } from "@/components/ui/combobox";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 
+import { useQueryState, parseAsString } from "nuqs";
+
 const STATE_OPTIONS = [
   { value: "all", label: "All States (LA / MS / AL)" },
   { value: "LA", label: "Louisiana (LA)" },
@@ -26,8 +28,8 @@ const STATE_OPTIONS = [
 
 export default function AgentsPage() {
   const { data: agents = [], isLoading } = useAgents();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedState, setSelectedState] = useState("all");
+  const [searchQuery, setSearchQuery] = useQueryState("q", parseAsString.withDefault(""));
+  const [selectedState, setSelectedState] = useQueryState("state", parseAsString.withDefault("all"));
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
 
