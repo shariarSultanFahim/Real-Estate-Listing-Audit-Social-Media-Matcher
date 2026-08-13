@@ -276,34 +276,45 @@ export const AnimatedThemeToggler = ({
     }
 
     isTransitioningRef.current = true
-    const transition = document.startViewTransition(() => {
-      flushSync(applyTheme)
-    })
-    if (typeof transition?.finished?.finally === "function") {
-      transition.finished.finally(cleanup).catch(() => {})
-    } else {
-      cleanup()
-    }
+    try {
+      const transition = document.startViewTransition(() => {
+        flushSync(applyTheme)
+      })
 
-    const ready = transition?.ready
-    if (ready && typeof ready.then === "function") {
-      ready
-        .then(() => {
-          const anim = document.documentElement.animate(
-            {
-              clipPath,
-            },
-            {
-              duration,
-              // Star: linear avoids easing overshoot that fights polygon interpolation at t→1; VT group duration is synced above.
-              easing: shape === "star" ? "linear" : "ease-in-out",
-              fill: "forwards",
-              pseudoElement: "::view-transition-new(root)",
-            }
-          )
-          activeAnimRef.current = anim
-        })
-        .catch(() => {})
+      if (!transition) {
+        cleanup()
+        return
+      }
+
+      if (transition.finished && typeof transition.finished.finally === "function") {
+        transition.finished.finally(cleanup).catch(() => {})
+      } else {
+        cleanup()
+      }
+
+      const ready = transition.ready
+      if (ready && typeof ready.then === "function") {
+        ready
+          .then(() => {
+            const anim = document.documentElement.animate(
+              {
+                clipPath,
+              },
+              {
+                duration,
+                // Star: linear avoids easing overshoot that fights polygon interpolation at t→1; VT group duration is synced above.
+                easing: shape === "star" ? "linear" : "ease-in-out",
+                fill: "forwards",
+                pseudoElement: "::view-transition-new(root)",
+              }
+            )
+            activeAnimRef.current = anim
+          })
+          .catch(() => {})
+      }
+    } catch (e) {
+      applyTheme()
+      cleanup()
     }
   }, [
     shape,
