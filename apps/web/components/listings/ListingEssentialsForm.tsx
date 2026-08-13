@@ -38,6 +38,20 @@ const FEATURE_OPTIONS = [
   "Golf Course Lot",
 ];
 
+import { Combobox } from "@/components/ui/combobox";
+
+const STATE_OPTIONS = [
+  { value: "LA", label: "Louisiana (LA)" },
+  { value: "MS", label: "Mississippi (MS)" },
+  { value: "AL", label: "Alabama (AL)" },
+];
+
+const PROPERTY_TYPE_OPTIONS = [
+  { value: "Single Family", label: "Single Family" },
+  { value: "Condo / Townhouse", label: "Condo / Townhouse" },
+  { value: "Land / Lot", label: "Land / Lot" },
+];
+
 export function ListingEssentialsForm({
   initialValues,
   agents,
@@ -52,6 +66,7 @@ export function ListingEssentialsForm({
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(ListingSchema),
@@ -88,6 +103,15 @@ export function ListingEssentialsForm({
       listingOfficeId: initialValues?.listingOfficeId || "off-la-01",
     },
   });
+
+  const stateVal = watch("address.state");
+  const propertyTypeVal = watch("propertyType");
+  const listingAgentIdVal = watch("listingAgentId");
+
+  const agentOptions = agents.map((a) => ({
+    value: a.id,
+    label: `${a.name} (${a.officeState})`,
+  }));
 
   const toggleFeature = (feat: string) => {
     const updated = selectedFeatures.includes(feat)
@@ -149,11 +173,14 @@ export function ListingEssentialsForm({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">State</label>
-                <select {...register("address.state")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
-                  <option value="LA">Louisiana (LA)</option>
-                  <option value="MS">Mississippi (MS)</option>
-                  <option value="AL">Alabama (AL)</option>
-                </select>
+                <Combobox
+                  options={STATE_OPTIONS}
+                  value={stateVal}
+                  onChange={(val) => setValue("address.state", val, { shouldValidate: true })}
+                  placeholder="Select state..."
+                  searchPlaceholder="Search state..."
+                  className="h-9 text-xs"
+                />
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">Zip Code</label>
@@ -173,11 +200,14 @@ export function ListingEssentialsForm({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">Property Type</label>
-                <select {...register("propertyType")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
-                  <option value="Single Family">Single Family</option>
-                  <option value="Condo / Townhouse">Condo / Townhouse</option>
-                  <option value="Land / Lot">Land / Lot</option>
-                </select>
+                <Combobox
+                  options={PROPERTY_TYPE_OPTIONS}
+                  value={propertyTypeVal}
+                  onChange={(val) => setValue("propertyType", val, { shouldValidate: true })}
+                  placeholder="Select type..."
+                  searchPlaceholder="Search type..."
+                  className="h-9 text-xs"
+                />
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">Property Style</label>
@@ -258,13 +288,14 @@ export function ListingEssentialsForm({
 
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Listing Agent</label>
-              <select {...register("listingAgentId")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
-                {agents.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} ({a.officeState})
-                  </option>
-                ))}
-              </select>
+              <Combobox
+                options={agentOptions}
+                value={listingAgentIdVal}
+                onChange={(val) => setValue("listingAgentId", val, { shouldValidate: true })}
+                placeholder="Select agent..."
+                searchPlaceholder="Search agent..."
+                className="h-9 text-xs"
+              />
             </div>
 
             <div className="space-y-1">

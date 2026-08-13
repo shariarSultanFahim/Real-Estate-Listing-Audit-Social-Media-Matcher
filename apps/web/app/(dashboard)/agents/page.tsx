@@ -13,6 +13,15 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Link from "next/link";
 
+import { Combobox } from "@/components/ui/combobox";
+
+const STATE_OPTIONS = [
+  { value: "all", label: "All States (LA / MS / AL)" },
+  { value: "LA", label: "Louisiana (LA)" },
+  { value: "MS", label: "Mississippi (MS)" },
+  { value: "AL", label: "Alabama (AL)" },
+];
+
 export default function AgentsPage() {
   const { data: agents = [], isLoading } = useAgents();
   const [searchQuery, setSearchQuery] = useState("");
@@ -76,16 +85,16 @@ export default function AgentsPage() {
 
         <div className="flex items-center gap-3">
           <span className="text-xs text-muted-foreground font-medium">Filter Office:</span>
-          <select
-            value={selectedState}
-            onChange={(e) => setSelectedState(e.target.value)}
-            className="h-9 px-3 rounded-md bg-background border border-input text-xs text-foreground"
-          >
-            <option value="all">All States (LA / MS / AL)</option>
-            <option value="LA">Louisiana (LA)</option>
-            <option value="MS">Mississippi (MS)</option>
-            <option value="AL">Alabama (AL)</option>
-          </select>
+          <div className="w-56">
+            <Combobox
+              options={STATE_OPTIONS}
+              value={selectedState}
+              onChange={setSelectedState}
+              placeholder="Filter state..."
+              searchPlaceholder="Search state..."
+              className="h-9 text-xs"
+            />
+          </div>
         </div>
       </div>
 

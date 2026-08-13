@@ -114,7 +114,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   const isActive =
                     item.url === "/"
                       ? pathname === "/"
-                      : pathname.startsWith(item.url)
+                      : item.url === "/listings"
+                      ? pathname === "/listings" || (pathname.startsWith("/listings/") && pathname !== "/listings/new")
+                      : pathname === item.url || pathname.startsWith(item.url + "/")
 
                   return (
                     <SidebarMenuItem key={item.title}>

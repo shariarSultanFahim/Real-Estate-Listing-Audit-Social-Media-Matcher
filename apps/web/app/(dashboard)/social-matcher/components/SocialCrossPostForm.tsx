@@ -9,6 +9,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Search, Sparkles, MapPin, DollarSign } from "lucide-react";
 import { z } from "zod";
 
+import { Combobox } from "@/components/ui/combobox";
+
 type FormData = z.infer<typeof MatchQuerySchema>;
 
 const SERVICE_CITIES = [
@@ -25,6 +27,8 @@ const SERVICE_CITIES = [
   "Daphne",
 ];
 
+const cityOptions = SERVICE_CITIES.map((c) => ({ value: c, label: c }));
+
 interface SocialCrossPostFormProps {
   onSearch: (data: FormData) => void;
   isLoading?: boolean;
@@ -35,6 +39,7 @@ export function SocialCrossPostForm({ onSearch, isLoading }: SocialCrossPostForm
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(MatchQuerySchema),
@@ -43,6 +48,8 @@ export function SocialCrossPostForm({ onSearch, isLoading }: SocialCrossPostForm
       price: 450000,
     },
   });
+
+  const selectedCity = watch("city");
 
   return (
     <Card className="border-primary/30">
@@ -64,16 +71,13 @@ export function SocialCrossPostForm({ onSearch, isLoading }: SocialCrossPostForm
               <MapPin className="size-3.5 text-primary" />
               Listing City / Service Area
             </label>
-            <select
-              {...register("city")}
-              className="h-10 w-full rounded-lg bg-background border border-input text-sm px-3 text-foreground focus:ring-1 focus:ring-ring"
-            >
-              {SERVICE_CITIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+            <Combobox
+              options={cityOptions}
+              value={selectedCity}
+              onChange={(val) => setValue("city", val, { shouldValidate: true })}
+              placeholder="Select city..."
+              searchPlaceholder="Search city..."
+            />
             {errors.city && <p className="text-[10px] text-destructive">{errors.city.message}</p>}
           </div>
 

@@ -11,7 +11,22 @@ import { X, Save, UserCheck } from "lucide-react";
 import { z } from "zod";
 import { useState } from "react";
 
+import { Combobox } from "@/components/ui/combobox";
+
 type FormData = z.infer<typeof AgentSchema>;
+
+const OFFICE_OPTIONS = [
+  { value: "LA", label: "Louisiana (LA Office)" },
+  { value: "MS", label: "Mississippi (MS Office)" },
+  { value: "AL", label: "Alabama (AL Office)" },
+];
+
+const PREFERENCE_OPTIONS = [
+  { value: "all", label: "Duplicate All New Brokerage Postings" },
+  { value: "areaAndPrice", label: "Only Specific Service Area & Price Threshold" },
+  { value: "byRequest", label: "Only by Special Request (Manual)" },
+  { value: "never", label: "Never Cross-Post Automatically" },
+];
 
 interface AgentFormProps {
   initialValues?: Partial<Agent>;
@@ -48,6 +63,7 @@ export function AgentForm({ initialValues, onClose, onSubmit }: AgentFormProps) 
   });
 
   const preference = watch("crossPostPreference");
+  const officeState = watch("officeState");
 
   const handleFormSubmit = (data: FormData) => {
     const areas = serviceAreasInput
@@ -95,11 +111,14 @@ export function AgentForm({ initialValues, onClose, onSubmit }: AgentFormProps) 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">Office Location</label>
-                <select {...register("officeState")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
-                  <option value="LA">Louisiana (LA Office)</option>
-                  <option value="MS">Mississippi (MS Office)</option>
-                  <option value="AL">Alabama (AL Office)</option>
-                </select>
+                <Combobox
+                  options={OFFICE_OPTIONS}
+                  value={officeState}
+                  onChange={(val) => setValue("officeState", val as any, { shouldValidate: true })}
+                  placeholder="Select office..."
+                  searchPlaceholder="Search office..."
+                  className="h-9 text-xs"
+                />
               </div>
 
               <div className="space-y-1">
@@ -120,12 +139,14 @@ export function AgentForm({ initialValues, onClose, onSubmit }: AgentFormProps) 
 
             <div className="space-y-1 border-t border-border pt-3">
               <label className="text-xs font-semibold text-primary">Social Cross-Post Preference</label>
-              <select {...register("crossPostPreference")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
-                <option value="all">Duplicate All New Brokerage Postings</option>
-                <option value="areaAndPrice">Only Specific Service Area &amp; Price Threshold</option>
-                <option value="byRequest">Only by Special Request (Manual)</option>
-                <option value="never">Never Cross-Post Automatically</option>
-              </select>
+              <Combobox
+                options={PREFERENCE_OPTIONS}
+                value={preference}
+                onChange={(val) => setValue("crossPostPreference", val as any, { shouldValidate: true })}
+                placeholder="Select preference..."
+                searchPlaceholder="Search preference..."
+                className="h-9 text-xs"
+              />
             </div>
 
             {preference === "areaAndPrice" && (

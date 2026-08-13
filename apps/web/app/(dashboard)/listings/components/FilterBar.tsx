@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Filter, RefreshCcw } from "lucide-react";
 
+import { Combobox } from "@/components/ui/combobox";
+
 interface FilterBarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
@@ -13,6 +15,25 @@ interface FilterBarProps {
   onSiteChange: (value: string) => void;
   onReset: () => void;
 }
+
+const FIELD_OPTIONS = [
+  { value: "all", label: "All Mismatched Fields" },
+  { value: "price", label: "Price Mismatch" },
+  { value: "photos", label: "Photo Order / Missing" },
+  { value: "address", label: "Address Mismatch" },
+  { value: "description", label: "Description Text" },
+  { value: "mapCoordinates", label: "Map Pin Coordinates" },
+];
+
+const SITE_OPTIONS = [
+  { value: "all", label: "All Syndication Portals" },
+  { value: "zillow", label: "Zillow" },
+  { value: "realtor", label: "Realtor.com" },
+  { value: "homes", label: "Homes.com" },
+  { value: "sothebysRealty", label: "Sotheby's Realty" },
+  { value: "crescentSothebys", label: "Crescent Sotheby's" },
+  { value: "google", label: "Google" },
+];
 
 export function FilterBar({
   searchQuery,
@@ -45,33 +66,28 @@ export function FilterBar({
         </div>
 
         {/* Field Type Select */}
-        <select
-          value={selectedField}
-          onChange={(e) => onFieldChange(e.target.value)}
-          className="h-9 px-3 rounded-md bg-background border border-input text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-        >
-          <option value="all">All Mismatched Fields</option>
-          <option value="price">Price Mismatch</option>
-          <option value="photos">Photo Order / Missing</option>
-          <option value="address">Address Mismatch</option>
-          <option value="description">Description Text</option>
-          <option value="mapCoordinates">Map Pin Coordinates</option>
-        </select>
+        <div className="w-52">
+          <Combobox
+            options={FIELD_OPTIONS}
+            value={selectedField}
+            onChange={onFieldChange}
+            placeholder="Select field..."
+            searchPlaceholder="Search field..."
+            className="h-9 text-xs"
+          />
+        </div>
 
         {/* Syndication Site Select */}
-        <select
-          value={selectedSite}
-          onChange={(e) => onSiteChange(e.target.value)}
-          className="h-9 px-3 rounded-md bg-background border border-input text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-        >
-          <option value="all">All Syndication Portals</option>
-          <option value="zillow">Zillow</option>
-          <option value="realtor">Realtor.com</option>
-          <option value="homes">Homes.com</option>
-          <option value="sothebysRealty">Sotheby&apos;s Realty</option>
-          <option value="crescentSothebys">Crescent Sotheby&apos;s</option>
-          <option value="google">Google</option>
-        </select>
+        <div className="w-52">
+          <Combobox
+            options={SITE_OPTIONS}
+            value={selectedSite}
+            onChange={onSiteChange}
+            placeholder="Select portal..."
+            searchPlaceholder="Search portal..."
+            className="h-9 text-xs"
+          />
+        </div>
 
         <Button
           variant="ghost"

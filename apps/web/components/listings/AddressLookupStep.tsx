@@ -30,10 +30,10 @@ export function AddressLookupStep({ onSelectAddress }: AddressLookupStepProps) {
 
   const filtered = query.trim()
     ? MOCK_ADDRESS_SUGGESTIONS.filter(
-        (a) =>
-          a.street.toLowerCase().includes(query.toLowerCase()) ||
-          a.city.toLowerCase().includes(query.toLowerCase())
-      )
+      (a) =>
+        a.street.toLowerCase().includes(query.toLowerCase()) ||
+        a.city.toLowerCase().includes(query.toLowerCase())
+    )
     : MOCK_ADDRESS_SUGGESTIONS;
 
   return (
@@ -81,7 +81,7 @@ export function AddressLookupStep({ onSelectAddress }: AddressLookupStepProps) {
                   </div>
                 </div>
               </div>
-              <Button size="sm" variant="ghost" className="text-xs text-primary group-hover:bg-primary group-hover:text-primary-foreground">
+              <Button size="sm" variant="secondary" className="text-xs text-primary hover:bg-primary hover:text-primary-foreground">
                 Select &amp; Continue <Check className="size-3.5 ml-1" />
               </Button>
             </button>
