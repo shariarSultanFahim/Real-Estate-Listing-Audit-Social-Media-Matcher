@@ -53,27 +53,18 @@ repo-root/
 │       │   │   ├── layout.tsx           # sidebar/nav shell
 │       │   │   ├── page.tsx             # dashboard home / stats
 │       │   │   ├── listings/
-│       │   │   │   ├── components/
-│       │   │   │   │   ├── ListingsTable.tsx
-│       │   │   │   │   ├── DiscrepancyDetail.tsx
-│       │   │   │   │   ├── FilterBar.tsx
-│       │   │   │   │   └── ListingStatusBadge.tsx
 │       │   │   │   ├── page.tsx         # listing audit table
 │       │   │   │   └── [id]/page.tsx    # discrepancy detail view
 │       │   │   ├── social-matcher/
-│       │   │   │   ├── components/
-│       │   │   │   │   ├── MatchAgentTable.tsx
-│       │   │   │   │   ├── SocialCrossPostForm.tsx
-│       │   │   │   │   ├── SocialSettingsPanel.tsx
-│       │   │   │   │   └── MatchAgentItem.tsx
 │       │   │   │   └── page.tsx
 │       │   │   ├── agents/
-│       │   │   │   ├── components/
-│       │   │   │   │   ├── AgentsTable.tsx
-│       │   │   │   │   ├── AgentForm.tsx
-│       │   │   │   │   └── AgentDetail.tsx
 │       │   │   │   ├── page.tsx
 │       │   │   │   └── [id]/page.tsx
+│       │   │   ├── employees/
+│       │   │   │   ├── page.tsx         # employee table
+│       │   │   │   ├── new/page.tsx     # user creation
+│       │   │   │   └── [id]/page.tsx    # edit user
+│       │   │   ├── profile/page.tsx
 │       │   │   └── settings/page.tsx
 │       │   └── api/mock/...             # Next.js route handlers serving mock JSON (see Section 8)
 │       ├── components/                  # app-specific components (compose packages/ui)
@@ -209,10 +200,36 @@ MatchResult {
 }
 ```
 
-### 4.7 User (admin/staff login — static for now)
+### 4.7 Permission (enum) — granular, not role-based
+This app uses **per-user permissions**, not fixed roles. There are only two account tiers — `superAdmin` (implicitly has every permission, can manage employees) and `employee` (has exactly the permissions a super admin has granted them). Everything else is an explicit boolean permission on the user record.
+
 ```ts
-User { id: string, name: string, email: string, role: "admin" | "staff" }
+Permission =
+  | "listings:create"
+  | "listings:edit"
+  | "listings:delete"
+  | "discrepancies:resolve"
+  | "agents:create"
+  | "agents:edit"
+  | "agents:delete"
+  | "socialMatcher:use"
+  | "users:create"
+  | "users:edit"
 ```
+
+### 4.8 User (login + employee record)
+```ts
+User {
+  id: string
+  name: string
+  email: string
+  accountType: "superAdmin" | "employee"
+  permissions: Permission[]     // ignored/irrelevant for superAdmin (treated as all-true); source of truth for employees
+  createdAt: string (ISO date)
+  lastLoginAt?: string (ISO date)
+}
+```
+Note: `password` is never part of this shared schema — it's write-only, handled separately in create/edit forms and never returned from any API response.
 
 Zod-validate every form and every mock "API" response against these schemas so the shapes are enforced end to end even while data is fake.
 
@@ -276,6 +293,39 @@ This is the entry point that populates the app's own "source of truth" mirror (r
 - Show a banner note above the form (as in the reference): information is populated from public records where possible and must be verified before saving — reinforces that this is a starting point, not authoritative data.
 - On submit, create (or update) the listing via the mock API layer (Section 8) and redirect to `/listings/[id]`.
 
+### 5.10 `/profile`
+- Available to any logged-in user (super admin or employee).
+- Shows the current user's own info (name, email) in an RHF + Zod form; editable — user can update their name/email and change their password (current password + new password + confirm, validated with Zod).
+- Users **cannot** edit their own `accountType` or `permissions` here — that's admin-only (see 5.11/5.12). If the field is rendered at all for context, show it read-only.
+- On save, call a mock `useUpdateProfile()` mutation and show a success toast.
+
+### 5.11 `/employees` — Employee management (super admin only, or users with `users:edit`/`users:create`)
+- Data table of every user in the system: Name, Email, Account Type (`Super Admin` / `Employee`), a **Permissions** column rendering each granted permission as a small tag/badge list (e.g. "Add Listings", "Edit Agents"), Last Login.
+- Filters: by account type, by specific permission.
+- Row click → `/employees/[id]` (edit existing user: same form as creation, Section 5.12, pre-filled; password field becomes optional "leave blank to keep current password").
+- An "Add Employee" button, visible only to users who can create users (`users:create` or `superAdmin`), navigates to `/employees/new`.
+- Guard this whole route: if the logged-in user lacks `users:edit`/`users:create` and isn't `superAdmin`, redirect away (see 5.13) — don't just hide the nav link.
+
+### 5.12 `/employees/new` (and `/employees/[id]` for edit) — User Creation / Edit
+- RHF + Zod form (super admin / permitted users only):
+  - Name, Email, Password (required on create; optional on edit — "leave blank to keep current password"), Confirm Password.
+  - **Permissions** section: checkboxes grouped by resource, matching the `Permission` enum (Section 4.7):
+    - **Listings:** Add new properties, Edit existing properties, Delete properties
+    - **Discrepancies:** Resolve/manage discrepancies
+    - **Agents:** Add new agent, Edit existing agent, Delete agent
+    - **Social Matcher:** Use social media matcher
+    - **Users:** Add new users, Edit existing users
+  - No role dropdown — it's a flat list of independent checkboxes; the resulting selections become the `permissions: Permission[]` array on submit.
+- On submit (create), call a mock `useCreateEmployee()` mutation, then redirect to `/employees`. On edit, `useUpdateEmployee(id)`.
+
+### 5.13 Permission-Gating Pattern (frontend)
+Since access is per-user rather than per-role, implement this consistently rather than one-off per page:
+- A mock "current user" (with `accountType` + `permissions`) is held in a small context/provider (`AuthProvider`), seeded from the mock login in Section 5.1 — pick which mock user logs in based on the login form's email, so QA can test both a super admin and a limited employee account against the same seed data.
+- A `usePermission(permission: Permission): boolean` hook — always `true` if `accountType === "superAdmin"`, otherwise checks membership in `permissions[]`.
+- Nav items (in the dashboard layout sidebar) are conditionally rendered based on `usePermission(...)` — e.g. hide "Employees" from the sidebar entirely if the user has neither `users:create` nor `users:edit`.
+- Page-level guards: wrap gated pages/route segments in a small `<RequirePermission permission="...">` component that redirects to `/` (or shows a "Not authorized" state) if the check fails — this covers users who navigate to a URL directly rather than via the nav.
+- Action-level guards: buttons like "Add Listing," "Delete Agent," "Add Employee" are disabled/hidden per the same hook, not just the page as a whole.
+
 ---
 
 ## 6. Client-Side Matching Logic (mock, but real logic)
@@ -303,6 +353,7 @@ Create realistic seed data in `apps/web/lib/mock-data/`:
 - **Photo arrays** with at least one listing showing an out-of-order/missing-photo discrepancy.
 - **~20–25 sample agents** covering all three preference types (`all`, `byRequest`, `never`, `areaAndPrice`) and overlapping/non-overlapping service areas, so the social matcher demo returns varied, non-trivial result sets for different test cities.
 - Data should be internally consistent (agent IDs on listings must exist in the agents dataset, etc.) and pass the Zod schemas from Section 4.
+- **Users:** at least one `superAdmin` mock user and 4–6 `employee` mock users with varied, deliberately partial `permissions[]` sets (e.g. one with only `listings:create`/`listings:edit`, one with only `agents:*`, one with `users:*` as well) so the permission-gating pattern (Section 5.13) is actually demoable — logging in as different employees should visibly change what's in the sidebar and what's accessible.
 
 ---
 
@@ -333,6 +384,9 @@ This means Phase 2 becomes: stand up the real Express endpoints at the same path
 - [ ] Client can view the listing audit table, filter to "only issues," open a listing, and see exactly which fields/sites are wrong.
 - [ ] Client can type an address's city + price into the social matcher and get back a correct, explainable list of matching agents.
 - [ ] Client can view/add/edit agents and their cross-posting preferences.
+- [ ] Any logged-in user can view/edit their own profile (name, email, password) at `/profile`.
+- [ ] A super admin (or permitted employee) can view the employee table, see each user's permission tags, create a new employee with a specific set of permissions, and edit an existing employee's permissions.
+- [ ] Logging in as different mock employees visibly changes sidebar nav and page access according to their assigned permissions — this is the core thing to demo for this feature.
 - [ ] All forms validate properly (Zod) and show sensible errors.
 - [ ] All data is obviously "real-looking" (good mock data) even though nothing is live yet.
 - [ ] Monorepo builds cleanly with `turbo build`; `apps/api` skeleton exists but is untouched otherwise.

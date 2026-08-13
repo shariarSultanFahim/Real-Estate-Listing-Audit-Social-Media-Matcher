@@ -30,7 +30,8 @@
 Mirrors the Zod schemas already defined in `packages/validation` (Section 4 of the frontend spec) — do not invent new shapes, just persist them.
 
 Tables:
-- `users` (id, name, email, password_hash, role)
+- `users` (id, name, email, password_hash, account_type enum: `superAdmin`/`employee`, created_at, last_login_at)
+- `user_permissions` (user_id FK, permission enum — one row per granted permission; irrelevant/unused for `superAdmin` rows since they implicitly have everything)
 - `listings` (mirrors `Listing`: mls_number, address fields, price, status, listing_agent_id FK, description, legal_description, lat, lng, features[], last_updated_at)
 - `listing_photos` (listing_id FK, url, order)
 - `agents` (mirrors `Agent`: name, email, phone, office_state, service_areas[], facebook_page_url, instagram_page_url, cross_post_preference, price_range_min, price_range_max)
@@ -96,7 +97,7 @@ Replace the frontend's mock login with real auth. Required capabilities:
 - **Email verification** — new users receive a verification link (`POST /api/auth/verify-email`); unverified accounts can be restricted from sensitive actions until confirmed.
 - **Logout** — `POST /api/auth/logout`, invalidates the refresh token.
 - **Session check** — `GET /api/auth/me`.
-- **Role-Based Access Control (RBAC)** — roles: `admin` (manage agents, import listings, resolve discrepancies, manage users) vs `staff` (view + resolve discrepancies, no agent/user management). Enforce role checks via reusable middleware (e.g. `requireRole("admin")`) in every route handler that needs it, not just at the UI layer.
+- **Role-Based Access Control (RBAC) — actually per-user permissions.** There are no fixed roles beyond the `accountType` split. `superAdmin` implicitly passes every permission check. `employee` accounts are authorized purely by the specific `Permission` values (Section 4.7 of the frontend spec: `listings:create`, `listings:edit`, `listings:delete`, `discrepancies:resolve`, `agents:create`, `agents:edit`, `agents:delete`, `socialMatcher:use`, `users:create`, `users:edit`) attached to that user in `user_permissions`. Enforce with reusable middleware, e.g. `requirePermission("agents:create")`, applied per-route — never rely on the frontend hiding a button as the only guard. Only `superAdmin` and users with `users:create`/`users:edit` may call the employee-management endpoints in Section 7.
 - Outbound email (verification, password reset) needs a transactional email provider — TBD with client/dev lead; keep the sending logic behind a small `EmailService` interface so the provider can be swapped.
 
 ---
@@ -114,6 +115,11 @@ Replace the frontend's mock login with real auth. Required capabilities:
 | POST | `/api/social-matcher` | body: `{ city, state?, price }` → returns `MatchResult[]`, running the **same matching algorithm** built in the frontend spec Section 6, now against real `agents` table data |
 | GET | `/api/settings/sites` / PATCH | enabled syndication sites |
 | GET | `/api/dashboard/stats` | counts for the dashboard home cards |
+| GET | `/api/users/me` / PATCH | current user's own profile (name, email, password) |
+| GET | `/api/users` | list all users (requires `users:edit` or `superAdmin`) — includes each user's `permissions[]` for the Employees table |
+| POST | `/api/users` | create employee + assign permissions (requires `users:create` or `superAdmin`) |
+| GET | `/api/users/:id` / PATCH | view/edit a specific employee's info + permissions (requires `users:edit` or `superAdmin`) |
+| DELETE | `/api/users/:id` | deactivate/remove an employee (requires `superAdmin`) |
 | GET | `/api/health` | uptime check |
 
 All request bodies and responses validated against the shared `packages/validation` Zod schemas — the same schemas the frontend already uses, so contracts can't silently drift.
@@ -143,5 +149,7 @@ All request bodies and responses validated against the shared `packages/validati
 - [ ] Comparison engine runs on schedule and produces accurate, low-noise discrepancies (spot-check against a handful of real listings manually).
 - [ ] Social matcher returns correct results against the real agent dataset.
 - [ ] Real auth in place; mock login fully removed.
+- [ ] Every `Permission`-gated endpoint actually enforces it server-side (verify by calling with a token that lacks the permission and confirming a 403 — don't just trust the frontend hiding the button).
+- [ ] A super admin can create an employee with a specific permission set via the real API, and that employee's frontend experience (nav, page access) matches exactly what was granted.
 - [ ] Frontend fully swapped to the real API with no mock code paths remaining.
 - [ ] Deployed to client's domain/hosting and verified end-to-end by the client.

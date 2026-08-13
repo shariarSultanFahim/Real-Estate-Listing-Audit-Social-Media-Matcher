@@ -8,8 +8,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { ShieldCheck, Building2, Lock, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
+import { useAuth } from "@/components/auth/AuthProvider";
+
 export default function LoginPage() {
   const router = useRouter();
+  const { loginByEmail } = useAuth();
   const [email, setEmail] = useState("admin@cresentsothebys.com");
   const [password, setPassword] = useState("password123");
   const [isLoading, setIsLoading] = useState(false);
@@ -18,10 +21,11 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setTimeout(() => {
+      const user = loginByEmail(email);
       setIsLoading(false);
-      toast.success("Welcome back! Signed in as Brokerage Admin");
+      toast.success(`Welcome back, ${user.name}! Signed in as ${user.accountType === "superAdmin" ? "Super Admin" : "Employee"}`);
       router.push("/");
-    }, 600);
+    }, 400);
   };
 
   return (

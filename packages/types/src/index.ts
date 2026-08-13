@@ -6,7 +6,8 @@ import {
   ListingStatusEnum,
   CrossPostPreferenceEnum,
   OfficeStateEnum,
-  UserRoleEnum,
+  PermissionEnum,
+  AccountTypeEnum,
   AddressSchema,
   MapCoordinatesSchema,
   PhotoSchema,
@@ -25,7 +26,8 @@ export type DiscrepancyStatus = z.infer<typeof DiscrepancyStatusEnum>;
 export type ListingStatus = z.infer<typeof ListingStatusEnum>;
 export type CrossPostPreference = z.infer<typeof CrossPostPreferenceEnum>;
 export type OfficeState = z.infer<typeof OfficeStateEnum>;
-export type UserRole = z.infer<typeof UserRoleEnum>;
+export type Permission = z.infer<typeof PermissionEnum>;
+export type AccountType = z.infer<typeof AccountTypeEnum>;
 
 export type Address = z.infer<typeof AddressSchema>;
 export type MapCoordinates = z.infer<typeof MapCoordinatesSchema>;

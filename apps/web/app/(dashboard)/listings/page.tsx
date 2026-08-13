@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, CheckCircle, Plus } from "lucide-react";
 import Link from "next/link";
+import { RequirePermission } from "@/components/auth/RequirePermission";
 
 export default function ListingsAuditPage() {
   const { data: listings = [], isLoading: isLoadingListings } = useListings();
@@ -99,12 +100,14 @@ export default function ListingsAuditPage() {
             </Button>
           </div>
 
-          <Link href="/listings/new">
-            <Button size="sm" className="gap-1.5 h-9">
-              <Plus className="size-3.5" />
-              Add Listing
-            </Button>
-          </Link>
+          <RequirePermission permission="listings:create" fallback={null}>
+            <Link href="/listings/new">
+              <Button size="sm" className="gap-1.5 h-9">
+                <Plus className="size-3.5" />
+                Add Listing
+              </Button>
+            </Link>
+          </RequirePermission>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import { Listing, Agent, Discrepancy, MatchResult } from "@real-estate/types";
-import { ListingSchema, AgentSchema, DiscrepancySchema, MatchResultSchema } from "@real-estate/validation";
+import { Listing, Agent, Discrepancy, MatchResult, User } from "@real-estate/types";
+import { ListingSchema, AgentSchema, DiscrepancySchema, MatchResultSchema, UserSchema } from "@real-estate/validation";
 import { z } from "zod";
 
 export function useListings() {
@@ -64,6 +64,68 @@ export function useMatchAgents() {
     mutationFn: async (payload) => {
       const res = await apiClient.post("/social-matcher", payload);
       return z.array(MatchResultSchema).parse(res.data);
+    },
+  });
+}
+
+export function useUsers() {
+  return useQuery<User[]>({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const res = await apiClient.get("/users");
+      return z.array(UserSchema).parse(res.data);
+    },
+  });
+}
+
+export function useUser(id: string) {
+  return useQuery<User>({
+    queryKey: ["users", id],
+    queryFn: async () => {
+      const res = await apiClient.get(`/users/${id}`);
+      return UserSchema.parse(res.data);
+    },
+    enabled: !!id,
+  });
+}
+
+export function useCreateEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: Partial<User> & { password?: string }) => {
+      const res = await apiClient.post("/users", payload);
+      return UserSchema.parse(res.data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+}
+
+export function useUpdateEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<User> & { password?: string } }) => {
+      const res = await apiClient.patch(`/users/${id}`, data);
+      return UserSchema.parse(res.data);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["users", variables.id] });
+    },
+  });
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { name?: string; email?: string; password?: string } }) => {
+      const res = await apiClient.patch(`/users/${id}`, data);
+      return UserSchema.parse(res.data);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["users", variables.id] });
     },
   });
 }

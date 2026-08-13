@@ -11,6 +11,7 @@ import {
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { DashboardBreadcrumb } from "@/components/dashboard/DashboardBreadcrumb";
 import { AlertsPopover } from "@/components/dashboard/AlertsPopover";
+import { UserMenu } from "@/components/dashboard/UserMenu";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -35,6 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </span>
               <AlertsPopover />
               <AnimatedThemeToggler className="flex size-8 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors" />
+              <UserMenu />
             </div>
           </div>
         </header>

@@ -28,7 +28,20 @@ export const CrossPostPreferenceEnum = z.enum(["all", "byRequest", "never", "are
 
 export const OfficeStateEnum = z.enum(["LA", "MS", "AL"]);
 
-export const UserRoleEnum = z.enum(["admin", "staff"]);
+export const PermissionEnum = z.enum([
+  "listings:create",
+  "listings:edit",
+  "listings:delete",
+  "discrepancies:resolve",
+  "agents:create",
+  "agents:edit",
+  "agents:delete",
+  "socialMatcher:use",
+  "users:create",
+  "users:edit",
+]);
+
+export const AccountTypeEnum = z.enum(["superAdmin", "employee"]);
 
 export const AddressSchema = z.object({
   street: z.string().min(1, "Street is required"),
@@ -137,7 +150,10 @@ export const MatchResultSchema = z.object({
 
 export const UserSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  email: z.string().email(),
-  role: UserRoleEnum,
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  accountType: AccountTypeEnum,
+  permissions: z.array(PermissionEnum),
+  createdAt: z.string(),
+  lastLoginAt: z.string().optional(),
 });

@@ -12,7 +12,11 @@ import {
   LayoutDashboard,
   PlusCircle,
   ListFilter,
+  UserCheck,
+  User,
 } from "lucide-react"
+import { usePermission } from "@/components/auth/AuthProvider"
+import { Permission } from "@real-estate/types"
 
 import {
   Sidebar,
@@ -27,7 +31,19 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-const data = {
+interface NavItem {
+  title: string
+  url: string
+  icon: any
+  permission?: Permission
+}
+
+interface NavGroup {
+  title: string
+  items: NavItem[]
+}
+
+const data: { info: { title: string; subtitle: string }; navMain: NavGroup[] } = {
   info: {
     title: "Crescent Sotheby's",
     subtitle: "Listing & Social Matcher",
@@ -55,11 +71,13 @@ const data = {
           title: "Add New Listing",
           url: "/listings/new",
           icon: PlusCircle,
+          permission: "listings:create",
         },
         {
           title: "Social Matcher",
           url: "/social-matcher",
           icon: Share2,
+          permission: "socialMatcher:use",
         },
       ],
     },
@@ -70,6 +88,17 @@ const data = {
           title: "Agents Directory",
           url: "/agents",
           icon: Users,
+        },
+        {
+          title: "Employees & Permissions",
+          url: "/employees",
+          icon: UserCheck,
+          permission: "users:edit",
+        },
+        {
+          title: "My Profile",
+          url: "/profile",
+          icon: User,
         },
         {
           title: "Settings",
@@ -84,11 +113,24 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const { isMobile, setOpenMobile } = useSidebar()
+  
+  const canCreateListings = usePermission("listings:create")
+  const canUseSocial = usePermission("socialMatcher:use")
+  const canEditUsers = usePermission("users:edit")
+  const canCreateUsers = usePermission("users:create")
 
   const handleNavClick = () => {
     if (isMobile) {
       setOpenMobile(false)
     }
+  }
+
+  const isPermitted = (perm?: Permission) => {
+    if (!perm) return true
+    if (perm === "listings:create") return canCreateListings
+    if (perm === "socialMatcher:use") return canUseSocial
+    if (perm === "users:edit") return canEditUsers || canCreateUsers
+    return true
   }
 
   return (
@@ -113,39 +155,44 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {data.navMain.map((group) => (
-          <SidebarGroup key={group.title}>
-            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const isActive =
-                    item.url === "/"
-                      ? pathname === "/"
-                      : item.url === "/listings"
-                        ? pathname === "/listings" || (pathname.startsWith("/listings/") && pathname !== "/listings/new")
-                        : pathname === item.url || pathname.startsWith(item.url + "/")
+        {data.navMain.map((group) => {
+          const visibleItems = group.items.filter((item) => isPermitted(item.permission))
+          if (visibleItems.length === 0) return null
 
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        onClick={handleNavClick}
-                        className="data-[active=true]:bg-accent data-[active=true]:text-accent-foreground"
-                      >
-                        <Link href={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+          return (
+            <SidebarGroup key={group.title}>
+              <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {visibleItems.map((item) => {
+                    const isActive =
+                      item.url === "/"
+                        ? pathname === "/"
+                        : item.url === "/listings"
+                          ? pathname === "/listings" || (pathname.startsWith("/listings/") && pathname !== "/listings/new")
+                          : pathname === item.url || pathname.startsWith(item.url + "/")
+
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive}
+                          onClick={handleNavClick}
+                          className="data-[active=true]:bg-accent data-[active=true]:text-accent-foreground"
+                        >
+                          <Link href={item.url}>
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )
+        })}
       </SidebarContent>
     </Sidebar>
   )

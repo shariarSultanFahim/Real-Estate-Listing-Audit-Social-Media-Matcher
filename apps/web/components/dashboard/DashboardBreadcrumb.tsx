@@ -18,6 +18,8 @@ const ROUTE_LABELS: Record<string, string> = {
   edit: "Edit Essentials",
   "social-matcher": "Social Cross-Posting Matcher",
   agents: "Agent Directory",
+  employees: "Employee Management",
+  profile: "My Profile",
   settings: "Brokerage Settings",
 };
 
