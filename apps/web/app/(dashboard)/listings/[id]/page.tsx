@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Discrepancy } from "@real-estate/types";
 import { ArrowLeft, Edit3, ShieldAlert, CheckCircle2, User, MapPin, Building } from "lucide-react";
 import Link from "next/link";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 export default function ListingDetailAuditPage({
   params,
@@ -45,34 +46,32 @@ export default function ListingDetailAuditPage({
 
   return (
     <div className="space-y-8">
-      {/* Top Header & Breadcrumb Navigation */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
-        <div className="space-y-1">
-          <Link href="/listings" className="text-xs text-primary hover:underline inline-flex items-center gap-1 mb-2">
-            <ArrowLeft className="size-3.5" /> Back to Listings Audit
-          </Link>
+      {/* Top Header & Navigation */}
+      <PageHeader
+        showBackButton
+        backHref="/listings"
+        title={
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
-              {listing.address.street}
-            </h1>
+            <span>{listing.address.street}</span>
             <Badge variant="outline" className="font-mono text-xs">
               {listing.mlsNumber}
             </Badge>
           </div>
-          <p className="text-xs text-muted-foreground flex items-center gap-2">
+        }
+        description={
+          <span className="flex items-center gap-2">
             <MapPin className="size-3.5 text-muted-foreground" />
             {listing.address.city}, {listing.address.state} {listing.address.zip}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
+          </span>
+        }
+        actions={
           <Link href={`/listings/${id}/edit`}>
             <Button variant="outline" className="text-xs gap-1.5">
               <Edit3 className="size-3.5" /> Edit Listing Essentials
             </Button>
           </Link>
-        </div>
-      </div>
+        }
+      />
 
       {/* Property Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -9,6 +9,7 @@ import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
 
 import { RequirePermission } from "@/components/auth/RequirePermission";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 export default function NewListingPage() {
   const router = useRouter();
@@ -39,14 +40,12 @@ export default function NewListingPage() {
   return (
     <RequirePermission permission="listings:create">
       <div className="space-y-6">
-        <div className="border-b border-border pb-4">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            Add New Property Listing
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Step {step} of 2 — {step === 1 ? "Address Autocomplete Lookup" : "Listing Essentials Form"}
-          </p>
-        </div>
+        <PageHeader
+          title="Add New Property Listing"
+          description={`Step ${step} of 2 — ${step === 1 ? "Address Autocomplete Lookup" : "Listing Essentials Form"}`}
+          showBackButton={step === 2}
+          onBack={() => setStep(1)}
+        />
 
         {step === 1 && (
           <AddressLookupStep onSelectAddress={handleSelectAddress} />

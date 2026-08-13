@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useUpdateProfile } from "@/hooks/useRealEstateApi";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FormLabel } from "@/components/ui/form-label";
 import { Badge } from "@/components/ui/badge";
-import { User as UserIcon, Mail, Lock, Shield, Check, Save } from "lucide-react";
+import { User as UserIcon, Lock, Shield, Save } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 export default function ProfilePage() {
   const { currentUser, setCurrentUser } = useAuth();
@@ -17,7 +18,6 @@ export default function ProfilePage() {
 
   const [name, setName] = useState(currentUser?.name || "");
   const [email, setEmail] = useState(currentUser?.email || "");
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -31,10 +31,7 @@ export default function ProfilePage() {
     if (!name.trim()) newErrors.name = "Name is required";
     if (!email.trim()) newErrors.email = "Email is required";
 
-    if (newPassword || confirmPassword || currentPassword) {
-      if (!currentPassword) {
-        newErrors.currentPassword = "Current password is required to set new password";
-      }
+    if (newPassword || confirmPassword) {
       if (newPassword.length < 6) {
         newErrors.newPassword = "New password must be at least 6 characters";
       }
@@ -66,7 +63,6 @@ export default function ProfilePage() {
             name: updatedUser.name,
             email: updatedUser.email,
           });
-          setCurrentPassword("");
           setNewPassword("");
           setConfirmPassword("");
           toast.success("Profile updated successfully!");
@@ -79,15 +75,11 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">
-          My Account Profile
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          Manage your personal account credentials and security settings
-        </p>
-      </div>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <PageHeader
+        title="My Account Profile"
+        description="Manage your personal account credentials and security settings"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card className="p-6 space-y-6 border-border bg-card">
@@ -160,23 +152,7 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            <div className="space-y-3 max-w-md">
-              <div className="space-y-1.5">
-                <FormLabel htmlFor="currentPassword">Current Password</FormLabel>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => {
-                    setCurrentPassword(e.target.value);
-                    if (errors.currentPassword) setErrors((prev) => ({ ...prev, currentPassword: "" }));
-                  }}
-                  placeholder="Enter current password"
-                  className={`bg-background border-input text-sm ${errors.currentPassword ? "border-red-500 ring-1 ring-red-500" : ""}`}
-                />
-                {errors.currentPassword && <p className="text-red-500 text-xs mt-1">{errors.currentPassword}</p>}
-              </div>
-
+            <div className="space-y-3 w-full">
               <div className="space-y-1.5">
                 <FormLabel htmlFor="newPassword">New Password</FormLabel>
                 <Input

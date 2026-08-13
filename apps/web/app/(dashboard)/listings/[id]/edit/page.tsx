@@ -6,6 +6,7 @@ import { useListing, useAgents } from "@/hooks/useRealEstateApi";
 import { ListingEssentialsForm } from "@/components/listings/ListingEssentialsForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 export default function EditListingPage({
   params,
@@ -32,14 +33,12 @@ export default function EditListingPage({
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-border pb-4">
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">
-          Edit Listing Essentials
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          {listing.address.street}, {listing.address.city} ({listing.mlsNumber})
-        </p>
-      </div>
+      <PageHeader
+        title="Edit Listing Essentials"
+        description={`${listing.address.street}, ${listing.address.city} (${listing.mlsNumber})`}
+        showBackButton
+        backHref={`/listings/${id}`}
+      />
 
       <ListingEssentialsForm
         initialValues={listing}

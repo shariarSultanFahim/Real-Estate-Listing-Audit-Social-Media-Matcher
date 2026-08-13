@@ -12,6 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Save, ShieldCheck, UserPlus, CheckSquare, Square } from "lucide-react";
 import { Permission, AccountType } from "@real-estate/types";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldLabel, FieldContent, FieldTitle, FieldDescription } from "@/components/ui/field";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 interface PermissionGroup {
   resource: string;
@@ -136,20 +139,14 @@ export default function NewEmployeePage() {
 
   return (
     <RequirePermission permissions={["users:create", "users:edit"]}>
-      <div className="max-w-4xl space-y-6">
-        <div className="flex items-center gap-3 border-b border-border pb-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push("/employees")} className="size-8">
-            <ArrowLeft className="size-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
-              <UserPlus className="size-6 text-primary" /> Create New Employee
-            </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Set up account credentials and configure explicit feature permissions
-            </p>
-          </div>
-        </div>
+      <div className="max-w-5xl mx-auto space-y-6">
+        <PageHeader
+          icon={<UserPlus className="size-6 text-primary" />}
+          title="Create New Employee"
+          description="Set up account credentials and configure explicit feature permissions"
+          showBackButton
+          backHref="/employees"
+        />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card className="p-6 space-y-6">
@@ -296,26 +293,20 @@ export default function NewEmployeePage() {
                           {group.items.map((item) => {
                             const isChecked = permissions.includes(item.key);
                             return (
-                              <label
-                                key={item.key}
-                                onClick={() => togglePermission(item.key)}
-                                className={`flex items-start gap-3 p-3 rounded-md border text-xs cursor-pointer transition-colors ${
-                                  isChecked
-                                    ? "bg-primary/10 border-primary text-foreground"
-                                    : "bg-background border-border text-muted-foreground hover:border-border/80 hover:text-foreground"
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={() => togglePermission(item.key)}
-                                  className="mt-0.5 size-4 accent-primary rounded"
-                                />
-                                <div>
-                                  <div className="font-semibold text-foreground">{item.label}</div>
-                                  <div className="text-[11px] text-muted-foreground mt-0.5">{item.description}</div>
-                                </div>
-                              </label>
+                              <FieldLabel key={item.key} className="cursor-pointer font-normal m-0 p-0 border-0 bg-transparent">
+                                <Field orientation="horizontal" className={`p-3 rounded-md border text-xs transition-colors ${isChecked ? "bg-primary/10 border-primary text-foreground" : "bg-background border-border text-muted-foreground hover:border-border/80 hover:text-foreground"}`}>
+                                  <Checkbox
+                                    id={`perm-${item.key}`}
+                                    checked={isChecked}
+                                    onCheckedChange={() => togglePermission(item.key)}
+                                    className="mt-0.5"
+                                  />
+                                  <FieldContent>
+                                    <FieldTitle className="font-semibold text-foreground text-xs">{item.label}</FieldTitle>
+                                    <FieldDescription className="text-[11px] text-muted-foreground mt-0.5">{item.description}</FieldDescription>
+                                  </FieldContent>
+                                </Field>
+                              </FieldLabel>
                             );
                           })}
                         </div>

@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, UserPlus, Shield, UserCheck, CheckCircle, Clock } from "lucide-react";
 import { Permission } from "@real-estate/types";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   "listings:create": "Add Listing",
@@ -47,22 +48,18 @@ export default function EmployeesPage() {
   return (
     <RequirePermission permissions={["users:edit", "users:create"]}>
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
-              <UserCheck className="size-6 text-primary" /> Employee &amp; User Directory
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1">
-              Manage system employees, account privileges, and granular feature permissions
-            </p>
-          </div>
-
-          {canCreateUsers && (
-            <Button onClick={() => router.push("/employees/new")} className="text-xs gap-1.5 self-start md:self-auto">
-              <UserPlus className="size-4" /> Add Employee
-            </Button>
-          )}
-        </div>
+        <PageHeader
+          icon={<UserCheck className="size-6 text-primary" />}
+          title="Employee & User Directory"
+          description="Manage system employees, account privileges, and granular feature permissions"
+          actions={
+            canCreateUsers ? (
+              <Button onClick={() => router.push("/employees/new")} className="text-xs gap-1.5">
+                <UserPlus className="size-4" /> Add Employee
+              </Button>
+            ) : undefined
+          }
+        />
 
         {/* Filter bar */}
         <Card className="p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">

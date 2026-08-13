@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Globe, RefreshCcw, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 const SYNDICATION_SITES = [
   { id: "realtor", name: "Realtor.com", status: "Active", type: "National Portal" },
@@ -37,15 +38,11 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="border-b border-border pb-4">
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">
-          Syndication Settings &amp; Portal Controls
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          Toggle active syndication endpoints monitored by the discrepancy detection engine.
-        </p>
-      </div>
+    <div className="space-y-8 max-w-5xl mx-auto">
+      <PageHeader
+        title="Syndication Settings & Portal Controls"
+        description="Toggle active syndication endpoints monitored by the discrepancy detection engine."
+      />
 
       <Card className="p-6 space-y-6">
         <div className="flex items-center justify-between border-b border-border pb-4">

@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, ArrowRight, Plus } from "lucide-react";
 import Link from "next/link";
 
+import { PageHeader } from "@/components/dashboard/PageHeader";
+
 export default function DashboardPage() {
   const { data: listings = [], isLoading: isLoadingListings } = useListings();
   const { data: discrepancies = [], isLoading: isLoadingDiscrepancies } = useDiscrepancies();
@@ -36,29 +38,25 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-border pb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            Listing Audit &amp; Cross-Post Control Center
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Read-only discrepancy detection across Realtor.com, Zillow, Homes.com &amp; Sotheby&apos;s portals.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link href="/listings/new">
-            <Button className="gap-2 shadow-md">
-              <Plus className="size-4" />
-              Add Listing
-            </Button>
-          </Link>
-          <Link href="/listings">
-            <Button variant="outline" className="gap-2">
-              View Audit Table ({openCount} Issues)
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title="Listing Audit & Cross-Post Control Center"
+        description="Read-only discrepancy detection across Realtor.com, Zillow, Homes.com & Sotheby's portals."
+        actions={
+          <>
+            <Link href="/listings/new">
+              <Button className="gap-2 shadow-md">
+                <Plus className="size-4" />
+                Add Listing
+              </Button>
+            </Link>
+            <Link href="/listings">
+              <Button variant="outline" className="gap-2">
+                View Audit Table ({openCount} Issues)
+              </Button>
+            </Link>
+          </>
+        }
+      />
 
       {/* Metric Cards */}
       <StatCards

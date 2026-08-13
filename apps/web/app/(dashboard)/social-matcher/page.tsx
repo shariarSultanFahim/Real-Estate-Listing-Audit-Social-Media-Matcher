@@ -7,6 +7,7 @@ import { MatchAgentTable } from "./components/MatchAgentTable";
 import { MatchResult } from "@real-estate/types";
 
 import { RequirePermission } from "@/components/auth/RequirePermission";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 export default function SocialMatcherPage() {
   const matchAgents = useMatchAgents();
@@ -30,14 +31,10 @@ export default function SocialMatcherPage() {
     <RequirePermission permission="socialMatcher:use">
       <div className="space-y-8 max-w-5xl mx-auto">
         {/* Header */}
-        <div className="border-b border-border pb-4">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            Social Media Cross-Posting Matcher
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Automating agent selection for social media cross-posting based on saved preferences, service areas &amp; price thresholds.
-          </p>
-        </div>
+        <PageHeader
+          title="Social Media Cross-Posting Matcher"
+          description="Automating agent selection for social media cross-posting based on saved preferences, service areas & price thresholds."
+        />
 
         {/* Search Form */}
         <SocialCrossPostForm onSearch={handleSearch} isLoading={matchAgents.isPending} />

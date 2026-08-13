@@ -15,6 +15,7 @@ import Link from "next/link";
 
 import { Combobox } from "@/components/ui/combobox";
 import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 const STATE_OPTIONS = [
   { value: "all", label: "All States (LA / MS / AL)" },
@@ -51,25 +52,21 @@ export default function AgentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            Brokerage Agent Directory
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Managing standing cross-posting preferences &amp; service area coverage across ~150 agents.
-          </p>
-        </div>
-        <Button
-          onClick={() => {
-            setEditingAgent(null);
-            setIsFormOpen(true);
-          }}
-          className="text-xs gap-1.5"
-        >
-          <Plus className="size-3.5" /> Enroll Agent
-        </Button>
-      </div>
+      <PageHeader
+        title="Brokerage Agent Directory"
+        description="Managing standing cross-posting preferences & service area coverage across ~150 agents."
+        actions={
+          <Button
+            onClick={() => {
+              setEditingAgent(null);
+              setIsFormOpen(true);
+            }}
+            className="text-xs gap-1.5"
+          >
+            <Plus className="size-3.5" /> Enroll Agent
+          </Button>
+        }
+      />
 
       {/* Filter Bar */}
       <Card className="p-3 flex flex-col md:flex-row gap-4 items-center justify-between">
