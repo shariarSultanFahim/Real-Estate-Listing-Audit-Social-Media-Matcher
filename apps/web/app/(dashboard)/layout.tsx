@@ -1,5 +1,8 @@
 "use client";
-import { AppSidebar } from "@/components/app-sidebar"
+
+import * as React from "react";
+import { usePathname } from "next/navigation";
+import { AppSidebar } from "@/components/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,28 +10,26 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { usePathname } from "next/navigation";
-
+} from "@/components/ui/sidebar";
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ROUTE_NAME_MAP: Record<string, string> = {
   "": "Overview Dashboard",
-  listings: "Listing Audit Table",
-  new: "Add New Property Listing",
+  listings: "Listings Table",
+  new: "Add New Item",
   "social-matcher": "Social Cross-Posting Matcher",
   agents: "Agent Directory",
-  settings: "Syndication Settings",
+  settings: "Settings",
 };
 
-
-export default function Page() {
-
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const pathSegments = pathname.split("/").filter(Boolean);
   const currentSegment = pathSegments[pathSegments.length - 1] || "";
@@ -38,8 +39,8 @@ export default function Page() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
             <Separator
               orientation="vertical"
@@ -48,27 +49,35 @@ export default function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Build Your Application
+                  <BreadcrumbLink href="/" className="font-medium text-foreground">
+                    Crescent Sotheby&apos;s
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                  <BreadcrumbPage className="font-semibold">
+                    {currentPageTitle}
+                  </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
+
+          <div className="flex items-center gap-3">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse hidden sm:inline-block" />
+            <span className="text-xs font-mono text-muted-foreground uppercase tracking-widest hidden md:inline-block">
+              700 Listings Monitored
+            </span>
+            <Button variant="outline" size="sm" className="text-xs">
+              <Bell className="size-3.5 mr-1" />
+              Alerts (5)
+            </Button>
           </div>
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-        </div>
+        </header>
+        <main className="flex flex-1 flex-col gap-4 p-4 pt-4">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

@@ -115,7 +115,7 @@ export default function DashboardPage() {
                 </div>
 
                 <Link href={`/listings/${disc.listingId}`}>
-                  <Button size="sm" variant="glass" className="text-xs">
+                  <Button size="sm" className="text-xs">
                     Inspect Discrepancy
                   </Button>
                 </Link>
