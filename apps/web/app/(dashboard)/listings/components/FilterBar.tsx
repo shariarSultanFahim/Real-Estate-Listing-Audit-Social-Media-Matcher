@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Search, Filter, RefreshCcw } from "lucide-react";
 
 import { Combobox } from "@/components/ui/combobox";
+import { Card } from "@/components/ui/card";
 
 interface FilterBarProps {
   searchQuery: string;
@@ -45,7 +46,7 @@ export function FilterBar({
   onReset,
 }: FilterBarProps) {
   return (
-    <div className="p-4 rounded-xl bg-card border border-border flex flex-col md:flex-row gap-4 items-center justify-between">
+    <Card className="p-3 flex flex-col md:flex-row gap-4 items-center justify-between">
       {/* Search Input */}
       <div className="relative w-full md:w-80">
         <Search className="size-4 text-muted-foreground absolute left-3 top-2.5" />
@@ -99,6 +100,6 @@ export function FilterBar({
           Reset
         </Button>
       </div>
-    </div>
+    </Card>
   );
 }

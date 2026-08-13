@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 
 import { Combobox } from "@/components/ui/combobox";
+import { Card } from "@/components/ui/card";
 
 const STATE_OPTIONS = [
   { value: "all", label: "All States (LA / MS / AL)" },
@@ -71,7 +72,7 @@ export default function AgentsPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="p-4 rounded-xl bg-card border border-border flex flex-col md:flex-row gap-4 items-center justify-between">
+      <Card className="p-3 flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative w-full md:w-80">
           <Search className="size-4 text-muted-foreground absolute left-3 top-2.5" />
           <Input
@@ -96,7 +97,7 @@ export default function AgentsPage() {
             />
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Agents Table */}
       {isLoading ? (

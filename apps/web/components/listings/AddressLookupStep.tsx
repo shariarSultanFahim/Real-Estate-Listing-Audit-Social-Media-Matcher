@@ -55,12 +55,12 @@ export function AddressLookupStep({ onSelectAddress }: AddressLookupStepProps) {
             placeholder="Type property address (e.g. 104 Magnolia Lane, Covington)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="pl-11 h-12 text-base bg-card border-border text-foreground rounded-xl shadow-md"
+            className="pl-11 h-12 text-base bg-card border-border text-foreground rounded-md shadow-md"
           />
         </div>
 
         {/* Dropdown Suggestions */}
-        <div className="mt-3 rounded-xl bg-card border border-border overflow-hidden divide-y divide-border shadow-lg">
+        <div className="mt-3 rounded-md bg-card border border-border overflow-hidden divide-y divide-border shadow-lg">
           {filtered.map((item, index) => (
             <button
               key={index}
