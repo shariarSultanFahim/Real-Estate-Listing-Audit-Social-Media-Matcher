@@ -39,42 +39,44 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/" className="font-medium text-foreground">
-                    Crescent Sotheby&apos;s
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="font-semibold">
-                    {currentPageTitle}
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
+        <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+          <div className="flex justify-between w-full">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="-ml-1" />
+              <Separator
+                orientation="vertical"
+                className="mr-2 data-[orientation=vertical]:h-4"
+              />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="/" className="font-medium text-foreground">
+                      Crescent Sotheby&apos;s
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden md:block" />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className="font-semibold">
+                      {currentPageTitle}
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <span className="size-2 rounded-full bg-emerald-500 animate-pulse hidden sm:inline-block" />
-            <span className="text-xs font-mono text-muted-foreground uppercase tracking-widest hidden md:inline-block">
-              700 Listings Monitored
-            </span>
-            <Button variant="outline" size="sm" className="text-xs">
-              <Bell className="size-3.5 mr-1" />
-              Alerts (5)
-            </Button>
+            <div className="flex items-center gap-3">
+              <span className="size-2 rounded-full bg-emerald-500 animate-pulse hidden sm:inline-block" />
+              <span className="text-xs font-mono text-muted-foreground uppercase tracking-widest hidden md:inline-block">
+                700 Listings Monitored
+              </span>
+              <Button variant="outline" size="sm" className="text-xs">
+                <Bell className="size-3.5 mr-1" />
+                Alerts (5)
+              </Button>
+            </div>
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 pt-4">
+        <main className="flex flex-1 flex-col gap-4 overflow-y-hidden rounded-tl-xl bg-background p-4">
           {children}
         </main>
       </SidebarInset>
