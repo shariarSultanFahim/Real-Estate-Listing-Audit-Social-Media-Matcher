@@ -1,161 +1,175 @@
 "use client"
 
 import * as React from "react"
-import { ChevronRight } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-
-import { SearchForm } from "@/components/search-form"
-import { VersionSwitcher } from "@/components/version-switcher"
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+  AudioWaveform,
+  BookOpen,
+  Bot,
+  Command,
+  Frame,
+  GalleryVerticalEnd,
+  Map,
+  PieChart,
+  Settings2,
+  SquareTerminal,
+} from "lucide-react"
+
+import { NavMain } from "@/components/nav-main"
+import { NavProjects } from "@/components/nav-projects"
+import { NavUser } from "@/components/nav-user"
+import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-// Real Estate App Navigation Data
+// This is sample data.
 const data = {
-  versions: ["1.0.1 (LA/MS/AL)", "1.1.0-alpha", "2.0.0-beta1"],
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  teams: [
+    {
+      name: "Acme Inc",
+      logo: GalleryVerticalEnd,
+      plan: "Enterprise",
+    },
+    {
+      name: "Acme Corp.",
+      logo: AudioWaveform,
+      plan: "Startup",
+    },
+    {
+      name: "Evil Corp.",
+      logo: Command,
+      plan: "Free",
+    },
+  ],
   navMain: [
     {
-      title: "Core Portal Navigation",
-      url: "/",
+      title: "Playground",
+      url: "#",
+      icon: SquareTerminal,
+      isActive: true,
       items: [
         {
-          title: "Dashboard Overview",
-          url: "/",
+          title: "History",
+          url: "#",
         },
         {
-          title: "Listing Audit Table",
-          url: "/listings",
+          title: "Starred",
+          url: "#",
         },
         {
-          title: "Social Media Matcher",
-          url: "/social-matcher",
-        },
-        {
-          title: "Agent Directory",
-          url: "/agents",
-        },
-        {
-          title: "Syndication Settings",
-          url: "/settings",
+          title: "Settings",
+          url: "#",
         },
       ],
     },
     {
-      title: "Property Listing Management",
-      url: "/listings",
+      title: "Models",
+      url: "#",
+      icon: Bot,
       items: [
         {
-          title: "Add New Property Listing",
-          url: "/listings/new",
+          title: "Genesis",
+          url: "#",
         },
         {
-          title: "Flagged Discrepancies",
-          url: "/listings?filter=issues",
+          title: "Explorer",
+          url: "#",
+        },
+        {
+          title: "Quantum",
+          url: "#",
         },
       ],
     },
     {
-      title: "Syndication Portal Monitors",
-      url: "/settings",
+      title: "Documentation",
+      url: "#",
+      icon: BookOpen,
       items: [
         {
-          title: "Realtor.com Monitor",
-          url: "/settings",
+          title: "Introduction",
+          url: "#",
         },
         {
-          title: "Zillow Group Monitor",
-          url: "/settings",
+          title: "Get Started",
+          url: "#",
         },
         {
-          title: "Homes.com Monitor",
-          url: "/settings",
+          title: "Tutorials",
+          url: "#",
         },
         {
-          title: "Sotheby's Global Portal",
-          url: "/settings",
+          title: "Changelog",
+          url: "#",
         },
       ],
+    },
+    {
+      title: "Settings",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "General",
+          url: "#",
+        },
+        {
+          title: "Team",
+          url: "#",
+        },
+        {
+          title: "Billing",
+          url: "#",
+        },
+        {
+          title: "Limits",
+          url: "#",
+        },
+      ],
+    },
+  ],
+  projects: [
+    {
+      name: "Design Engineering",
+      url: "#",
+      icon: Frame,
+    },
+    {
+      name: "Sales & Marketing",
+      url: "#",
+      icon: PieChart,
+    },
+    {
+      name: "Travel",
+      url: "#",
+      icon: Map,
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname()
-
   return (
-    <Sidebar className="border-r border-slate-800 bg-slate-950/80 backdrop-blur-xl" {...props}>
-      <SidebarHeader className="p-3 border-b border-slate-800 space-y-2">
-        <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
-        />
-        <SearchForm />
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent className="gap-0 p-2">
-        {/* We create a collapsible SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
-          <Collapsible
-            key={item.title}
-            title={item.title}
-            defaultOpen
-            className="group/collapsible"
-          >
-            <SidebarGroup>
-              <SidebarGroupLabel
-                asChild
-                className="group/label text-xs font-semibold text-slate-400 hover:bg-slate-900 hover:text-white transition-colors cursor-pointer"
-              >
-                <CollapsibleTrigger>
-                  {item.title}{" "}
-                  <ChevronRight className="ml-auto size-3.5 transition-transform group-data-[state=open]/collapsible:rotate-90 text-slate-500" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <SidebarMenu className="mt-1">
-                    {item.items.map((subItem) => {
-                      const isActive =
-                        subItem.url === "/"
-                          ? pathname === "/"
-                          : pathname === subItem.url
-
-                      return (
-                        <SidebarMenuItem key={subItem.title}>
-                          <SidebarMenuButton
-                            asChild
-                            isActive={isActive}
-                            className={`text-xs px-3 py-2 rounded-md transition-colors ${isActive
-                              ? "bg-indigo-600/20 text-indigo-300 font-semibold border border-indigo-500/30"
-                              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/60"
-                              }`}
-                          >
-                            <Link href={subItem.url}>{subItem.title}</Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      )
-                    })}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
-        ))}
+      <SidebarContent>
+        <NavMain items={data.navMain} />
+        <NavProjects projects={data.projects} />
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   )
 }
