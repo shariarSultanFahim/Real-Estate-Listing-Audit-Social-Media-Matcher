@@ -24,6 +24,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 
 const data = {
@@ -82,13 +83,20 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
+  const { isMobile, setOpenMobile } = useSidebar()
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
 
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild onClick={handleNavClick}>
               <Link href="/">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Building2 className="size-4" />
@@ -115,14 +123,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     item.url === "/"
                       ? pathname === "/"
                       : item.url === "/listings"
-                      ? pathname === "/listings" || (pathname.startsWith("/listings/") && pathname !== "/listings/new")
-                      : pathname === item.url || pathname.startsWith(item.url + "/")
+                        ? pathname === "/listings" || (pathname.startsWith("/listings/") && pathname !== "/listings/new")
+                        : pathname === item.url || pathname.startsWith(item.url + "/")
 
                   return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
+                        onClick={handleNavClick}
                         className="data-[active=true]:bg-accent data-[active=true]:text-accent-foreground"
                       >
                         <Link href={item.url}>

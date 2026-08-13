@@ -36,7 +36,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Listing Audit &amp; Cross-Post Control Center
