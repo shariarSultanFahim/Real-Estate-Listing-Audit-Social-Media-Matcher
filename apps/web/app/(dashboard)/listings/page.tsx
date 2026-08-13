@@ -66,19 +66,19 @@ export default function ListingsAuditPage() {
   return (
     <div className="space-y-6">
       {/* Header & Primary Toggles */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Listing Audit Dashboard
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Detecting mismatches between Brokerage Engine &amp; external syndication portals.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Main View Mode Toggle (Client requirement: Default to Issues Only) */}
-          <div className="p-1 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-1">
+          <div className="p-1 rounded-lg bg-card border border-border flex items-center gap-1">
             <Button
               variant={viewMode === "onlyWithIssues" ? "destructive" : "ghost"}
               size="sm"
@@ -100,7 +100,7 @@ export default function ListingsAuditPage() {
           </div>
 
           <Link href="/listings/new">
-            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 h-9">
+            <Button size="sm" className="gap-1.5 h-9">
               <Plus className="size-3.5" />
               Add Listing
             </Button>

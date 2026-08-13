@@ -36,11 +36,11 @@ export default function NewListingPage() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-slate-800 pb-4">
-        <h1 className="text-2xl font-bold text-white tracking-tight">
+      <div className="border-b border-border pb-4">
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">
           Add New Property Listing
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           Step {step} of 2 — {step === 1 ? "Address Autocomplete Lookup" : "Listing Essentials Form"}
         </p>
       </div>

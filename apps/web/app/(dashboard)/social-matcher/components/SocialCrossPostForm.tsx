@@ -45,13 +45,13 @@ export function SocialCrossPostForm({ onSearch, isLoading }: SocialCrossPostForm
   });
 
   return (
-    <Card className="glass-panel border-indigo-500/30 glow-border-indigo">
+    <Card className="border-primary/30">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg text-white flex items-center gap-2">
-          <Sparkles className="size-5 text-indigo-400" />
+        <CardTitle className="text-lg text-card-foreground flex items-center gap-2">
+          <Sparkles className="size-5 text-primary" />
           Social Cross-Posting Agent Matcher
         </CardTitle>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-muted-foreground">
           Instantly matches live listing area &amp; price against standing agent preferences across ~150 brokerage agents.
         </p>
       </CardHeader>
@@ -60,13 +60,13 @@ export function SocialCrossPostForm({ onSearch, isLoading }: SocialCrossPostForm
         <form onSubmit={handleSubmit(onSearch)} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           {/* City / Area Combobox Select */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <MapPin className="size-3.5 text-indigo-400" />
+            <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <MapPin className="size-3.5 text-primary" />
               Listing City / Service Area
             </label>
             <select
               {...register("city")}
-              className="h-10 w-full rounded-lg bg-slate-900 border border-slate-800 text-sm px-3 text-white focus:ring-1 focus:ring-indigo-500"
+              className="h-10 w-full rounded-lg bg-background border border-input text-sm px-3 text-foreground focus:ring-1 focus:ring-ring"
             >
               {SERVICE_CITIES.map((c) => (
                 <option key={c} value={c}>
@@ -74,28 +74,28 @@ export function SocialCrossPostForm({ onSearch, isLoading }: SocialCrossPostForm
                 </option>
               ))}
             </select>
-            {errors.city && <p className="text-[10px] text-rose-400">{errors.city.message}</p>}
+            {errors.city && <p className="text-[10px] text-destructive">{errors.city.message}</p>}
           </div>
 
           {/* Listing Price Input */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <DollarSign className="size-3.5 text-indigo-400" />
+            <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <DollarSign className="size-3.5 text-primary" />
               Listing Price ($)
             </label>
             <Input
               type="number"
               {...register("price", { valueAsNumber: true })}
-              className="h-10 bg-slate-900 border-slate-800 text-sm font-semibold text-indigo-300"
+              className="h-10 bg-background border-input text-sm font-semibold text-primary"
             />
-            {errors.price && <p className="text-[10px] text-rose-400">{errors.price.message}</p>}
+            {errors.price && <p className="text-[10px] text-destructive">{errors.price.message}</p>}
           </div>
 
           {/* Submit Action Button */}
           <Button
             type="submit"
             disabled={isLoading}
-            className="h-10 bg-indigo-600 hover:bg-indigo-500 text-white font-medium gap-2 shadow-lg shadow-indigo-600/25"
+            className="h-10 font-medium gap-2 shadow-md"
           >
             <Search className="size-4" />
             {isLoading ? "Matching Agents..." : "Run Matcher Algorithm"}

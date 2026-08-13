@@ -42,7 +42,7 @@ export function ListingsTable({
       <TableBody>
         {listings.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={7} className="h-32 text-center text-slate-500">
+            <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
               No properties matched your current filter criteria.
             </TableCell>
           </TableRow>
@@ -60,7 +60,7 @@ export function ListingsTable({
               <TableRow key={listing.id} className="group">
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-3">
-                    <div className="size-12 rounded-lg bg-slate-900 overflow-hidden border border-slate-800 shrink-0 relative">
+                    <div className="size-12 rounded-lg bg-card overflow-hidden border border-border shrink-0 relative">
                       {listing.photos[0] ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -69,28 +69,28 @@ export function ListingsTable({
                           className="object-cover size-full group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="size-full flex items-center justify-center text-slate-600">
+                        <div className="size-full flex items-center justify-center text-muted-foreground">
                           <ImageIcon className="size-4" />
                         </div>
                       )}
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-slate-100">
+                      <div className="text-sm font-semibold text-card-foreground">
                         {listing.address.street}
                       </div>
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-muted-foreground">
                         {listing.address.city}, {listing.address.state} {listing.address.zip}
                       </div>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="font-mono text-xs text-slate-300">
+                <TableCell className="font-mono text-xs text-muted-foreground">
                   {listing.mlsNumber}
                 </TableCell>
-                <TableCell className="font-semibold text-slate-100">
+                <TableCell className="font-semibold text-foreground">
                   ${listing.price.toLocaleString()}
                 </TableCell>
-                <TableCell className="text-xs text-slate-300">
+                <TableCell className="text-xs text-muted-foreground">
                   {agent ? agent.name : "Unassigned"}
                 </TableCell>
                 <TableCell>
@@ -102,20 +102,20 @@ export function ListingsTable({
                       affectedSites.map((site) => (
                         <Badge
                           key={site}
-                          variant="outline"
-                          className="text-[10px] uppercase font-mono border-rose-500/30 text-rose-400 bg-rose-500/10"
+                          variant="destructive"
+                          className="text-[10px] uppercase font-mono"
                         >
                           {site}
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-xs text-slate-500 font-mono">None</span>
+                      <span className="text-xs text-muted-foreground font-mono">None</span>
                     )}
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <Link href={`/listings/${listing.id}`}>
-                    <Button variant="glass" size="sm" className="text-xs gap-1.5">
+                    <Button variant="outline" size="sm" className="text-xs gap-1.5">
                       <Eye className="size-3.5" />
                       Inspect
                     </Button>

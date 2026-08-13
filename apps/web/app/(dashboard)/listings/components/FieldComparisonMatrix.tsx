@@ -30,15 +30,15 @@ export function FieldComparisonMatrix({ listing, discrepancies }: FieldCompariso
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-white">Brokerage Engine Source vs Syndicated Portals</h3>
-        <span className="text-xs text-slate-400">Highlighted cells indicate detected discrepancies</span>
+        <h3 className="text-base font-semibold text-foreground">Brokerage Engine Source vs Syndicated Portals</h3>
+        <span className="text-xs text-muted-foreground">Highlighted cells indicate detected discrepancies</span>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-44">Field</TableHead>
-            <TableHead className="w-80 bg-indigo-950/20 text-indigo-300 font-semibold border-x border-indigo-500/20">
+            <TableHead className="w-80 bg-primary/10 text-primary font-semibold border-x border-primary/20">
               Source of Truth (Brokerage Engine)
             </TableHead>
             {SITES.map((site) => (
@@ -51,12 +51,12 @@ export function FieldComparisonMatrix({ listing, discrepancies }: FieldCompariso
         <TableBody>
           {fields.map((field) => (
             <TableRow key={field.key}>
-              <TableCell className="font-semibold text-xs text-slate-300">
+              <TableCell className="font-semibold text-xs text-foreground">
                 {field.label}
               </TableCell>
 
               {/* Source of Truth Column */}
-              <TableCell className="bg-indigo-950/20 border-x border-indigo-500/20 text-xs font-mono text-indigo-200">
+              <TableCell className="bg-primary/10 border-x border-primary/20 text-xs font-mono text-primary">
                 {field.sourceVal}
               </TableCell>
 
@@ -70,10 +70,10 @@ export function FieldComparisonMatrix({ listing, discrepancies }: FieldCompariso
                   return (
                     <TableCell
                       key={site.id}
-                      className="bg-rose-950/30 border border-rose-500/40 text-xs font-mono text-rose-300 relative"
+                      className="bg-destructive/10 border border-destructive/30 text-xs font-mono text-destructive relative"
                     >
                       <div className="flex items-start gap-1.5">
-                        <AlertCircle className="size-3.5 text-rose-400 shrink-0 mt-0.5" />
+                        <AlertCircle className="size-3.5 text-destructive shrink-0 mt-0.5" />
                         <div>
                           <span>{disc.siteValue}</span>
                           <div className="mt-1">
@@ -88,8 +88,8 @@ export function FieldComparisonMatrix({ listing, discrepancies }: FieldCompariso
                 }
 
                 return (
-                  <TableCell key={site.id} className="text-xs text-slate-400 font-mono text-center">
-                    <div className="flex items-center justify-center gap-1 text-emerald-400">
+                  <TableCell key={site.id} className="text-xs text-muted-foreground font-mono text-center">
+                    <div className="flex items-center justify-center gap-1 text-emerald-500">
                       <CheckCircle2 className="size-3.5" />
                       <span>Synced</span>
                     </div>

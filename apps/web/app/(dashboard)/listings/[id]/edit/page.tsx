@@ -22,7 +22,7 @@ export default function EditListingPage({
   }
 
   if (!listing) {
-    return <div className="p-8 text-center text-rose-400">Listing not found</div>;
+    return <div className="p-8 text-center text-destructive">Listing not found</div>;
   }
 
   const handleUpdateListing = async (formData: any) => {
@@ -32,11 +32,11 @@ export default function EditListingPage({
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-slate-800 pb-4">
-        <h1 className="text-2xl font-bold text-white tracking-tight">
+      <div className="border-b border-border pb-4">
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">
           Edit Listing Essentials
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           {listing.address.street}, {listing.address.city} ({listing.mlsNumber})
         </p>
       </div>

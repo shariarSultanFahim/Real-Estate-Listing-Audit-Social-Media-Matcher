@@ -38,23 +38,23 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="border-b border-slate-800 pb-4">
-        <h1 className="text-2xl font-bold text-white tracking-tight">
+      <div className="border-b border-border pb-4">
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">
           Syndication Settings &amp; Portal Controls
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           Toggle active syndication endpoints monitored by the discrepancy detection engine.
         </p>
       </div>
 
-      <Card className="glass-panel border-slate-800 p-6 space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <Card className="p-6 space-y-6">
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <div>
-            <CardTitle className="text-lg text-white flex items-center gap-2">
-              <Globe className="size-5 text-indigo-400" />
+            <CardTitle className="text-lg text-card-foreground flex items-center gap-2">
+              <Globe className="size-5 text-primary" />
               Monitored Syndication Outlets (7 Portals)
             </CardTitle>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Read-only scraper engines inspect these platforms for listing data drift.
             </p>
           </div>
@@ -63,7 +63,7 @@ export default function SettingsPage() {
             variant="outline"
             size="sm"
             onClick={() => toast.success("Refreshed all syndication portal connections!")}
-            className="text-xs border-slate-800"
+            className="text-xs"
           >
             <RefreshCcw className="size-3.5 mr-1.5" /> Test Connections
           </Button>
@@ -75,17 +75,17 @@ export default function SettingsPage() {
             return (
               <div
                 key={site.id}
-                className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between hover:border-slate-700 transition-colors"
+                className="p-4 rounded-xl bg-card border border-border flex items-center justify-between hover:border-accent transition-colors"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm text-white">{site.name}</span>
-                    <Badge variant="outline" className="text-[10px] font-mono border-slate-700">
+                    <span className="font-semibold text-sm text-card-foreground">{site.name}</span>
+                    <Badge variant="outline" className="text-[10px] font-mono">
                       {site.type}
                     </Badge>
                   </div>
-                  <p className="text-xs text-slate-400 flex items-center gap-1.5">
-                    <ShieldCheck className="size-3.5 text-emerald-400" /> Read-only API / Scraping Active
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <ShieldCheck className="size-3.5 text-emerald-500" /> Read-only API / Scraping Active
                   </p>
                 </div>
 
@@ -93,7 +93,7 @@ export default function SettingsPage() {
                   size="sm"
                   variant={isEnabled ? "default" : "outline"}
                   onClick={() => toggleSite(site.id)}
-                  className={`text-xs ${isEnabled ? "bg-emerald-600 hover:bg-emerald-500 text-white" : "border-slate-800 text-slate-400"}`}
+                  className="text-xs"
                 >
                   {isEnabled ? "Monitoring Active" : "Disabled"}
                 </Button>

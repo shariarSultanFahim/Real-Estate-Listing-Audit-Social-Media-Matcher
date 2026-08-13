@@ -59,19 +59,19 @@ export function AgentForm({ initialValues, onClose, onSubmit }: AgentFormProps) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-      <Card className="w-full max-w-xl glass-panel border-slate-800 shadow-2xl relative">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800 pb-4">
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex items-center justify-center p-4">
+      <Card className="w-full max-w-xl border-border shadow-2xl relative">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-border pb-4">
           <div>
-            <CardTitle className="text-lg text-white flex items-center gap-2">
-              <UserCheck className="size-5 text-indigo-400" />
+            <CardTitle className="text-lg text-foreground flex items-center gap-2">
+              <UserCheck className="size-5 text-primary" />
               {initialValues ? "Edit Agent Preferences" : "Enroll New Agent"}
             </CardTitle>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Set standing social cross-posting rules &amp; service area boundaries.
             </p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="text-slate-400 hover:text-white">
+          <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="size-4" />
           </Button>
         </CardHeader>
@@ -80,22 +80,22 @@ export function AgentForm({ initialValues, onClose, onSubmit }: AgentFormProps) 
           <CardContent className="space-y-4 pt-4 max-h-[70vh] overflow-y-auto">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Agent Full Name</label>
-                <Input {...register("name")} className="bg-slate-900 border-slate-800 text-xs" />
-                {errors.name && <p className="text-[10px] text-rose-400">{errors.name.message}</p>}
+                <label className="text-xs text-muted-foreground">Agent Full Name</label>
+                <Input {...register("name")} className="bg-background border-input text-xs" />
+                {errors.name && <p className="text-[10px] text-destructive">{errors.name.message}</p>}
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Email Address</label>
-                <Input type="email" {...register("email")} className="bg-slate-900 border-slate-800 text-xs" />
-                {errors.email && <p className="text-[10px] text-rose-400">{errors.email.message}</p>}
+                <label className="text-xs text-muted-foreground">Email Address</label>
+                <Input type="email" {...register("email")} className="bg-background border-input text-xs" />
+                {errors.email && <p className="text-[10px] text-destructive">{errors.email.message}</p>}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Office Location</label>
-                <select {...register("officeState")} className="h-9 w-full rounded-md bg-slate-900 border border-slate-800 text-xs px-2 text-white">
+                <label className="text-xs text-muted-foreground">Office Location</label>
+                <select {...register("officeState")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
                   <option value="LA">Louisiana (LA Office)</option>
                   <option value="MS">Mississippi (MS Office)</option>
                   <option value="AL">Alabama (AL Office)</option>
@@ -103,24 +103,24 @@ export function AgentForm({ initialValues, onClose, onSubmit }: AgentFormProps) 
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Phone (Optional)</label>
-                <Input {...register("phone")} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Phone (Optional)</label>
+                <Input {...register("phone")} className="bg-background border-input text-xs" />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-slate-400">Service Areas (Comma separated)</label>
+              <label className="text-xs text-muted-foreground">Service Areas (Comma separated)</label>
               <Input
                 value={serviceAreasInput}
                 onChange={(e) => setServiceAreasInput(e.target.value)}
                 placeholder="Covington, Mandeville, Slidell"
-                className="bg-slate-900 border-slate-800 text-xs"
+                className="bg-background border-input text-xs"
               />
             </div>
 
-            <div className="space-y-1 border-t border-slate-800 pt-3">
-              <label className="text-xs font-semibold text-indigo-300">Social Cross-Post Preference</label>
-              <select {...register("crossPostPreference")} className="h-9 w-full rounded-md bg-slate-900 border border-slate-800 text-xs px-2 text-white">
+            <div className="space-y-1 border-t border-border pt-3">
+              <label className="text-xs font-semibold text-primary">Social Cross-Post Preference</label>
+              <select {...register("crossPostPreference")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
                 <option value="all">Duplicate All New Brokerage Postings</option>
                 <option value="areaAndPrice">Only Specific Service Area &amp; Price Threshold</option>
                 <option value="byRequest">Only by Special Request (Manual)</option>
@@ -129,35 +129,35 @@ export function AgentForm({ initialValues, onClose, onSubmit }: AgentFormProps) 
             </div>
 
             {preference === "areaAndPrice" && (
-              <div className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-indigo-950/20 border border-indigo-500/20">
+              <div className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
                 <div className="space-y-1">
-                  <label className="text-xs text-slate-400">Price Min ($)</label>
-                  <Input type="number" {...register("priceRangeMin", { valueAsNumber: true })} className="bg-slate-900 border-slate-800 text-xs" />
+                  <label className="text-xs text-muted-foreground">Price Min ($)</label>
+                  <Input type="number" {...register("priceRangeMin", { valueAsNumber: true })} className="bg-background border-input text-xs" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs text-slate-400">Price Max ($)</label>
-                  <Input type="number" {...register("priceRangeMax", { valueAsNumber: true })} className="bg-slate-900 border-slate-800 text-xs" />
+                  <label className="text-xs text-muted-foreground">Price Max ($)</label>
+                  <Input type="number" {...register("priceRangeMax", { valueAsNumber: true })} className="bg-background border-input text-xs" />
                 </div>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3 border-t border-slate-800 pt-3">
+            <div className="grid grid-cols-2 gap-3 border-t border-border pt-3">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Facebook Page URL</label>
-                <Input {...register("facebookPageUrl")} placeholder="https://facebook.com/..." className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Facebook Page URL</label>
+                <Input {...register("facebookPageUrl")} placeholder="https://facebook.com/..." className="bg-background border-input text-xs" />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Instagram Handle URL</label>
-                <Input {...register("instagramPageUrl")} placeholder="https://instagram.com/..." className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Instagram Handle URL</label>
+                <Input {...register("instagramPageUrl")} placeholder="https://instagram.com/..." className="bg-background border-input text-xs" />
               </div>
             </div>
           </CardContent>
 
-          <CardFooter className="flex justify-end gap-3 border-t border-slate-800 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="text-xs border-slate-800">
+          <CardFooter className="flex justify-end gap-3 border-t border-border pt-4">
+            <Button type="button" variant="outline" onClick={onClose} className="text-xs">
               Cancel
             </Button>
-            <Button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs gap-1.5">
+            <Button type="submit" className="text-xs gap-1.5">
               <Save className="size-3.5" /> Save Agent Profile
             </Button>
           </CardFooter>

@@ -41,12 +41,12 @@ export default function AgentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Brokerage Agent Directory
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Managing standing cross-posting preferences &amp; service area coverage across ~150 agents.
           </p>
         </div>
@@ -55,31 +55,31 @@ export default function AgentsPage() {
             setEditingAgent(null);
             setIsFormOpen(true);
           }}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs gap-1.5"
+          className="text-xs gap-1.5"
         >
           <Plus className="size-3.5" /> Enroll Agent
         </Button>
       </div>
 
       {/* Filter Bar */}
-      <div className="p-4 rounded-xl glass-panel border-slate-800 flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="p-4 rounded-xl bg-card border border-border flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative w-full md:w-80">
-          <Search className="size-4 text-slate-500 absolute left-3 top-2.5" />
+          <Search className="size-4 text-muted-foreground absolute left-3 top-2.5" />
           <Input
             type="text"
             placeholder="Search agent name, area..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-slate-900/80 border-slate-800 text-xs"
+            className="pl-9 bg-background border-input text-xs"
           />
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-400 font-medium">Filter Office:</span>
+          <span className="text-xs text-muted-foreground font-medium">Filter Office:</span>
           <select
             value={selectedState}
             onChange={(e) => setSelectedState(e.target.value)}
-            className="h-9 px-3 rounded-md bg-slate-900 border border-slate-800 text-xs text-slate-200"
+            className="h-9 px-3 rounded-md bg-background border border-input text-xs text-foreground"
           >
             <option value="all">All States (LA / MS / AL)</option>
             <option value="LA">Louisiana (LA)</option>
@@ -107,14 +107,14 @@ export default function AgentsPage() {
           <TableBody>
             {filteredAgents.map((agent) => (
               <TableRow key={agent.id}>
-                <TableCell className="font-semibold text-slate-100">
-                  <Link href={`/agents/${agent.id}`} className="hover:text-indigo-400">
+                <TableCell className="font-semibold text-foreground">
+                  <Link href={`/agents/${agent.id}`} className="hover:text-primary">
                     {agent.name}
                   </Link>
-                  <div className="text-xs text-slate-400 font-normal">{agent.email}</div>
+                  <div className="text-xs text-muted-foreground font-normal">{agent.email}</div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="font-mono text-xs border-slate-700">
+                  <Badge variant="outline" className="font-mono text-xs">
                     {agent.officeState}
                   </Badge>
                 </TableCell>
@@ -134,7 +134,7 @@ export default function AgentsPage() {
                   {agent.crossPostPreference === "areaAndPrice" && (
                     <div className="space-y-0.5">
                       <Badge variant="default" className="text-[10px]">Area &amp; Price</Badge>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                      <div className="text-[10px] text-muted-foreground font-mono">
                         ${(agent.priceRangeMin || 0) / 1000}k - ${(agent.priceRangeMax || 0) / 1000}k
                       </div>
                     </div>
@@ -143,13 +143,13 @@ export default function AgentsPage() {
                     <Badge variant="warning" className="text-[10px]">By Request Only</Badge>
                   )}
                   {agent.crossPostPreference === "never" && (
-                    <Badge variant="outline" className="text-[10px] border-rose-500/30 text-rose-400">Never</Badge>
+                    <Badge variant="destructive" className="text-[10px]">Never</Badge>
                   )}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {agent.facebookPageUrl && <Facebook className="size-4 text-blue-400" />}
-                    {agent.instagramPageUrl && <Instagram className="size-4 text-pink-400" />}
+                    {agent.facebookPageUrl && <Facebook className="size-4 text-primary" />}
+                    {agent.instagramPageUrl && <Instagram className="size-4 text-primary" />}
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
@@ -160,7 +160,7 @@ export default function AgentsPage() {
                       setEditingAgent(agent);
                       setIsFormOpen(true);
                     }}
-                    className="text-xs text-slate-400 hover:text-white"
+                    className="text-xs text-muted-foreground hover:text-foreground"
                   >
                     <Edit2 className="size-3.5" />
                   </Button>

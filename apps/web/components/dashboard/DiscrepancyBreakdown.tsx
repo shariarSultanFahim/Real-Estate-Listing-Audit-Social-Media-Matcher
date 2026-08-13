@@ -24,10 +24,10 @@ export function DiscrepancyBreakdown({ discrepancies }: DiscrepancyBreakdownProp
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Breakdown by Field */}
-      <Card className="glass-panel border-slate-800">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-base text-white">Discrepancies by Field Type</CardTitle>
-          <CardDescription className="text-slate-400 text-xs">
+          <CardTitle className="text-base text-card-foreground">Discrepancies by Field Type</CardTitle>
+          <CardDescription className="text-muted-foreground text-xs">
             Fields where syndicated data deviates from Brokerage Engine
           </CardDescription>
         </CardHeader>
@@ -37,12 +37,12 @@ export function DiscrepancyBreakdown({ discrepancies }: DiscrepancyBreakdownProp
             return (
               <div key={field} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium text-slate-300 capitalize">{field}</span>
-                  <span className="font-mono text-slate-400">{count} issues ({percentage}%)</span>
+                  <span className="font-medium text-foreground capitalize">{field}</span>
+                  <span className="font-mono text-muted-foreground">{count} issues ({percentage}%)</span>
                 </div>
-                <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                <div className="h-2 w-full bg-muted rounded-full overflow-hidden border border-border">
                   <div
-                    className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                    className="h-full bg-primary rounded-full transition-all duration-500"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -53,10 +53,10 @@ export function DiscrepancyBreakdown({ discrepancies }: DiscrepancyBreakdownProp
       </Card>
 
       {/* Breakdown by Syndication Site */}
-      <Card className="glass-panel border-slate-800">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-base text-white">Discrepancies by Syndication Portal</CardTitle>
-          <CardDescription className="text-slate-400 text-xs">
+          <CardTitle className="text-base text-card-foreground">Discrepancies by Syndication Portal</CardTitle>
+          <CardDescription className="text-muted-foreground text-xs">
             External sites flagged for inaccurate photo order, pricing, or details
           </CardDescription>
         </CardHeader>
@@ -65,10 +65,10 @@ export function DiscrepancyBreakdown({ discrepancies }: DiscrepancyBreakdownProp
             <Badge
               key={site}
               variant="destructive"
-              className="px-3 py-1.5 text-xs font-mono uppercase tracking-wider flex items-center gap-2 border-rose-500/40"
+              className="px-3 py-1.5 text-xs font-mono uppercase tracking-wider flex items-center gap-2"
             >
               <span>{site}</span>
-              <span className="size-5 rounded-full bg-rose-500/30 text-rose-300 text-[10px] flex items-center justify-center font-bold">
+              <span className="size-5 rounded-full bg-destructive-foreground/20 text-destructive-foreground text-[10px] flex items-center justify-center font-bold">
                 {count}
               </span>
             </Badge>

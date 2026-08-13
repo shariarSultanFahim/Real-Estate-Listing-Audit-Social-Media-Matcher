@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 const ROUTE_NAME_MAP: Record<string, string> = {
   "": "Overview Dashboard",
@@ -73,6 +74,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Bell className="size-3.5 mr-1" />
                 Alerts (5)
               </Button>
+              <AnimatedThemeToggler className="flex size-8 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors" />
             </div>
           </div>
         </header>

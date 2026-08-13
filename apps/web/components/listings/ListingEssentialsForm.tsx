@@ -100,11 +100,11 @@ export function ListingEssentialsForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Banner Note matching spec reference */}
-      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-3">
-        <AlertCircle className="size-4 shrink-0 text-amber-400 mt-0.5" />
+      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-3">
+        <AlertCircle className="size-4 shrink-0 text-amber-500 mt-0.5" />
         <div>
           <p className="font-semibold">Verification Required</p>
-          <p className="text-amber-300/80 mt-0.5">
+          <p className="opacity-90 mt-0.5">
             Information is populated from public records where possible and must be verified before saving.
           </p>
         </div>
@@ -113,8 +113,8 @@ export function ListingEssentialsForm({
       {/* 3-Column Layout Matching Specification Reference */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Column 1: Location */}
-        <Card className="glass-panel border-slate-800 space-y-4 p-6">
-          <h3 className="text-base font-semibold text-white border-b border-slate-800 pb-3">
+        <Card className="space-y-4 p-6">
+          <h3 className="text-base font-semibold text-card-foreground border-b border-border pb-3">
             1. Location
           </h3>
 
@@ -126,95 +126,95 @@ export function ListingEssentialsForm({
 
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="text-xs text-slate-400">Address Line 1</label>
-              <Input {...register("address.street")} className="bg-slate-900 border-slate-800 text-xs" />
+              <label className="text-xs text-muted-foreground">Address Line 1</label>
+              <Input {...register("address.street")} className="bg-background border-input text-xs" />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-slate-400">Address Line 2 (Optional)</label>
-              <Input {...register("addressLine2")} className="bg-slate-900 border-slate-800 text-xs" />
+              <label className="text-xs text-muted-foreground">Address Line 2 (Optional)</label>
+              <Input {...register("addressLine2")} className="bg-background border-input text-xs" />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Subdivision</label>
-                <Input {...register("subdivision")} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Subdivision</label>
+                <Input {...register("subdivision")} className="bg-background border-input text-xs" />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">City</label>
-                <Input {...register("address.city")} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">City</label>
+                <Input {...register("address.city")} className="bg-background border-input text-xs" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">State</label>
-                <select {...register("address.state")} className="h-9 w-full rounded-md bg-slate-900 border border-slate-800 text-xs px-2 text-white">
+                <label className="text-xs text-muted-foreground">State</label>
+                <select {...register("address.state")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
                   <option value="LA">Louisiana (LA)</option>
                   <option value="MS">Mississippi (MS)</option>
                   <option value="AL">Alabama (AL)</option>
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Zip Code</label>
-                <Input {...register("address.zip")} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Zip Code</label>
+                <Input {...register("address.zip")} className="bg-background border-input text-xs" />
               </div>
             </div>
           </div>
         </Card>
 
         {/* Column 2: Property Information & Features */}
-        <Card className="glass-panel border-slate-800 space-y-4 p-6">
-          <h3 className="text-base font-semibold text-white border-b border-slate-800 pb-3">
+        <Card className="space-y-4 p-6">
+          <h3 className="text-base font-semibold text-card-foreground border-b border-border pb-3">
             2. Property Info &amp; Features
           </h3>
 
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Property Type</label>
-                <select {...register("propertyType")} className="h-9 w-full rounded-md bg-slate-900 border border-slate-800 text-xs px-2 text-white">
+                <label className="text-xs text-muted-foreground">Property Type</label>
+                <select {...register("propertyType")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
                   <option value="Single Family">Single Family</option>
                   <option value="Condo / Townhouse">Condo / Townhouse</option>
                   <option value="Land / Lot">Land / Lot</option>
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Property Style</label>
-                <Input {...register("propertyStyle")} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Property Style</label>
+                <Input {...register("propertyStyle")} className="bg-background border-input text-xs" />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Beds</label>
-                <Input type="number" {...register("beds", { valueAsNumber: true })} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Beds</label>
+                <Input type="number" {...register("beds", { valueAsNumber: true })} className="bg-background border-input text-xs" />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Full Baths</label>
-                <Input type="number" {...register("fullBaths", { valueAsNumber: true })} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Full Baths</label>
+                <Input type="number" {...register("fullBaths", { valueAsNumber: true })} className="bg-background border-input text-xs" />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Half Baths</label>
-                <Input type="number" {...register("halfBaths", { valueAsNumber: true })} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Half Baths</label>
+                <Input type="number" {...register("halfBaths", { valueAsNumber: true })} className="bg-background border-input text-xs" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Building Area (sq ft)</label>
-                <Input type="number" {...register("buildingAreaSqft", { valueAsNumber: true })} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Building Area (sq ft)</label>
+                <Input type="number" {...register("buildingAreaSqft", { valueAsNumber: true })} className="bg-background border-input text-xs" />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-slate-400">Lot Size (acres)</label>
-                <Input type="number" step="0.01" {...register("lotSizeAcres", { valueAsNumber: true })} className="bg-slate-900 border-slate-800 text-xs" />
+                <label className="text-xs text-muted-foreground">Lot Size (acres)</label>
+                <Input type="number" step="0.01" {...register("lotSizeAcres", { valueAsNumber: true })} className="bg-background border-input text-xs" />
               </div>
             </div>
 
             {/* Tag-style Features Selection */}
-            <div className="space-y-2 pt-2 border-t border-slate-800">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Tag className="size-3.5 text-indigo-400" /> Select Property Features
+            <div className="space-y-2 pt-2 border-t border-border">
+              <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                <Tag className="size-3.5 text-primary" /> Select Property Features
               </label>
               <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
                 {FEATURE_OPTIONS.map((feat) => {
@@ -226,8 +226,8 @@ export function ListingEssentialsForm({
                       onClick={() => toggleFeature(feat)}
                       className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
                         isSelected
-                          ? "bg-indigo-600 text-white border border-indigo-400"
-                          : "bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700"
+                          ? "bg-primary text-primary-foreground border border-primary"
+                          : "bg-muted text-muted-foreground border border-border hover:bg-accent hover:text-accent-foreground"
                       }`}
                     >
                       {feat}
@@ -240,25 +240,25 @@ export function ListingEssentialsForm({
         </Card>
 
         {/* Column 3: Listing Details */}
-        <Card className="glass-panel border-slate-800 space-y-4 p-6">
-          <h3 className="text-base font-semibold text-white border-b border-slate-800 pb-3">
+        <Card className="space-y-4 p-6">
+          <h3 className="text-base font-semibold text-card-foreground border-b border-border pb-3">
             3. Listing Detail
           </h3>
 
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="text-xs text-slate-400">List Price ($)</label>
-              <Input type="number" {...register("price", { valueAsNumber: true })} className="bg-slate-900 border-slate-800 text-xs font-bold text-indigo-300" />
+              <label className="text-xs text-muted-foreground">List Price ($)</label>
+              <Input type="number" {...register("price", { valueAsNumber: true })} className="bg-background border-input text-xs font-bold text-primary" />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-slate-400">MLS Number</label>
-              <Input {...register("mlsNumber")} className="bg-slate-900 border-slate-800 text-xs font-mono" />
+              <label className="text-xs text-muted-foreground">MLS Number</label>
+              <Input {...register("mlsNumber")} className="bg-background border-input text-xs font-mono" />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-slate-400">Listing Agent</label>
-              <select {...register("listingAgentId")} className="h-9 w-full rounded-md bg-slate-900 border border-slate-800 text-xs px-2 text-white">
+              <label className="text-xs text-muted-foreground">Listing Agent</label>
+              <select {...register("listingAgentId")} className="h-9 w-full rounded-md bg-background border border-input text-xs px-2 text-foreground">
                 {agents.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.name} ({a.officeState})
@@ -268,11 +268,11 @@ export function ListingEssentialsForm({
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-slate-400">Description</label>
+              <label className="text-xs text-muted-foreground">Description</label>
               <textarea
                 {...register("description")}
                 rows={3}
-                className="w-full rounded-md bg-slate-900 border border-slate-800 text-xs p-2 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-md bg-background border border-input text-xs p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
           </div>
@@ -280,13 +280,13 @@ export function ListingEssentialsForm({
       </div>
 
       {/* Form Action Buttons */}
-      <div className="flex items-center justify-between border-t border-slate-800 pt-4">
+      <div className="flex items-center justify-between border-t border-border pt-4">
         {onBack && (
-          <Button type="button" variant="outline" onClick={onBack} className="text-xs border-slate-800">
+          <Button type="button" variant="outline" onClick={onBack} className="text-xs">
             <ArrowLeft className="size-3.5 mr-1" /> Back to Step 1
           </Button>
         )}
-        <Button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs ml-auto gap-2">
+        <Button type="submit" className="text-xs ml-auto gap-2">
           <Save className="size-3.5" /> Save Listing to Brokerage Engine Mirror
         </Button>
       </div>

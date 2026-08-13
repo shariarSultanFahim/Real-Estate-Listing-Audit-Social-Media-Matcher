@@ -36,24 +36,24 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Listing Audit &amp; Cross-Post Control Center
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Read-only discrepancy detection across Realtor.com, Zillow, Homes.com &amp; Sotheby&apos;s portals.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/listings/new">
-            <Button className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2 shadow-lg shadow-indigo-600/20">
+            <Button className="gap-2 shadow-md">
               <Plus className="size-4" />
               Add Listing
             </Button>
           </Link>
           <Link href="/listings">
-            <Button variant="outline" className="border-slate-800 text-slate-300 gap-2">
+            <Button variant="outline" className="gap-2">
               View Audit Table ({openCount} Issues)
             </Button>
           </Link>
@@ -71,21 +71,21 @@ export default function DashboardPage() {
       <DiscrepancyBreakdown discrepancies={discrepancies} />
 
       {/* Critical Action Required Widget */}
-      <Card className="glass-panel border-rose-500/20 bg-rose-950/10">
+      <Card className="border-destructive/30 bg-destructive/5">
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center">
+            <div className="size-9 rounded-lg bg-destructive/10 text-destructive border border-destructive/20 flex items-center justify-center">
               <AlertCircle className="size-5" />
             </div>
             <div>
-              <CardTitle className="text-base text-white">Properties Requiring Immediate Audit</CardTitle>
-              <CardDescription className="text-xs text-slate-400">
+              <CardTitle className="text-base text-foreground">Properties Requiring Immediate Audit</CardTitle>
+              <CardDescription className="text-xs text-muted-foreground">
                 Staff must review these flagged listings on syndication sites
               </CardDescription>
             </div>
           </div>
           <Link href="/listings">
-            <Button variant="ghost" className="text-xs text-rose-300 hover:text-rose-200">
+            <Button variant="ghost" className="text-xs text-destructive hover:text-destructive/80">
               See All Flagged Properties <ArrowRight className="size-3.5 ml-1" />
             </Button>
           </Link>
@@ -96,21 +96,21 @@ export default function DashboardPage() {
             return (
               <div
                 key={disc.id}
-                className="p-3.5 rounded-lg bg-slate-900/80 border border-slate-800/80 flex items-center justify-between gap-4 hover:border-slate-700 transition-colors"
+                className="p-3.5 rounded-lg bg-card border border-border flex items-center justify-between gap-4 hover:border-accent transition-colors"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm text-slate-100">
+                    <span className="font-semibold text-sm text-card-foreground">
                       {listing ? `${listing.address.street}, ${listing.address.city}` : "Unknown Address"}
                     </span>
-                    <Badge variant="outline" className="text-[10px] border-slate-700 font-mono">
+                    <Badge variant="outline" className="text-[10px] font-mono">
                       {listing?.mlsNumber}
                     </Badge>
                   </div>
-                  <p className="text-xs text-slate-400 flex items-center gap-2">
-                    <span className="text-rose-400 font-medium capitalize">Field: {disc.field}</span>
+                  <p className="text-xs text-muted-foreground flex items-center gap-2">
+                    <span className="text-destructive font-medium capitalize">Field: {disc.field}</span>
                     <span>•</span>
-                    <span className="uppercase text-slate-500 font-mono">{disc.site}</span>
+                    <span className="uppercase font-mono">{disc.site}</span>
                   </p>
                 </div>
 

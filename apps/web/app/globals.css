@@ -200,3 +200,7 @@ body {
 .glow-border-rose {
   box-shadow: 0 0 15px -3px rgba(244, 63, 94, 0.4);
 }
+  ::view-transition-old(root), ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}

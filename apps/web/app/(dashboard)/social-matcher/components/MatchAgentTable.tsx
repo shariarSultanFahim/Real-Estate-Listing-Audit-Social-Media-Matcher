@@ -27,30 +27,30 @@ export function MatchAgentTable({ results, queryCity, queryPrice }: MatchAgentTa
   };
 
   return (
-    <Card className="glass-panel border-slate-800 space-y-4 p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+    <Card className="space-y-4 p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
         <div>
-          <CardTitle className="text-lg text-white flex items-center gap-2">
-            <Users className="size-5 text-indigo-400" />
+          <CardTitle className="text-lg text-card-foreground flex items-center gap-2">
+            <Users className="size-5 text-primary" />
             Matched Agents ({results.length})
           </CardTitle>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Matching area <strong className="text-white">{queryCity}</strong> at price point{" "}
-            <strong className="text-indigo-300">${queryPrice.toLocaleString()}</strong>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Matching area <strong className="text-foreground">{queryCity}</strong> at price point{" "}
+            <strong className="text-primary">${queryPrice.toLocaleString()}</strong>
           </p>
         </div>
 
         {results.length > 0 && (
-          <Button variant="outline" size="sm" onClick={handleCopyAll} className="text-xs border-slate-800 text-slate-300">
+          <Button variant="outline" size="sm" onClick={handleCopyAll} className="text-xs">
             <Copy className="size-3.5 mr-1.5" /> Copy Entire List
           </Button>
         )}
       </div>
 
       {results.length === 0 ? (
-        <div className="p-8 text-center text-slate-500 space-y-2">
+        <div className="p-8 text-center text-muted-foreground space-y-2">
           <p className="text-sm font-medium">No agents matched this specific combination.</p>
-          <p className="text-xs text-slate-600">
+          <p className="text-xs text-muted-foreground/70">
             Try adjusting the city or price filter above to see agents with matching standing preferences.
           </p>
         </div>

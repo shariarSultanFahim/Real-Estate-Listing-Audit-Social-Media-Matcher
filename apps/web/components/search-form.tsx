@@ -20,9 +20,9 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
           <SidebarInput
             id="search"
             placeholder="Search listings, agents..."
-            className="pl-8 bg-slate-900 border-slate-800 text-xs"
+            className="pl-8 bg-sidebar-accent/50 border-sidebar-border text-xs"
           />
-          <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none text-slate-500 opacity-70" />
+          <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none text-sidebar-foreground/60" />
         </SidebarGroupContent>
       </SidebarGroup>
     </form>

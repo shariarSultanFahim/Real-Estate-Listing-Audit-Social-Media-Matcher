@@ -20,18 +20,18 @@ export function MatchAgentItem({ match }: MatchAgentItemProps) {
   };
 
   return (
-    <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-slate-700 transition-colors">
+    <div className="p-4 rounded-xl bg-card border border-border flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-accent transition-colors">
       <div className="space-y-1.5">
         <div className="flex items-center gap-3">
-          <span className="font-semibold text-sm text-white">{match.agentName}</span>
-          <Badge variant="outline" className="text-[10px] bg-indigo-500/10 border-indigo-500/30 text-indigo-300">
+          <span className="font-semibold text-sm text-card-foreground">{match.agentName}</span>
+          <Badge variant="outline" className="text-[10px] bg-primary/10 border-primary/30 text-primary">
             Matched
           </Badge>
         </div>
 
         {/* Explainable Match Reason (Explicit requirement in spec) */}
-        <p className="text-xs text-slate-300 flex items-center gap-1.5">
-          <span className="text-indigo-400 font-semibold">Match Rationale:</span>
+        <p className="text-xs text-foreground flex items-center gap-1.5">
+          <span className="text-primary font-semibold">Match Rationale:</span>
           <span>{match.matchReason}</span>
         </p>
 
@@ -42,13 +42,13 @@ export function MatchAgentItem({ match }: MatchAgentItemProps) {
               href={match.facebookPageUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-slate-400 hover:text-blue-400 flex items-center gap-1 transition-colors"
+              className="text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
             >
-              <Facebook className="size-3.5 text-blue-500" />
+              <Facebook className="size-3.5 text-primary" />
               <span>Facebook Page</span>
             </a>
           ) : (
-            <span className="text-slate-600 text-[11px]">No FB Page</span>
+            <span className="text-muted-foreground/60 text-[11px]">No FB Page</span>
           )}
 
           {match.instagramPageUrl ? (
@@ -56,29 +56,30 @@ export function MatchAgentItem({ match }: MatchAgentItemProps) {
               href={match.instagramPageUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-slate-400 hover:text-pink-400 flex items-center gap-1 transition-colors"
+              className="text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
             >
-              <Instagram className="size-3.5 text-pink-500" />
+              <Instagram className="size-3.5 text-primary" />
               <span>Instagram Profile</span>
             </a>
           ) : (
-            <span className="text-slate-600 text-[11px]">No IG Handle</span>
+            <span className="text-muted-foreground/60 text-[11px]">No IG Handle</span>
           )}
         </div>
       </div>
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2 shrink-0">
-        <Button variant="outline" size="sm" onClick={handleCopy} className="text-xs border-slate-800 text-slate-300">
+        <Button variant="outline" size="sm" onClick={handleCopy} className="text-xs">
           <Copy className="size-3.5 mr-1" /> Copy Details
         </Button>
         <Button
           size="sm"
+          variant={isPosted ? "secondary" : "default"}
           onClick={() => {
             setIsPosted(!isPosted);
             toast.success(isPosted ? "Marked as pending" : `Marked cross-post sent for ${match.agentName}`);
           }}
-          className={isPosted ? "bg-emerald-600 hover:bg-emerald-500 text-white text-xs" : "bg-indigo-600 hover:bg-indigo-500 text-white text-xs"}
+          className="text-xs"
         >
           {isPosted ? (
             <>

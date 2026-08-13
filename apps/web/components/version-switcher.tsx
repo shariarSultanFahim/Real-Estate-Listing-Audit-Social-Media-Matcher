@@ -33,28 +33,28 @@ export function VersionSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 glow-border-indigo shrink-0">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shrink-0">
                 <Building2 className="size-4" />
               </div>
               <div className="flex flex-col gap-0.5 leading-none text-left">
-                <span className="font-semibold text-xs text-white">Crescent Sotheby&apos;s</span>
-                <span className="text-[10px] text-slate-400 font-mono">Office v{selectedVersion}</span>
+                <span className="font-semibold text-xs text-sidebar-foreground">Crescent Sotheby&apos;s</span>
+                <span className="text-[10px] text-sidebar-foreground/70 font-mono">Office v{selectedVersion}</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4 text-slate-500" />
+              <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/60" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] bg-slate-900 border-slate-800 text-slate-200"
+            className="w-[--radix-dropdown-menu-trigger-width] bg-popover border-border text-popover-foreground"
             align="start"
           >
             {versions.map((version) => (
               <DropdownMenuItem
                 key={version}
                 onSelect={() => setSelectedVersion(version)}
-                className="text-xs hover:bg-slate-800"
+                className="text-xs hover:bg-accent hover:text-accent-foreground"
               >
                 Louisiana / MS / AL v{version}{" "}
-                {version === selectedVersion && <Check className="ml-auto size-3.5 text-indigo-400" />}
+                {version === selectedVersion && <Check className="ml-auto size-3.5 text-primary" />}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
