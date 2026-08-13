@@ -30,13 +30,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="size-2 rounded-full bg-emerald-500 animate-pulse hidden sm:inline-block" />
-              <span className="text-xs font-mono text-muted-foreground uppercase tracking-widest hidden md:inline-block">
-                700 Listings Monitored
-              </span>
+              <UserMenu />
               <AlertsPopover />
               <AnimatedThemeToggler className="flex size-8 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors" />
-              <UserMenu />
             </div>
           </div>
         </header>

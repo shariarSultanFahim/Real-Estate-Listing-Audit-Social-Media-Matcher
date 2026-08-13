@@ -10,6 +10,7 @@ import { ShieldAlert } from "lucide-react";
 interface RequirePermissionProps {
   permission?: Permission;
   permissions?: Permission[];
+  superAdminOnly?: boolean;
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }
@@ -17,6 +18,7 @@ interface RequirePermissionProps {
 export function RequirePermission({
   permission,
   permissions,
+  superAdminOnly,
   children,
   fallback,
 }: RequirePermissionProps) {
@@ -28,9 +30,10 @@ export function RequirePermission({
   const hasAccess = React.useMemo(() => {
     if (!currentUser) return false;
     if (currentUser.accountType === "superAdmin") return true;
+    if (superAdminOnly) return false;
     if (checkedPermissions.length === 0) return true;
     return checkedPermissions.some((p) => currentUser.permissions.includes(p));
-  }, [currentUser, checkedPermissions]);
+  }, [currentUser, checkedPermissions, superAdminOnly]);
 
   if (!hasAccess) {
     if (fallback !== undefined) {

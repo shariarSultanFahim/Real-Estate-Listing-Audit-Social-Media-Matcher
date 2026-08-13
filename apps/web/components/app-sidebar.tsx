@@ -15,7 +15,7 @@ import {
   UserCheck,
   User,
 } from "lucide-react"
-import { usePermission } from "@/components/auth/AuthProvider"
+import { usePermission, useAuth } from "@/components/auth/AuthProvider"
 import { Permission } from "@real-estate/types"
 
 import {
@@ -36,6 +36,7 @@ interface NavItem {
   url: string
   icon: any
   permission?: Permission
+  superAdminOnly?: boolean
 }
 
 interface NavGroup {
@@ -104,6 +105,7 @@ const data: { info: { title: string; subtitle: string }; navMain: NavGroup[] } =
           title: "Settings",
           url: "/settings",
           icon: Settings,
+          superAdminOnly: true,
         },
       ],
     },
@@ -113,6 +115,7 @@ const data: { info: { title: string; subtitle: string }; navMain: NavGroup[] } =
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const { isMobile, setOpenMobile } = useSidebar()
+  const { currentUser } = useAuth()
   
   const canCreateListings = usePermission("listings:create")
   const canUseSocial = usePermission("socialMatcher:use")
@@ -125,11 +128,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   }
 
-  const isPermitted = (perm?: Permission) => {
-    if (!perm) return true
-    if (perm === "listings:create") return canCreateListings
-    if (perm === "socialMatcher:use") return canUseSocial
-    if (perm === "users:edit") return canEditUsers || canCreateUsers
+  const isPermitted = (item: NavItem) => {
+    if (item.superAdminOnly) {
+      return currentUser?.accountType === "superAdmin"
+    }
+    if (!item.permission) return true
+    if (item.permission === "listings:create") return canCreateListings
+    if (item.permission === "socialMatcher:use") return canUseSocial
+    if (item.permission === "users:edit") return canEditUsers || canCreateUsers
     return true
   }
 
@@ -156,7 +162,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {data.navMain.map((group) => {
-          const visibleItems = group.items.filter((item) => isPermitted(item.permission))
+          const visibleItems = group.items.filter((item) => isPermitted(item))
           if (visibleItems.length === 0) return null
 
           return (

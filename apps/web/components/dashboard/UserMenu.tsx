@@ -66,7 +66,7 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
+
         <DropdownMenuItem asChild>
           <Link href="/profile" className="cursor-pointer">
             <UserIcon className="size-4 mr-2" />
@@ -75,7 +75,7 @@ export function UserMenu() {
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
-        
+
         <DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold py-1">
           Switch Demo User:
         </DropdownMenuLabel>
