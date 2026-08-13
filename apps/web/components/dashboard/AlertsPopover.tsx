@@ -16,7 +16,7 @@ export function AlertsPopover() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="text-xs relative">
+        <Button variant="glass" size="sm" className="text-xs relative">
           <Bell className="size-3.5 mr-1" />
           Alerts ({openAlerts.length})
           {openAlerts.length > 0 && (
