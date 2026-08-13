@@ -49,11 +49,10 @@ export function FloatingCanvas() {
     }));
 
     let animationFrameId: number;
-    const timer = new THREE.Timer();
+    const clock = new THREE.Clock();
 
     const animate = () => {
-      timer.update();
-      const elapsed = timer.getElapsed();
+      const elapsed = clock.getElapsedTime();
 
       particles.forEach((p, i) => {
         p.x += p.speedX;
