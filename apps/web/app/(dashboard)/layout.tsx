@@ -1,27 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
-
 import { DashboardBreadcrumb } from "@/components/dashboard/DashboardBreadcrumb";
+import { AlertsPopover } from "@/components/dashboard/AlertsPopover";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -44,10 +33,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="text-xs font-mono text-muted-foreground uppercase tracking-widest hidden md:inline-block">
                 700 Listings Monitored
               </span>
-              <Button variant="outline" size="sm" className="text-xs">
-                <Bell className="size-3.5 mr-1" />
-                Alerts (5)
-              </Button>
+              <AlertsPopover />
               <AnimatedThemeToggler className="flex size-8 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors" />
             </div>
           </div>
