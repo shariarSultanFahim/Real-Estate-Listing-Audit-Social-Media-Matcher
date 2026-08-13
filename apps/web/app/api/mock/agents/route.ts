@@ -7,10 +7,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const body = await request.json();
+
+  /*
+   * NOTE: In-memory mutation (MOCK_AGENTS.unshift) disabled for Vercel/serverless deployment.
+   * Returning mock success response matching schema.
+   */
   const newAgent = {
     ...body,
     id: `agent-${Date.now()}`,
   };
-  MOCK_AGENTS.unshift(newAgent);
+
   return NextResponse.json(newAgent, { status: 201 });
 }
