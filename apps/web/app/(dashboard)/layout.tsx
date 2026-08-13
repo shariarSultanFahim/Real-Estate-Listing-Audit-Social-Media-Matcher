@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center gap-3">
               <UserMenu />
               <AlertsPopover />
-              <AnimatedThemeToggler className="flex size-8 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors" />
+              <AnimatedThemeToggler className="flex size-8 items-center justify-center rounded-md bg-card text-card-foreground border border-border shadow-md hover:bg-accent hover:text-accent-foreground transition-colors" />
             </div>
           </div>
         </header>
