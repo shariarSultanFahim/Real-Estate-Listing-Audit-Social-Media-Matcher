@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FormLabel } from "@/components/ui/form-label";
 import { Combobox } from "@/components/ui/combobox";
+import { DatePicker } from "@/components/ui/date-picker";
 import { EmbeddedMapPreview } from "./EmbeddedMapPreview";
 import { Save, ArrowLeft, MapPin, Building, FileText, Search, AlertCircle } from "lucide-react";
 import { z } from "zod";
@@ -532,11 +533,20 @@ export function ListingEssentialsForm({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <FormLabel required htmlFor="listDate">List Date</FormLabel>
-                <Input
-                  id="listDate"
-                  type="date"
-                  {...register("listDate", { onChange: () => clearErrors("listDate") })}
-                  className={`h-10 text-sm ${errors.listDate ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                <Controller
+                  name="listDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      value={field.value}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        clearErrors("listDate");
+                      }}
+                      placeholder="Pick List Date"
+                      hasError={!!errors.listDate}
+                    />
+                  )}
                 />
                 {errors.listDate && (
                   <p className="text-red-500 text-xs mt-1">{errors.listDate.message}</p>
@@ -544,11 +554,20 @@ export function ListingEssentialsForm({
               </div>
               <div className="space-y-1">
                 <FormLabel required htmlFor="expirationDate">Expiration Date</FormLabel>
-                <Input
-                  id="expirationDate"
-                  type="date"
-                  {...register("expirationDate", { onChange: () => clearErrors("expirationDate") })}
-                  className={`h-10 text-sm ${errors.expirationDate ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                <Controller
+                  name="expirationDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      value={field.value}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        clearErrors("expirationDate");
+                      }}
+                      placeholder="Pick Expiration Date"
+                      hasError={!!errors.expirationDate}
+                    />
+                  )}
                 />
                 {errors.expirationDate && (
                   <p className="text-red-500 text-xs mt-1">{errors.expirationDate.message}</p>
@@ -558,11 +577,19 @@ export function ListingEssentialsForm({
 
             <div className="space-y-1">
               <FormLabel htmlFor="anticipatedLaunchDate">Anticipated Launch Date</FormLabel>
-              <Input
-                id="anticipatedLaunchDate"
-                type="date"
-                {...register("anticipatedLaunchDate")}
-                className="h-10 text-sm"
+              <Controller
+                name="anticipatedLaunchDate"
+                control={control}
+                render={({ field }) => (
+                  <DatePicker
+                    value={field.value}
+                    onChange={(val) => {
+                      field.onChange(val);
+                      clearErrors("anticipatedLaunchDate");
+                    }}
+                    placeholder="Pick Launch Date"
+                  />
+                )}
               />
             </div>
 
