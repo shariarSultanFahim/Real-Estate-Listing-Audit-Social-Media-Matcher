@@ -20,12 +20,13 @@ The application uses a persistent sidebar-inset layout with dynamic breadcrumbs,
 
 ```
 +-----------------------------------------------------------------------------------+
-| [Sidebar Toggle] | Crescent Sotheby's > [Dynamic Breadcrumb]      [User] [Alerts] [Theme] |
+| [Sidebar Toggle] | Crescent Sotheby's > [Dynamic Breadcrumb]      [User] [Alerts] |
+|                                                                           [Theme] |
 +-----------------------------------------------------------------------------------+
 | SIDEBAR NAVIGATION | MAIN PAGE CONTENT AREA                                       |
 | - Overview         |                                                              |
 | - All Listings     |  - PageHeader (Title, Subtitle, Actions)                     |
-| - Add New Listing  |  - Interactive Tables & Filters                               |
+| - Add New Listing  |  - Interactive Tables & Filters                              |
 | - Social Matcher   |  - Modals & Forms                                            |
 | - Agent Directory  |                                                              |
 | - Employees        |                                                              |
