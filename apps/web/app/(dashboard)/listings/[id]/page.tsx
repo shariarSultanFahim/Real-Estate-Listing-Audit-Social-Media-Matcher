@@ -25,6 +25,7 @@ export default function ListingDetailAuditPage({
   const { data: agents = [] } = useAgents();
 
   const [activeModalDiscrepancy, setActiveModalDiscrepancy] = useState<Discrepancy | null>(null);
+  const [selectedDiscrepancyTab, setSelectedDiscrepancyTab] = useState<"active" | "history">("active");
 
   if (isLoadingListing || isLoadingDiscrepancies) {
     return <Skeleton className="h-[600px] w-full" />;
@@ -44,7 +45,6 @@ export default function ListingDetailAuditPage({
   const agent = agents.find((a) => a.id === listing.listingAgentId);
   const activeDiscrepancies = discrepancies.filter((d) => d.status === "open" || d.status === "in_progress");
   const resolvedDiscrepancies = discrepancies.filter((d) => d.status === "resolved" || d.status === "ignored");
-  const [selectedDiscrepancyTab, setSelectedDiscrepancyTab] = useState<"active" | "history">("active");
 
   return (
     <div className="space-y-8">
