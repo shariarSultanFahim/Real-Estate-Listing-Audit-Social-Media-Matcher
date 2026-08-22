@@ -20,6 +20,9 @@ export function matchAgentsForListing(
         facebookPageUrl: agent.facebookPageUrl,
         instagramPageUrl: agent.instagramPageUrl,
         matchReason: "Agent prefers all new listings cross-posted automatically.",
+        locationRegion: `${agent.officeState} (${agent.serviceAreas.join(", ")})`,
+        pricePreference: "Any Price / All Ranges",
+        sharingPreference: "Always Share (All Listings)",
       });
       continue;
     }
@@ -38,6 +41,9 @@ export function matchAgentsForListing(
           facebookPageUrl: agent.facebookPageUrl,
           instagramPageUrl: agent.instagramPageUrl,
           matchReason: `Covers ${city} area within price range $${min.toLocaleString()} – $${max.toLocaleString()}`,
+          locationRegion: `${agent.officeState} (${agent.serviceAreas.join(", ")})`,
+          pricePreference: `$${min.toLocaleString()} – $${max === Infinity ? "No Max" : max.toLocaleString()}`,
+          sharingPreference: "Area & Price Dependent",
         });
       }
     }

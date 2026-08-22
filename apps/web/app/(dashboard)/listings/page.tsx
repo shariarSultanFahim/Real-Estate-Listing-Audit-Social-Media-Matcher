@@ -33,7 +33,7 @@ export default function ListingsAuditPage() {
   // Filter listings
   const filteredListings = listings.filter((listing) => {
     const listingDiscrepancies = discrepancies.filter(
-      (d) => d.listingId === listing.id && d.status === "open"
+      (d) => d.listingId === listing.id && (d.status === "open" || d.status === "in_progress")
     );
 
     // View Mode Filter
@@ -68,7 +68,7 @@ export default function ListingsAuditPage() {
   });
 
   const issuesCount = listings.filter((l) =>
-    discrepancies.some((d) => d.listingId === l.id && d.status === "open")
+    discrepancies.some((d) => d.listingId === l.id && (d.status === "open" || d.status === "in_progress"))
   ).length;
 
   return (

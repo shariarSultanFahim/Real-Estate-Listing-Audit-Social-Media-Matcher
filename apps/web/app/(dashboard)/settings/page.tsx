@@ -14,6 +14,7 @@ const SYNDICATION_SITES = [
   { id: "homes", name: "Homes.com", status: "Active", type: "National Portal" },
   { id: "sothebysRealty", name: "Sotheby's International Realty", status: "Active", type: "Global Brand Portal" },
   { id: "crescentSothebys", name: "Crescent Sotheby's Internal Site", status: "Active", type: "Brokerage Web" },
+  { id: "lacdb", name: "LACDB (Louisiana Commercial Database)", status: "Active", type: "Commercial Portal" },
   { id: "mansionsGlobal", name: "Mansions Global", status: "Active", type: "Luxury Syndicate" },
   { id: "google", name: "Google Business / Maps", status: "Active", type: "Search Engine" },
 ];
@@ -27,6 +28,7 @@ export default function SettingsPage() {
     homes: true,
     sothebysRealty: true,
     crescentSothebys: true,
+    lacdb: true,
     mansionsGlobal: true,
     google: true,
   });
@@ -52,7 +54,7 @@ export default function SettingsPage() {
             <div>
               <CardTitle className="text-lg text-card-foreground flex items-center gap-2">
                 <Globe className="size-5 text-primary" />
-                Monitored Syndication Outlets (7 Portals)
+                Monitored Syndication Outlets ({SYNDICATION_SITES.length} Portals)
               </CardTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Read-only scraper engines inspect these platforms for listing data drift.

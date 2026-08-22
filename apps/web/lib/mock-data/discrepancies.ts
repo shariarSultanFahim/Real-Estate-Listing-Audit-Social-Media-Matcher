@@ -40,8 +40,9 @@ export const MOCK_DISCREPANCIES: Discrepancy[] = [
     field: "mapCoordinates",
     sourceValue: "Lat: 30.3674, Lng: -89.0928",
     siteValue: "Lat: 30.3710, Lng: -89.0850 [Pin off by 0.6 miles]",
-    status: "open",
+    status: "in_progress",
     detectedAt: "2026-08-11T10:00:00Z",
+    note: "Staff contacted listing agent to update pin placement on MLS.",
   },
   {
     id: "disc-005",
@@ -64,5 +65,16 @@ export const MOCK_DISCREPANCIES: Discrepancy[] = [
     detectedAt: "2026-08-01T09:00:00Z",
     resolvedAt: "2026-08-05T11:30:00Z",
     note: "Updated manually on Google Business listing.",
+  },
+  {
+    id: "disc-007",
+    listingId: "list-101",
+    site: "lacdb",
+    field: "description",
+    sourceValue: "Prime commercial and residential mixed opportunity in Saint Tammany Parish...",
+    siteValue: "Commercial lot overview [Pending full text sync]",
+    status: "in_progress",
+    detectedAt: "2026-08-18T16:00:00Z",
+    note: "Waiting for LACDB commercial syndication endpoint batch refresh.",
   },
 ];

@@ -8,6 +8,7 @@ export const SyndicationSiteEnum = z.enum([
   "sothebysRealty",
   "crescentSothebys",
   "mansionsGlobal",
+  "lacdb",
   "google",
 ]);
 
@@ -20,7 +21,7 @@ export const DiscrepancyFieldEnum = z.enum([
   "legalDescription",
 ]);
 
-export const DiscrepancyStatusEnum = z.enum(["open", "resolved", "ignored"]);
+export const DiscrepancyStatusEnum = z.enum(["open", "in_progress", "resolved", "ignored"]);
 
 export const ListingStatusEnum = z.enum(["active", "pending", "sold", "withdrawn"]);
 
@@ -146,6 +147,9 @@ export const MatchResultSchema = z.object({
   facebookPageUrl: z.string().optional(),
   instagramPageUrl: z.string().optional(),
   matchReason: z.string(),
+  locationRegion: z.string().optional(),
+  pricePreference: z.string().optional(),
+  sharingPreference: z.string().optional(),
 });
 
 export const UserSchema = z.object({

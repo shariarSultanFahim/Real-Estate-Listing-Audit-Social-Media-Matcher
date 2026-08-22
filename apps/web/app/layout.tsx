@@ -16,8 +16,41 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-background text-foreground antialiased`}>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var clean = function() {
+                    var els = document.querySelectorAll('[bis_skin_checked], [bis_register], [bis_frame_id]');
+                    for (var i = 0; i < els.length; i++) {
+                      els[i].removeAttribute('bis_skin_checked');
+                      els[i].removeAttribute('bis_register');
+                      els[i].removeAttribute('bis_frame_id');
+                    }
+                  };
+                  clean();
+                  var observer = new MutationObserver(function(mutations) {
+                    for (var i = 0; i < mutations.length; i++) {
+                      var m = mutations[i];
+                      if (m.type === 'attributes' && m.attributeName && m.attributeName.indexOf('bis_') === 0) {
+                        m.target.removeAttribute(m.attributeName);
+                      }
+                    }
+                  });
+                  observer.observe(document.documentElement, { attributes: true, subtree: true });
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body
+        className={`${inter.className} bg-background text-foreground antialiased`}
+        suppressHydrationWarning
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -29,8 +29,24 @@ export function MatchAgentItem({ match }: MatchAgentItemProps) {
           </Badge>
         </div>
 
+        {/* Agent Metadata from Management Sheet */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 py-1 text-xs">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <span className="font-medium text-foreground">Location/Region:</span>
+            <span>{match.locationRegion || "Greater Metro Area"}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <span className="font-medium text-foreground">Price Preference:</span>
+            <span className="text-primary font-mono">{match.pricePreference || "All Ranges"}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <span className="font-medium text-foreground">Sharing Preference:</span>
+            <span className="font-medium text-foreground">{match.sharingPreference || "Automatic Share"}</span>
+          </div>
+        </div>
+
         {/* Explainable Match Reason (Explicit requirement in spec) */}
-        <p className="text-xs text-foreground flex items-center gap-1.5">
+        <p className="text-xs text-foreground flex items-center gap-1.5 pt-0.5">
           <span className="text-primary font-semibold">Match Rationale:</span>
           <span>{match.matchReason}</span>
         </p>

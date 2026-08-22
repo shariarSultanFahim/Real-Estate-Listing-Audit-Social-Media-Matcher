@@ -49,7 +49,7 @@ export function useDiscrepancies(listingId?: string) {
 export function useUpdateDiscrepancy() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { id: string; status?: "open" | "resolved" | "ignored"; note?: string }) => {
+    mutationFn: async (payload: { id: string; status?: "open" | "in_progress" | "resolved" | "ignored"; note?: string }) => {
       const res = await apiClient.patch("/discrepancies", payload);
       return DiscrepancySchema.parse(res.data);
     },

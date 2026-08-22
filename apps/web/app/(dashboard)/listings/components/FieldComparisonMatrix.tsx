@@ -16,6 +16,7 @@ const SITES = [
   { id: "homes", label: "Homes.com" },
   { id: "sothebysRealty", label: "Sotheby's Global" },
   { id: "crescentSothebys", label: "Crescent Sotheby's" },
+  { id: "lacdb", label: "LACDB" },
 ];
 
 export function FieldComparisonMatrix({ listing, discrepancies }: FieldComparisonMatrixProps) {
@@ -63,23 +64,34 @@ export function FieldComparisonMatrix({ listing, discrepancies }: FieldCompariso
               {/* External Sites Columns */}
               {SITES.map((site) => {
                 const disc = discrepancies.find(
-                  (d) => d.site === site.id && d.field === field.key && d.status === "open"
+                  (d) => d.site === site.id && d.field === field.key && (d.status === "open" || d.status === "in_progress")
                 );
 
                 if (disc) {
+                  const isInProgress = disc.status === "in_progress";
                   return (
                     <TableCell
                       key={site.id}
-                      className="bg-destructive/10 border border-destructive/30 text-xs font-mono text-destructive relative"
+                      className={
+                        isInProgress
+                          ? "bg-amber-500/10 border border-amber-500/30 text-xs font-mono text-amber-600 dark:text-amber-400 relative"
+                          : "bg-destructive/10 border border-destructive/30 text-xs font-mono text-destructive relative"
+                      }
                     >
                       <div className="flex items-start gap-1.5">
-                        <AlertCircle className="size-3.5 text-destructive shrink-0 mt-0.5" />
+                        <AlertCircle className={`size-3.5 ${isInProgress ? "text-amber-500" : "text-destructive"} shrink-0 mt-0.5`} />
                         <div>
                           <span>{disc.siteValue}</span>
                           <div className="mt-1">
-                            <Badge variant="destructive" className="text-[9px] px-1.5 py-0">
-                              Mismatch
-                            </Badge>
+                            {isInProgress ? (
+                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-amber-500/50 bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                                In Progress
+                              </Badge>
+                            ) : (
+                              <Badge variant="destructive" className="text-[9px] px-1.5 py-0">
+                                Mismatch
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       </div>
