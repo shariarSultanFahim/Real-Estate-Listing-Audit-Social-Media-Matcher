@@ -48,12 +48,18 @@ export function ListingsTable({
           </TableRow>
         ) : (
           listings.map((listing) => {
-            const listingDiscrepancies = discrepancies.filter(
+            const activeDiscrepancies = discrepancies.filter(
+              (d) => d.listingId === listing.id && (d.status === "open" || d.status === "in_progress")
+            );
+            const openDiscrepancies = discrepancies.filter(
               (d) => d.listingId === listing.id && d.status === "open"
+            );
+            const inProgressDiscrepancies = discrepancies.filter(
+              (d) => d.listingId === listing.id && d.status === "in_progress"
             );
             const agent = agents.find((a) => a.id === listing.listingAgentId);
             const affectedSites = Array.from(
-              new Set(listingDiscrepancies.map((d) => d.site))
+              new Set(activeDiscrepancies.map((d) => d.site))
             );
 
             return (
@@ -94,20 +100,31 @@ export function ListingsTable({
                   {agent ? agent.name : "Unassigned"}
                 </TableCell>
                 <TableCell>
-                  <ListingStatusBadge discrepancyCount={listingDiscrepancies.length} />
+                  <ListingStatusBadge
+                    openCount={openDiscrepancies.length}
+                    inProgressCount={inProgressDiscrepancies.length}
+                  />
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {affectedSites.length > 0 ? (
-                      affectedSites.map((site) => (
-                        <Badge
-                          key={site}
-                          variant="destructive"
-                          className="text-[10px] uppercase font-mono"
-                        >
-                          {site}
-                        </Badge>
-                      ))
+                      affectedSites.map((site) => {
+                        const siteDiscs = activeDiscrepancies.filter((d) => d.site === site);
+                        const allInProgress = siteDiscs.every((d) => d.status === "in_progress");
+                        return (
+                          <Badge
+                            key={site}
+                            variant={allInProgress ? "outline" : "destructive"}
+                            className={
+                              allInProgress
+                                ? "text-[10px] uppercase font-mono border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                : "text-[10px] uppercase font-mono"
+                            }
+                          >
+                            {site}
+                          </Badge>
+                        );
+                      })
                     ) : (
                       <span className="text-xs text-muted-foreground font-mono">None</span>
                     )}

@@ -42,7 +42,9 @@ export default function ListingDetailAuditPage({
   }
 
   const agent = agents.find((a) => a.id === listing.listingAgentId);
-  const openDiscrepancies = discrepancies.filter((d) => d.status === "open");
+  const activeDiscrepancies = discrepancies.filter((d) => d.status === "open" || d.status === "in_progress");
+  const resolvedDiscrepancies = discrepancies.filter((d) => d.status === "resolved" || d.status === "ignored");
+  const [selectedDiscrepancyTab, setSelectedDiscrepancyTab] = useState<"active" | "history">("active");
 
   return (
     <div className="space-y-8">
@@ -114,31 +116,33 @@ export default function ListingDetailAuditPage({
         </Card>
 
         {/* Discrepancy Status Summary Card */}
-        <Card className={openDiscrepancies.length > 0 ? "border-destructive/30 bg-destructive/5" : "border-emerald-500/30 bg-emerald-500/5"}>
+        <Card className={activeDiscrepancies.length > 0 ? "border-destructive/30 bg-destructive/5" : "border-emerald-500/30 bg-emerald-500/5"}>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Audit Health Status
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {openDiscrepancies.length > 0 ? (
+            {activeDiscrepancies.length > 0 ? (
               <>
                 <div className="text-2xl font-bold text-destructive flex items-center gap-2">
                   <ShieldAlert className="size-6 text-destructive" />
-                  {openDiscrepancies.length} Open Mismatches
+                  {activeDiscrepancies.length} Active {activeDiscrepancies.length === 1 ? "Issue" : "Issues"}
                 </div>
                 <p className="text-xs text-destructive/80">
-                  Action required: verify external syndication site data against Brokerage Engine.
+                  {discrepancies.filter(d => d.status === "open").length} open, {discrepancies.filter(d => d.status === "in_progress").length} in progress.
                 </p>
               </>
             ) : (
               <>
                 <div className="text-2xl font-bold text-emerald-500 flex items-center gap-2">
                   <CheckCircle2 className="size-6 text-emerald-500" />
-                  100% Synced
+                  All Active Issues Clean
                 </div>
                 <p className="text-xs text-emerald-500/80">
-                  All external sites match Brokerage Engine specifications.
+                  {resolvedDiscrepancies.length > 0
+                    ? `${resolvedDiscrepancies.length} historical discrepancies resolved.`
+                    : "All external sites match Brokerage Engine specifications."}
                 </p>
               </>
             )}
@@ -146,44 +150,151 @@ export default function ListingDetailAuditPage({
         </Card>
       </div>
 
-      {/* Discrepancies Action List (If any exist) */}
-      {openDiscrepancies.length > 0 && (
-        <Card className="border-destructive/30">
-          <CardHeader>
-            <CardTitle className="text-base text-card-foreground">Pending Actionable Discrepancies</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {openDiscrepancies.map((disc) => (
-              <div
-                key={disc.id}
-                className="p-4 rounded-lg bg-card border border-border flex items-center justify-between gap-4"
+      {/* Discrepancy Action List with Active vs Resolved/History Switcher */}
+      <Card className="border-border">
+        <CardHeader className="border-b border-border pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <CardTitle className="text-base text-card-foreground">Audit Discrepancies &amp; Resolution History</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Track active syndication issues and inspect historical resolution actions
+              </p>
+            </div>
+
+            {/* Tab Pill Selector */}
+            <div className="p-1 rounded-lg bg-muted border border-border flex items-center gap-1">
+              <Button
+                variant={selectedDiscrepancyTab === "active" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedDiscrepancyTab("active")}
+                className="text-xs h-7 px-3 gap-1.5"
               >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="destructive" className="uppercase font-mono text-[10px]">
-                      {disc.site}
-                    </Badge>
-                    <span className="font-semibold text-sm text-card-foreground capitalize">
-                      Field: {disc.field}
-                    </span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1 flex gap-4 font-mono">
-                    <span>Source: <strong className="text-primary">{disc.sourceValue}</strong></span>
-                    <span>Site: <strong className="text-destructive">{disc.siteValue}</strong></span>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => setActiveModalDiscrepancy(disc)}
-                  className="text-xs shrink-0"
-                >
-                  Resolve / Action
-                </Button>
+                <span>Active Discrepancies</span>
+                <Badge variant={activeDiscrepancies.length > 0 ? "destructive" : "secondary"} className="text-[10px] px-1 py-0 h-4">
+                  {activeDiscrepancies.length}
+                </Badge>
+              </Button>
+              <Button
+                variant={selectedDiscrepancyTab === "history" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedDiscrepancyTab("history")}
+                className="text-xs h-7 px-3 gap-1.5"
+              >
+                <span>Resolved History</span>
+                <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 bg-background">
+                  {resolvedDiscrepancies.length}
+                </Badge>
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-3 pt-4">
+          {selectedDiscrepancyTab === "active" ? (
+            activeDiscrepancies.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground space-y-2">
+                <CheckCircle2 className="size-8 text-emerald-500 mx-auto" />
+                <p className="text-sm font-medium text-foreground">No active discrepancies</p>
+                <p className="text-xs text-muted-foreground">
+                  All syndication portals currently match Brokerage Engine. Resolved items can be viewed in the History tab.
+                </p>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+            ) : (
+              activeDiscrepancies.map((disc) => {
+                const isInProgress = disc.status === "in_progress";
+                return (
+                  <div
+                    key={disc.id}
+                    className="p-4 rounded-lg bg-card border border-border flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={isInProgress ? "outline" : "destructive"}
+                          className={isInProgress ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] uppercase font-mono" : "uppercase font-mono text-[10px]"}
+                        >
+                          {disc.site}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className={isInProgress ? "border-amber-500/50 bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px]" : "border-destructive/30 bg-destructive/10 text-destructive text-[10px]"}
+                        >
+                          {isInProgress ? "In Progress" : "Open"}
+                        </Badge>
+                        <span className="font-semibold text-sm text-card-foreground capitalize">
+                          Field: {disc.field}
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1.5 flex flex-wrap gap-4 font-mono">
+                        <span>Source: <strong className="text-primary">{disc.sourceValue}</strong></span>
+                        <span>Site: <strong className={isInProgress ? "text-amber-600 dark:text-amber-400" : "text-destructive"}>{disc.siteValue}</strong></span>
+                      </div>
+                      {disc.note && (
+                        <p className="text-xs text-muted-foreground mt-1 italic">
+                          Latest Note: &ldquo;{disc.note}&rdquo;
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => setActiveModalDiscrepancy(disc)}
+                      className="text-xs shrink-0"
+                    >
+                      Action / Update Note
+                    </Button>
+                  </div>
+                );
+              })
+            )
+          ) : (
+            /* Resolved / Discrepancy History Tab */
+            resolvedDiscrepancies.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground space-y-2">
+                <p className="text-sm font-medium">No historical discrepancies recorded yet.</p>
+                <p className="text-xs">Resolved issues and notes will appear here for audit trail compliance.</p>
+              </div>
+            ) : (
+              resolvedDiscrepancies.map((disc) => (
+                <div
+                  key={disc.id}
+                  className="p-4 rounded-lg bg-card/60 border border-border/80 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-accent transition-colors"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-[10px] uppercase font-mono">
+                        {disc.site}
+                      </Badge>
+                      <Badge variant="outline" className="text-[10px] border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        Resolved
+                      </Badge>
+                      <span className="font-medium text-sm text-card-foreground capitalize">
+                        Field: {disc.field}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground flex flex-wrap gap-4 font-mono">
+                      <span>Source: <strong className="text-foreground">{disc.sourceValue}</strong></span>
+                      <span>Resolved Site Value: <strong className="text-emerald-600 dark:text-emerald-400">{disc.siteValue}</strong></span>
+                    </div>
+                    {disc.note && (
+                      <p className="text-xs text-muted-foreground italic">
+                        Resolution Note: &ldquo;{disc.note}&rdquo;
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveModalDiscrepancy(disc)}
+                    className="text-xs shrink-0 gap-1.5"
+                  >
+                    View History &amp; Notes
+                  </Button>
+                </div>
+              ))
+            )
+          )}
+        </CardContent>
+      </Card>
 
       {/* Main Field Matrix Comparison */}
       <FieldComparisonMatrix listing={listing} discrepancies={discrepancies} />

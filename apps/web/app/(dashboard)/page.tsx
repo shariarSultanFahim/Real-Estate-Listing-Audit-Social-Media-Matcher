@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, ArrowRight, Plus } from "lucide-react";
+import { AlertCircle, ArrowRight, Clock, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -19,8 +19,8 @@ export default function DashboardPage() {
 
   const isLoading = isLoadingListings || isLoadingDiscrepancies || isLoadingAgents;
 
-  const openDiscrepancies = discrepancies.filter((d) => d.status === "open");
-  const openCount = openDiscrepancies.length;
+  const activeDiscrepancies = discrepancies.filter((d) => d.status === "open" || d.status === "in_progress");
+  const openCount = activeDiscrepancies.length;
 
   if (isLoading) {
     return (
@@ -40,7 +40,7 @@ export default function DashboardPage() {
       {/* Header Banner */}
       <PageHeader
         title="Listing Audit & Cross-Post Control Center"
-        description="Read-only discrepancy detection across Realtor.com, Zillow, Homes.com & Sotheby's portals."
+        description="Read-only discrepancy detection across Realtor.com, Zillow, Homes.com, Sotheby's & LACDB portals."
         actions={
           <>
             <Link href="/listings/new">
@@ -51,12 +51,51 @@ export default function DashboardPage() {
             </Link>
             <Link href="/listings">
               <Button variant="outline" className="gap-2">
-                View Audit Table ({openCount} Issues)
+                View Audit Table ({openCount} Active Issues)
               </Button>
             </Link>
           </>
         }
       />
+
+      {/* Audit Schedule / Frequency Info Card */}
+      <Card className="border-border bg-card/60 backdrop-blur-sm">
+        <CardContent className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+              <Clock className="size-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground">Automated Syndication Audit Schedule</span>
+                <Badge variant="outline" className="text-[10px] border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  Active • On Schedule
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Continuous reconciliation comparing Brokerage Engine records against all monitored syndication platforms.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-border">
+            <div>
+              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Audit Frequency</span>
+              <span className="font-semibold text-foreground text-sm">Every 6 Hours</span>
+            </div>
+            <div className="h-7 w-px bg-border hidden sm:block" />
+            <div>
+              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Last Audit</span>
+              <span className="font-mono text-foreground">Aug 22, 2026 10:00 AM</span>
+            </div>
+            <div className="h-7 w-px bg-border hidden sm:block" />
+            <div>
+              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Next Audit</span>
+              <span className="font-mono text-primary font-semibold">Aug 22, 2026 4:00 PM</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Metric Cards */}
       <StatCards
@@ -89,7 +128,7 @@ export default function DashboardPage() {
           </Link>
         </CardHeader>
         <CardContent className="space-y-3">
-          {openDiscrepancies.slice(0, 3).map((disc) => {
+          {activeDiscrepancies.slice(0, 3).map((disc) => {
             const listing = listings.find((l) => l.id === disc.listingId);
             return (
               <div
