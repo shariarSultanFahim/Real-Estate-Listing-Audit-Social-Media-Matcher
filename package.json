@@ -2,15 +2,23 @@
   "name": "real-estate-listing-audit",
   "private": true,
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "pnpm --parallel --filter api --filter web dev",
+    "dev:turbo": "turbo dev",
+    "dev:api": "pnpm --filter api dev",
+    "dev:web": "pnpm --filter web dev",
     "build": "turbo build",
     "start": "pnpm start",
-    "dev:web": "pnpm --filter web dev",
     "build:web": "pnpm --filter web build",
     "start:web": "pnpm --filter web start",
     "lint": "turbo lint",
     "check-types": "turbo check-types",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "db:generate": "pnpm --filter api db:generate",
+    "db:migrate": "pnpm --filter api db:migrate",
+    "db:push": "pnpm --filter api db:push",
+    "db:seed": "pnpm --filter api db:seed",
+    "db:studio": "pnpm --filter api db:studio",
+    "db:reset": "pnpm --filter api db:reset"
   },
   "devDependencies": {
     "prettier": "^3.5.0",

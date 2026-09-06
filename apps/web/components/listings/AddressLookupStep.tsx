@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MapPin, Search, Check } from "lucide-react";
+import { FormLabel } from "@/components/ui/form-label";
+import { MapPin, Search, ArrowRight, Building2 } from "lucide-react";
+import { useListings } from "@/hooks/useRealEstateApi";
 
 interface AddressSuggestion {
   street: string;
@@ -12,29 +14,37 @@ interface AddressSuggestion {
   zip: string;
 }
 
-const MOCK_ADDRESS_SUGGESTIONS: AddressSuggestion[] = [
-  { street: "104 Magnolia Lane", city: "Covington", state: "LA", zip: "70433" },
-  { street: "520 Ocean Drive", city: "Gulfport", state: "MS", zip: "39501" },
-  { street: "812 Mobile Street", city: "Fairhope", state: "AL", zip: "36532" },
-  { street: "315 St. Charles Avenue", city: "New Orleans", state: "LA", zip: "70130" },
-  { street: "1405 Beach Boulevard", city: "Biloxi", state: "MS", zip: "39530" },
-];
-
 interface AddressLookupStepProps {
   onSelectAddress: (addr: AddressSuggestion) => void;
 }
 
 export function AddressLookupStep({ onSelectAddress }: AddressLookupStepProps) {
-  const [query, setQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
+  const { data: existingListings = [] } = useListings();
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("LA");
+  const [zip, setZip] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filtered = query.trim()
-    ? MOCK_ADDRESS_SUGGESTIONS.filter(
-      (a) =>
-        a.street.toLowerCase().includes(query.toLowerCase()) ||
-        a.city.toLowerCase().includes(query.toLowerCase())
-    )
-    : MOCK_ADDRESS_SUGGESTIONS;
+  const handleCustomSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!street.trim() || !city.trim() || !zip.trim()) return;
+    onSelectAddress({
+      street: street.trim(),
+      city: city.trim(),
+      state: state.trim() || "LA",
+      zip: zip.trim(),
+    });
+  };
+
+  const filteredExisting = searchQuery.trim()
+    ? existingListings.filter(
+        (l) =>
+          l.address.street.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          l.address.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          l.mlsNumber.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 py-6">
@@ -43,51 +53,126 @@ export function AddressLookupStep({ onSelectAddress }: AddressLookupStepProps) {
           Step 1 — Enter Listing Address
         </h2>
         <p className="text-sm text-muted-foreground">
-          Search Google Places to auto-fill property location and map pin coordinates.
+          Enter property location details or search existing MLS records.
         </p>
       </div>
 
-      <div className="relative">
-        <div className="relative">
-          <Search className="size-5 text-muted-foreground absolute left-4 top-3.5" />
-          <Input
-            type="text"
-            placeholder="Type property address (e.g. 104 Magnolia Lane, Covington)..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="pl-11 h-12 text-base bg-card border-border text-foreground rounded-md shadow-md"
-          />
+      {/* Manual Address Form */}
+      <form onSubmit={handleCustomSubmit} className="p-6 rounded-xl bg-card border border-border space-y-4 shadow-sm">
+        <div className="space-y-1.5">
+          <FormLabel required htmlFor="street">Street Address</FormLabel>
+          <div className="relative">
+            <MapPin className="size-4 text-muted-foreground absolute left-3 top-3" />
+            <Input
+              id="street"
+              placeholder="e.g. 104 Magnolia Lane"
+              value={street}
+              onChange={(e) => setStreet(e.target.value)}
+              required
+              className="pl-9 bg-background border-input text-sm"
+            />
+          </div>
         </div>
 
-        {/* Dropdown Suggestions */}
-        <div className="mt-3 rounded-md bg-card border border-border overflow-hidden divide-y divide-border shadow-lg">
-          {filtered.map((item, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => onSelectAddress(item)}
-              className="w-full p-4 text-left hover:bg-accent hover:text-accent-foreground transition-colors flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                  <MapPin className="size-4" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-card-foreground">
-                    {item.street}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {item.city}, {item.state} {item.zip}
-                  </div>
-                </div>
-              </div>
-              <Button size="sm" variant="secondary" className="text-xs text-primary hover:bg-primary hover:text-primary-foreground">
-                Select &amp; Continue <Check className="size-3.5 ml-1" />
-              </Button>
-            </button>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="space-y-1.5 sm:col-span-1">
+            <FormLabel required htmlFor="city">City</FormLabel>
+            <Input
+              id="city"
+              placeholder="e.g. Covington"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              required
+              className="bg-background border-input text-sm"
+            />
+          </div>
+
+          <div className="space-y-1.5 sm:col-span-1">
+            <FormLabel required htmlFor="state">State</FormLabel>
+            <Input
+              id="state"
+              placeholder="LA"
+              value={state}
+              onChange={(e) => setState(e.target.value.toUpperCase())}
+              maxLength={2}
+              required
+              className="bg-background border-input text-sm uppercase font-mono"
+            />
+          </div>
+
+          <div className="space-y-1.5 sm:col-span-1">
+            <FormLabel required htmlFor="zip">ZIP Code</FormLabel>
+            <Input
+              id="zip"
+              placeholder="70433"
+              value={zip}
+              onChange={(e) => setZip(e.target.value)}
+              required
+              className="bg-background border-input text-sm font-mono"
+            />
+          </div>
         </div>
-      </div>
+
+        <div className="pt-2 flex justify-end">
+          <Button
+            type="submit"
+            disabled={!street.trim() || !city.trim() || !zip.trim()}
+            className="text-xs gap-1.5"
+          >
+            Continue to Essentials Form <ArrowRight className="size-3.5" />
+          </Button>
+        </div>
+      </form>
+
+      {/* Lookup Existing Property (if desired) */}
+      {existingListings.length > 0 && (
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <Search className="size-3.5" /> Or Quick-Fill From Existing Database Listings:
+          </div>
+
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Search existing MLS street, city, or MLS#..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-background border-input text-xs"
+            />
+          </div>
+
+          {filteredExisting.length > 0 && (
+            <div className="rounded-lg bg-card border border-border overflow-hidden divide-y divide-border shadow-sm">
+              {filteredExisting.slice(0, 5).map((l) => (
+                <button
+                  key={l.id}
+                  type="button"
+                  onClick={() =>
+                    onSelectAddress({
+                      street: l.address.street,
+                      city: l.address.city,
+                      state: l.address.state,
+                      zip: l.address.zip,
+                    })
+                  }
+                  className="w-full p-3 text-left hover:bg-accent hover:text-accent-foreground transition-colors flex items-center justify-between group text-xs"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Building2 className="size-4 text-primary" />
+                    <div>
+                      <span className="font-semibold text-foreground">{l.address.street}</span>
+                      <span className="text-muted-foreground ml-1.5">
+                        {l.address.city}, {l.address.state} {l.address.zip} • MLS: {l.mlsNumber}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-primary font-medium group-hover:underline">Use Address →</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

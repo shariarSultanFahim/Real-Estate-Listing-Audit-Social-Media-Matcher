@@ -17,15 +17,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("password123");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      const user = loginByEmail(email);
-      setIsLoading(false);
+    try {
+      const user = await loginByEmail(email, password);
       toast.success(`Welcome back, ${user.name}! Signed in as ${user.accountType === "superAdmin" ? "Super Admin" : "Employee"}`);
       router.push("/");
-    }, 400);
+    } catch {
+      toast.error("Failed to sign in. Please verify your credentials.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

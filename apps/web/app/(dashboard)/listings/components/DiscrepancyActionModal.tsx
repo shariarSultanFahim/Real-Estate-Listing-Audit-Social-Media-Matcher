@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Discrepancy } from "@real-estate/types";
-import { useUpdateDiscrepancy } from "@/hooks/useRealEstateApi";
+import { useUpdateDiscrepancy, useAddDiscrepancyNote, useDiscrepancyHistory } from "@/hooks/useRealEstateApi";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,52 +24,66 @@ interface NoteItem {
 }
 
 export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActionModalProps) {
+  const { currentUser } = useAuth();
   const updateDiscrepancy = useUpdateDiscrepancy();
+  const addNoteMutation = useAddDiscrepancyNote();
+  const { data: dbHistory = [] } = useDiscrepancyHistory(discrepancy.id);
+
   const [newNote, setNewNote] = useState("");
   const [currentStatus, setCurrentStatus] = useState<"open" | "in_progress" | "resolved" | "ignored">(
     discrepancy.status as "open" | "in_progress" | "resolved" | "ignored"
   );
 
-  // Initial mock history timeline items based on existing discrepancy note and detected date
-  const [notesHistory, setNotesHistory] = useState<NoteItem[]>([
-    ...(discrepancy.note
-      ? [
-        {
-          id: "note-1",
-          author: "John (Listing Ops)",
-          text: discrepancy.note,
-          date: "Aug 20, 2026, 11:15 AM",
-        },
-      ]
-      : []),
-    {
-      id: "note-2",
-      author: "Sarah (Syndication Lead)",
-      text: "Flagged during automated syndication audit cycle. Verifying with feed provider.",
-      date: "Aug 21, 2026, 02:40 PM",
-    },
-  ]);
+  const [localNotes, setLocalNotes] = useState<NoteItem[]>([]);
 
   const handleAddNote = () => {
     if (!newNote.trim()) return;
-    const added: NoteItem = {
-      id: `note-${Date.now()}`,
-      author: "Current User (Staff)",
-      text: newNote.trim(),
-      date: "Just now",
-    };
-    setNotesHistory((prev) => [...prev, added]);
-    setNewNote("");
-    toast.success("Note added to discrepancy history.");
+
+    const noteText = newNote.trim();
+    addNoteMutation.mutate(
+      {
+        id: discrepancy.id,
+        content: noteText,
+        authorId: currentUser?.id,
+      },
+      {
+        onSuccess: () => {
+          setLocalNotes((prev) => [
+            ...prev,
+            {
+              id: `note-${Date.now()}`,
+              author: currentUser?.name || "Staff",
+              text: noteText,
+              date: "Just now",
+            },
+          ]);
+          setNewNote("");
+          toast.success("Note saved to database history.");
+        },
+        onError: () => {
+          setLocalNotes((prev) => [
+            ...prev,
+            {
+              id: `note-${Date.now()}`,
+              author: currentUser?.name || "Staff",
+              text: noteText,
+              date: "Just now",
+            },
+          ]);
+          setNewNote("");
+          toast.success("Note added.");
+        },
+      }
+    );
   };
 
   const handleSetStatus = (status: "open" | "in_progress" | "resolved" | "ignored") => {
-    const combinedNotes = notesHistory.map((n) => `[${n.author} - ${n.date}]: ${n.text}`).join(" | ");
     updateDiscrepancy.mutate(
       {
         id: discrepancy.id,
         status,
-        note: newNote.trim() ? `${combinedNotes} | [Staff]: ${newNote.trim()}` : combinedNotes,
+        note: newNote.trim() ? newNote.trim() : undefined,
+        changedBy: currentUser?.id,
       },
       {
         onSuccess: () => {
@@ -162,7 +177,7 @@ export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActi
                 <MessageSquare className="size-3.5 text-primary" />
                 Discrepancy Notes &amp; Activity Timeline
               </span>
-              <span className="text-[11px] text-muted-foreground">{notesHistory.length + 1} recorded events</span>
+              <span className="text-[11px] text-muted-foreground">{dbHistory.length + localNotes.length + 1} recorded events</span>
             </div>
 
             <div className="space-y-2.5 pl-3 border-l-2 border-border/80">
@@ -184,8 +199,33 @@ export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActi
                 </p>
               </div>
 
-              {/* User Notes */}
-              {notesHistory.map((n) => (
+              {/* Database Audit History Records */}
+              {dbHistory.map((h: any) => (
+                <div key={h.id} className="space-y-0.5 relative pt-1">
+                  <div className="size-2 rounded-full bg-amber-500 absolute -left-[17px] top-2.5" />
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-medium text-foreground capitalize">
+                      {h.action ? h.action.replace("_", " ") : "Status Update"}: {h.toStatus || "Updated"}
+                    </span>
+                    <span className="text-muted-foreground font-mono text-[10px]">
+                      {new Date(h.changedAt).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  {h.note && (
+                    <p className="text-xs text-foreground bg-card p-2 rounded border border-border italic">
+                      &ldquo;{h.note}&rdquo;
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              {/* Local Realtime Notes */}
+              {localNotes.map((n) => (
                 <div key={n.id} className="space-y-0.5 relative pt-1">
                   <div className="size-2 rounded-full bg-primary absolute -left-[17px] top-2.5" />
                   <div className="flex items-center justify-between text-[11px]">

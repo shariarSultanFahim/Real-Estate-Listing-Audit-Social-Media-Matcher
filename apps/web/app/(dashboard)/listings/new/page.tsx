@@ -30,7 +30,7 @@ export default function NewListingPage() {
   const handleCreateListing = async (formData: any) => {
     try {
       const res = await apiClient.post("/listings", formData);
-      toast.success("New listing saved to Brokerage Engine source of truth mirror!");
+      toast.success("Authoritative MLS listing created successfully!");
       router.push(`/listings/${res.data.id}`);
     } catch (err) {
       toast.error("Failed to save listing.");
@@ -39,10 +39,14 @@ export default function NewListingPage() {
 
   return (
     <RequirePermission permission="listings:create">
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-6xl mx-auto">
         <PageHeader
-          title="Add New Property Listing"
-          description={`Step ${step} of 2 — ${step === 1 ? "Address Autocomplete Lookup" : "Listing Essentials Form"}`}
+          title="Create MLS Listing"
+          description={
+            step === 1
+              ? "Step 1 of 2 — Property Location & Address Entry"
+              : "Source of Truth — This listing information is used as the authoritative source for external platform audits."
+          }
           showBackButton={step === 2}
           onBack={() => setStep(1)}
         />
@@ -54,7 +58,7 @@ export default function NewListingPage() {
         {step === 2 && (
           <ListingEssentialsForm
             initialValues={{
-              address: selectedAddress || { street: "104 Magnolia Lane", city: "Covington", state: "LA", zip: "70433" },
+              address: selectedAddress || undefined,
             }}
             agents={agents}
             onSubmit={handleCreateListing}

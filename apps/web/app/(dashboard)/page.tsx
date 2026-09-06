@@ -1,14 +1,15 @@
 "use client";
 
-import { useListings, useDiscrepancies, useAgents } from "@/hooks/useRealEstateApi";
+import { useListings, useDiscrepancies, useAgents, useTriggerAudit, useAuditRuns } from "@/hooks/useRealEstateApi";
 import { StatCards } from "@/components/dashboard/StatCards";
 import { DiscrepancyBreakdown } from "@/components/dashboard/DiscrepancyBreakdown";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, ArrowRight, Clock, Plus } from "lucide-react";
+import { AlertCircle, ArrowRight, Clock, Plus, Play, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
 
@@ -16,11 +17,26 @@ export default function DashboardPage() {
   const { data: listings = [], isLoading: isLoadingListings } = useListings();
   const { data: discrepancies = [], isLoading: isLoadingDiscrepancies } = useDiscrepancies();
   const { data: agents = [], isLoading: isLoadingAgents } = useAgents();
+  const { data: auditRuns = [] } = useAuditRuns();
+  const triggerAuditMutation = useTriggerAudit();
 
   const isLoading = isLoadingListings || isLoadingDiscrepancies || isLoadingAgents;
 
   const activeDiscrepancies = discrepancies.filter((d) => d.status === "open" || d.status === "in_progress");
   const openCount = activeDiscrepancies.length;
+
+  const latestRun = auditRuns[0];
+
+  const handleTriggerAudit = () => {
+    triggerAuditMutation.mutate(undefined, {
+      onSuccess: (data) => {
+        toast.success(`Automated syndication audit run started! Discrepancies reconciled.`);
+      },
+      onError: () => {
+        toast.error("Audit run request failed.");
+      },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -43,15 +59,25 @@ export default function DashboardPage() {
         description="Read-only discrepancy detection across Realtor.com, Zillow, Homes.com, Sotheby's & LACDB portals."
         actions={
           <>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={triggerAuditMutation.isPending}
+              onClick={handleTriggerAudit}
+              className="gap-1.5 h-9"
+            >
+              <Play className={`size-3.5 ${triggerAuditMutation.isPending ? "animate-spin text-primary" : "text-primary"}`} />
+              {triggerAuditMutation.isPending ? "Running Audit Engine..." : "Run Audit Pipeline"}
+            </Button>
             <Link href="/listings/new">
-              <Button className="gap-2 shadow-md">
-                <Plus className="size-4" />
+              <Button size="sm" className="gap-1.5 h-9 shadow-md">
+                <Plus className="size-3.5" />
                 Add Listing
               </Button>
             </Link>
             <Link href="/listings">
-              <Button variant="outline" className="gap-2">
-                View Audit Table ({openCount} Active Issues)
+              <Button variant="secondary" size="sm" className="gap-1.5 h-9">
+                View Audit Table ({openCount})
               </Button>
             </Link>
           </>
@@ -67,9 +93,9 @@ export default function DashboardPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-foreground">Automated Syndication Audit Schedule</span>
+                <span className="text-sm font-semibold text-foreground">Automated Syndication Audit Pipeline</span>
                 <Badge variant="outline" className="text-[10px] border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                  Active • On Schedule
+                  {latestRun ? `Last Run: ${latestRun.status.toUpperCase()}` : "Active • Monitored"}
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -80,18 +106,18 @@ export default function DashboardPage() {
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-border">
             <div>
-              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Audit Frequency</span>
+              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Audit Schedule</span>
               <span className="font-semibold text-foreground text-sm">Every 6 Hours</span>
             </div>
             <div className="h-7 w-px bg-border hidden sm:block" />
             <div>
-              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Last Audit</span>
-              <span className="font-mono text-foreground">Aug 22, 2026 10:00 AM</span>
+              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Portals Monitored</span>
+              <span className="font-mono text-foreground font-semibold">5 Active Feeds</span>
             </div>
             <div className="h-7 w-px bg-border hidden sm:block" />
             <div>
-              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Next Audit</span>
-              <span className="font-mono text-primary font-semibold">Aug 22, 2026 4:00 PM</span>
+              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Status</span>
+              <span className="font-mono text-primary font-semibold">Synced (MLS Source of Truth)</span>
             </div>
           </div>
         </CardContent>

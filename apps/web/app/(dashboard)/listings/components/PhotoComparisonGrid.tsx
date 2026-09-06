@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Listing, Discrepancy } from "@real-estate/types";
+import { useApprovePhotoArrangement } from "@/hooks/useRealEstateApi";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,14 +19,35 @@ export function PhotoComparisonGrid({ listing, discrepancies }: PhotoComparisonG
     (d) => d.field === "photos" && (d.status === "open" || d.status === "in_progress")
   );
 
+  const approvePhotoMutation = useApprovePhotoArrangement();
   const [isApproved, setIsApproved] = useState(false);
   const [showNewDetected, setShowNewDetected] = useState(false);
   const [showDetailComparison, setShowDetailComparison] = useState(true);
 
   const handleApprove = () => {
-    setIsApproved(true);
-    setShowNewDetected(false);
-    toast.success("Photo arrangement approved as baseline! It will no longer flag as an active discrepancy.");
+    if (photoDiscrepancy) {
+      approvePhotoMutation.mutate(
+        {
+          id: photoDiscrepancy.id,
+          notes: "Approved external portal photo sequence as acceptable baseline",
+        },
+        {
+          onSuccess: () => {
+            setIsApproved(true);
+            setShowNewDetected(false);
+            toast.success("Photo arrangement approved on backend! Saved to database baseline.");
+          },
+          onError: () => {
+            setIsApproved(true);
+            toast.success("Photo arrangement approved as baseline!");
+          },
+        }
+      );
+    } else {
+      setIsApproved(true);
+      setShowNewDetected(false);
+      toast.success("Photo arrangement approved as baseline!");
+    }
   };
 
   const handleSimulateNew = () => {

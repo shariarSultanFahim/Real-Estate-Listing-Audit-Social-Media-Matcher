@@ -22,7 +22,7 @@ export default function ListingsAuditPage() {
   // URL search state via NUQS
   const [viewMode, setViewMode] = useQueryState(
     "view",
-    parseAsStringEnum<"onlyWithIssues" | "all">(["onlyWithIssues", "all"]).withDefault("onlyWithIssues")
+    parseAsStringEnum<"onlyWithIssues" | "all">(["onlyWithIssues", "all"]).withDefault("all")
   );
   const [searchQuery, setSearchQuery] = useQueryState("q", parseAsString.withDefault(""));
   const [selectedField, setSelectedField] = useQueryState("field", parseAsString.withDefault("all"));

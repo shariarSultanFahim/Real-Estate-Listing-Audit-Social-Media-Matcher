@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAgents } from "@/hooks/useRealEstateApi";
+import { useAgents, useCreateAgent, useUpdateAgent } from "@/hooks/useRealEstateApi";
 import { AgentForm } from "./components/AgentForm";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,9 @@ const STATE_OPTIONS = [
 
 export default function AgentsPage() {
   const { data: agents = [], isLoading } = useAgents();
+  const createAgent = useCreateAgent();
+  const updateAgent = useUpdateAgent();
+
   const [searchQuery, setSearchQuery] = useQueryState("q", parseAsString.withDefault(""));
   const [selectedState, setSelectedState] = useQueryState("state", parseAsString.withDefault("all"));
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -46,9 +49,32 @@ export default function AgentsPage() {
   });
 
   const handleSaveAgent = (agentData: any) => {
-    toast.success(`Agent ${agentData.name} saved successfully!`);
-    setIsFormOpen(false);
-    setEditingAgent(null);
+    if (editingAgent) {
+      updateAgent.mutate(
+        { id: editingAgent.id, data: agentData },
+        {
+          onSuccess: () => {
+            toast.success(`Agent ${agentData.name} updated successfully in database!`);
+            setIsFormOpen(false);
+            setEditingAgent(null);
+          },
+          onError: () => {
+            toast.error("Failed to update agent.");
+          },
+        }
+      );
+    } else {
+      createAgent.mutate(agentData, {
+        onSuccess: () => {
+          toast.success(`Agent ${agentData.name} enrolled successfully in database!`);
+          setIsFormOpen(false);
+          setEditingAgent(null);
+        },
+        onError: () => {
+          toast.error("Failed to enroll agent.");
+        },
+      });
+    }
   };
 
   return (

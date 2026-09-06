@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/AuthProvider";
-import { MOCK_USERS } from "@/lib/mock-data/users";
+import { useUsers } from "@/hooks/useRealEstateApi";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 
 export function UserMenu() {
   const { currentUser, loginByEmail, logout } = useAuth();
+  const { data: users = [] } = useUsers();
   const router = useRouter();
 
   if (!currentUser) return null;
@@ -74,28 +75,31 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
-
-        <DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold py-1">
-          Switch Demo User:
-        </DropdownMenuLabel>
-        {MOCK_USERS.map((u) => (
-          <DropdownMenuItem
-            key={u.id}
-            onClick={() => {
-              loginByEmail(u.email);
-              router.refresh();
-            }}
-            className="text-xs cursor-pointer justify-between py-1.5"
-          >
-            <span className="truncate">{u.name}</span>
-            {u.id === currentUser.id ? (
-              <Badge variant="outline" className="text-[9px] py-0 px-1 border-primary text-primary">Active</Badge>
-            ) : (
-              <span className="text-[10px] text-muted-foreground uppercase">{u.accountType === "superAdmin" ? "Admin" : `${u.permissions.length}p`}</span>
-            )}
-          </DropdownMenuItem>
-        ))}
+        {users.length > 1 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold py-1">
+              Switch Account:
+            </DropdownMenuLabel>
+            {users.map((u) => (
+              <DropdownMenuItem
+                key={u.id}
+                onClick={async () => {
+                  await loginByEmail(u.email);
+                  router.refresh();
+                }}
+                className="text-xs cursor-pointer justify-between py-1.5"
+              >
+                <span className="truncate">{u.name}</span>
+                {u.id === currentUser.id ? (
+                  <Badge variant="outline" className="text-[9px] py-0 px-1 border-primary text-primary">Active</Badge>
+                ) : (
+                  <span className="text-[10px] text-muted-foreground uppercase">{u.accountType === "superAdmin" ? "Admin" : `${u.permissions.length}p`}</span>
+                )}
+              </DropdownMenuItem>
+            ))}
+          </>
+        )}
 
         <DropdownMenuSeparator />
 

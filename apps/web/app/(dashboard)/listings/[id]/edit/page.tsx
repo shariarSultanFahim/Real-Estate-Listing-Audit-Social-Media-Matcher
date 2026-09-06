@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { useListing, useAgents } from "@/hooks/useRealEstateApi";
+import { useListing, useAgents, useUpdateListing } from "@/hooks/useRealEstateApi";
 import { ListingEssentialsForm } from "@/components/listings/ListingEssentialsForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ export default function EditListingPage({
   const router = useRouter();
   const { data: listing, isLoading: isLoadingListing } = useListing(id);
   const { data: agents = [] } = useAgents();
+  const updateListingMutation = useUpdateListing();
 
   if (isLoadingListing) {
     return <Skeleton className="h-[600px] w-full" />;
@@ -27,8 +28,18 @@ export default function EditListingPage({
   }
 
   const handleUpdateListing = async (formData: any) => {
-    toast.success("Listing updated successfully!");
-    router.push(`/listings/${id}`);
+    updateListingMutation.mutate(
+      { id, data: formData },
+      {
+        onSuccess: () => {
+          toast.success("Listing updated successfully in database!");
+          router.push(`/listings/${id}`);
+        },
+        onError: () => {
+          toast.error("Failed to update listing.");
+        },
+      }
+    );
   };
 
   return (
@@ -44,6 +55,7 @@ export default function EditListingPage({
         initialValues={listing}
         agents={agents}
         onSubmit={handleUpdateListing}
+        isEditMode={true}
       />
     </div>
   );

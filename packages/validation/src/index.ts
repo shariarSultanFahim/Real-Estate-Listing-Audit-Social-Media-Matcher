@@ -52,8 +52,8 @@ export const AddressSchema = z.object({
 });
 
 export const MapCoordinatesSchema = z.object({
-  lat: z.number(),
-  lng: z.number(),
+  lat: z.number().optional().nullable().or(z.nan().transform(() => undefined)),
+  lng: z.number().optional().nullable().or(z.nan().transform(() => undefined)),
 });
 
 export const PhotoSchema = z.object({
@@ -70,7 +70,7 @@ export const ListingSchema = z.object({
   listingAgentId: z.string(),
   description: z.string(),
   legalDescription: z.string(),
-  mapCoordinates: MapCoordinatesSchema,
+  mapCoordinates: MapCoordinatesSchema.optional().nullable(),
   photos: z.array(PhotoSchema),
   features: z.array(z.string()),
   lastUpdatedAt: z.string(),
@@ -79,19 +79,19 @@ export const ListingSchema = z.object({
   addressLine2: z.string().optional(),
   subdivision: z.string().optional(),
   propertyType: z.string().min(1, "Property type is required"),
-  propertyStyle: z.string().min(1, "Property style is required"),
-  beds: z.number().int().nonnegative(),
-  fullBaths: z.number().int().nonnegative(),
-  halfBaths: z.number().int().nonnegative().optional(),
-  buildingAreaSqft: z.number().positive().optional(),
-  lotSizeAcres: z.number().positive().optional(),
-  yearBuilt: z.number().int().optional(),
-  parkingPlaces: z.number().int().optional(),
+  propertyStyle: z.string().optional().nullable(),
+  beds: z.number().int().nonnegative().optional().nullable().or(z.nan().transform(() => undefined)),
+  fullBaths: z.number().int().nonnegative().optional().nullable().or(z.nan().transform(() => undefined)),
+  halfBaths: z.number().int().nonnegative().optional().nullable().or(z.nan().transform(() => undefined)),
+  buildingAreaSqft: z.number().nonnegative().optional().nullable().or(z.nan().transform(() => undefined)),
+  lotSizeAcres: z.number().nonnegative().optional().nullable().or(z.nan().transform(() => undefined)),
+  yearBuilt: z.number().int().optional().nullable().or(z.nan().transform(() => undefined)),
+  parkingPlaces: z.number().int().optional().nullable().or(z.nan().transform(() => undefined)),
   newConstruction: z.boolean().default(false),
-  listingType: z.string().min(1, "Listing type is required"),
-  listDate: z.string(),
-  expirationDate: z.string(),
-  anticipatedLaunchDate: z.string().optional(),
+  listingType: z.string().optional().nullable(),
+  listDate: z.string().optional().nullable(),
+  expirationDate: z.string().optional().nullable(),
+  anticipatedLaunchDate: z.string().optional().nullable(),
   listingOfficeId: z.string(),
 });
 

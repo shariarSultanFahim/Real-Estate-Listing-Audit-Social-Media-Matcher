@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
-import { useListing, useDiscrepancies, useAgents } from "@/hooks/useRealEstateApi";
+import { useListing, useDiscrepancies, useAgents, useSiteSnapshots, useTriggerAudit } from "@/hooks/useRealEstateApi";
 import { FieldComparisonMatrix } from "../components/FieldComparisonMatrix";
 import { PhotoComparisonGrid } from "../components/PhotoComparisonGrid";
 import { DiscrepancyActionModal } from "../components/DiscrepancyActionModal";
@@ -10,9 +10,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Discrepancy } from "@real-estate/types";
-import { ArrowLeft, Edit3, ShieldAlert, CheckCircle2, User, MapPin, Building } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit3,
+  ShieldAlert,
+  CheckCircle2,
+  User,
+  MapPin,
+  RefreshCw,
+  Clock,
+  Sparkles,
+} from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { toast } from "sonner";
 
 export default function ListingDetailAuditPage({
   params,
@@ -22,7 +33,9 @@ export default function ListingDetailAuditPage({
   const { id } = use(params);
   const { data: listing, isLoading: isLoadingListing } = useListing(id);
   const { data: discrepancies = [], isLoading: isLoadingDiscrepancies } = useDiscrepancies(id);
+  const { data: snapshots = [], isLoading: isLoadingSnapshots } = useSiteSnapshots(id);
   const { data: agents = [] } = useAgents();
+  const triggerAuditMutation = useTriggerAudit();
 
   const [activeModalDiscrepancy, setActiveModalDiscrepancy] = useState<Discrepancy | null>(null);
   const [selectedDiscrepancyTab, setSelectedDiscrepancyTab] = useState<"active" | "history">("active");
@@ -42,9 +55,27 @@ export default function ListingDetailAuditPage({
     );
   }
 
+  const handleRunAudit = async () => {
+    toast.info("Triggering Apify audit against Zillow and Realtor.com...");
+    triggerAuditMutation.mutate(
+      { listingId: id },
+      {
+        onSuccess: (data: any) => {
+          toast.success(
+            `Apify audit completed! Matched: ${data.listingsMatched || 0}, Discrepancies: ${data.discrepanciesFound || 0}`
+          );
+        },
+        onError: (err: any) => {
+          toast.error("Audit run failed. Check API logs or Apify tokens.");
+        },
+      }
+    );
+  };
+
   const agent = agents.find((a) => a.id === listing.listingAgentId);
   const activeDiscrepancies = discrepancies.filter((d) => d.status === "open" || d.status === "in_progress");
   const resolvedDiscrepancies = discrepancies.filter((d) => d.status === "resolved" || d.status === "ignored");
+  const isAuditing = triggerAuditMutation.isPending;
 
   return (
     <div className="space-y-8">
@@ -67,11 +98,21 @@ export default function ListingDetailAuditPage({
           </span>
         }
         actions={
-          <Link href={`/listings/${id}/edit`}>
-            <Button variant="outline" className="text-xs gap-1.5">
-              <Edit3 className="size-3.5" /> Edit Listing Essentials
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleRunAudit}
+              disabled={isAuditing}
+              className="text-xs gap-1.5 bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+            >
+              <RefreshCw className={`size-3.5 ${isAuditing ? "animate-spin" : ""}`} />
+              {isAuditing ? "Auditing with Apify..." : "Run Apify Audit"}
             </Button>
-          </Link>
+            <Link href={`/listings/${id}/edit`}>
+              <Button variant="outline" className="text-xs gap-1.5">
+                <Edit3 className="size-3.5" /> Edit Listing Essentials
+              </Button>
+            </Link>
+          </div>
         }
       />
 
@@ -89,11 +130,11 @@ export default function ListingDetailAuditPage({
               ${listing.price.toLocaleString()}
             </div>
             <div className="text-xs text-muted-foreground flex items-center gap-3">
-              <span>{listing.beds} Beds</span>
+              <span>{listing.beds ?? 0} Beds</span>
               <span>•</span>
-              <span>{listing.fullBaths} Baths</span>
+              <span>{listing.fullBaths ?? 0} Baths</span>
               <span>•</span>
-              <span>{listing.buildingAreaSqft?.toLocaleString() || "N/A"} Sq Ft</span>
+              <span>{listing.buildingAreaSqft ? `${listing.buildingAreaSqft.toLocaleString()} Sq Ft` : "N/A"}</span>
             </div>
           </CardContent>
         </Card>
@@ -110,13 +151,21 @@ export default function ListingDetailAuditPage({
               <User className="size-4 text-primary" />
               {agent ? agent.name : "Unassigned"}
             </div>
-            <p className="text-xs text-muted-foreground">{agent?.email}</p>
-            <p className="text-xs text-muted-foreground/80 font-mono">Office: {agent?.officeState}</p>
+            <p className="text-xs text-muted-foreground">{agent?.email || "No email"}</p>
+            <p className="text-xs text-muted-foreground/80 font-mono">Office: {agent?.officeState || "N/A"}</p>
           </CardContent>
         </Card>
 
         {/* Discrepancy Status Summary Card */}
-        <Card className={activeDiscrepancies.length > 0 ? "border-destructive/30 bg-destructive/5" : "border-emerald-500/30 bg-emerald-500/5"}>
+        <Card
+          className={
+            activeDiscrepancies.length > 0
+              ? "border-destructive/30 bg-destructive/5"
+              : snapshots.length > 0
+              ? "border-emerald-500/30 bg-emerald-500/5"
+              : "border-border bg-muted/20"
+          }
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Audit Health Status
@@ -130,19 +179,28 @@ export default function ListingDetailAuditPage({
                   {activeDiscrepancies.length} Active {activeDiscrepancies.length === 1 ? "Issue" : "Issues"}
                 </div>
                 <p className="text-xs text-destructive/80">
-                  {discrepancies.filter(d => d.status === "open").length} open, {discrepancies.filter(d => d.status === "in_progress").length} in progress.
+                  {discrepancies.filter((d) => d.status === "open").length} open,{" "}
+                  {discrepancies.filter((d) => d.status === "in_progress").length} in progress.
+                </p>
+              </>
+            ) : snapshots.length > 0 ? (
+              <>
+                <div className="text-2xl font-bold text-emerald-500 flex items-center gap-2">
+                  <CheckCircle2 className="size-6 text-emerald-500" />
+                  All Audited Portals Clean
+                </div>
+                <p className="text-xs text-emerald-500/80">
+                  {snapshots.length} syndication portal {snapshots.length === 1 ? "snapshot" : "snapshots"} verified.
                 </p>
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold text-emerald-500 flex items-center gap-2">
-                  <CheckCircle2 className="size-6 text-emerald-500" />
-                  All Active Issues Clean
+                <div className="text-xl font-bold text-foreground flex items-center gap-2">
+                  <Clock className="size-5 text-muted-foreground" />
+                  Pending Portal Audit
                 </div>
-                <p className="text-xs text-emerald-500/80">
-                  {resolvedDiscrepancies.length > 0
-                    ? `${resolvedDiscrepancies.length} historical discrepancies resolved.`
-                    : "All external sites match Brokerage Engine specifications."}
+                <p className="text-xs text-muted-foreground">
+                  Click &ldquo;Run Apify Audit&rdquo; to pull live listings from Zillow and Realtor.com.
                 </p>
               </>
             )}
@@ -194,9 +252,13 @@ export default function ListingDetailAuditPage({
             activeDiscrepancies.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground space-y-2">
                 <CheckCircle2 className="size-8 text-emerald-500 mx-auto" />
-                <p className="text-sm font-medium text-foreground">No active discrepancies</p>
+                <p className="text-sm font-medium text-foreground">
+                  {snapshots.length > 0 ? "No active discrepancies" : "No active discrepancies recorded"}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  All syndication portals currently match Brokerage Engine. Resolved items can be viewed in the History tab.
+                  {snapshots.length > 0
+                    ? "All verified syndication portals match the Source of Truth."
+                    : "No audit mismatches detected. Run an Apify audit to scan external portal feeds."}
                 </p>
               </div>
             ) : (
@@ -211,13 +273,21 @@ export default function ListingDetailAuditPage({
                       <div className="flex items-center gap-2">
                         <Badge
                           variant={isInProgress ? "outline" : "destructive"}
-                          className={isInProgress ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] uppercase font-mono" : "uppercase font-mono text-[10px]"}
+                          className={
+                            isInProgress
+                              ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] uppercase font-mono"
+                              : "uppercase font-mono text-[10px]"
+                          }
                         >
                           {disc.site}
                         </Badge>
                         <Badge
                           variant="outline"
-                          className={isInProgress ? "border-amber-500/50 bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px]" : "border-destructive/30 bg-destructive/10 text-destructive text-[10px]"}
+                          className={
+                            isInProgress
+                              ? "border-amber-500/50 bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px]"
+                              : "border-destructive/30 bg-destructive/10 text-destructive text-[10px]"
+                          }
                         >
                           {isInProgress ? "In Progress" : "Open"}
                         </Badge>
@@ -226,8 +296,15 @@ export default function ListingDetailAuditPage({
                         </span>
                       </div>
                       <div className="text-xs text-muted-foreground mt-1.5 flex flex-wrap gap-4 font-mono">
-                        <span>Source: <strong className="text-primary">{disc.sourceValue}</strong></span>
-                        <span>Site: <strong className={isInProgress ? "text-amber-600 dark:text-amber-400" : "text-destructive"}>{disc.siteValue}</strong></span>
+                        <span>
+                          Source: <strong className="text-primary">{disc.sourceValue}</strong>
+                        </span>
+                        <span>
+                          Site:{" "}
+                          <strong className={isInProgress ? "text-amber-600 dark:text-amber-400" : "text-destructive"}>
+                            {disc.siteValue}
+                          </strong>
+                        </span>
                       </div>
                       {disc.note && (
                         <p className="text-xs text-muted-foreground mt-1 italic">
@@ -296,8 +373,8 @@ export default function ListingDetailAuditPage({
         </CardContent>
       </Card>
 
-      {/* Main Field Matrix Comparison */}
-      <FieldComparisonMatrix listing={listing} discrepancies={discrepancies} />
+      {/* Main Field Matrix Comparison with dynamic snapshots */}
+      <FieldComparisonMatrix listing={listing} discrepancies={discrepancies} snapshots={snapshots} />
 
       {/* Photo Order & Sequence Audit */}
       <PhotoComparisonGrid listing={listing} discrepancies={discrepancies} />
