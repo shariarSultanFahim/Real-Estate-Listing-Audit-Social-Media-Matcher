@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ListingStatusBadge } from "./ListingStatusBadge";
+import { ListingImage } from "@/components/common/ListingImage";
 import { ExternalLink, Eye, Image as ImageIcon } from "lucide-react";
 
 interface ListingsTableProps {
@@ -67,18 +68,11 @@ export function ListingsTable({
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-3">
                     <div className="size-12 rounded-lg bg-card overflow-hidden border border-border shrink-0 relative">
-                      {listing.photos[0] ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={listing.photos[0].url}
-                          alt={listing.address.street}
-                          className="object-cover size-full group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="size-full flex items-center justify-center text-muted-foreground">
-                          <ImageIcon className="size-4" />
-                        </div>
-                      )}
+                      <ListingImage
+                        src={listing.photos[0]?.url}
+                        alt={listing.address.street}
+                        className="object-cover size-full group-hover:scale-105 transition-transform duration-300"
+                      />
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-card-foreground">

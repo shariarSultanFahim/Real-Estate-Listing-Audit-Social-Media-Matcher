@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { Express } from "express";
 import cors from "cors";
+import compression from "compression";
 import { config } from "./config";
 import { errorHandler, notFound } from "./middleware/errorHandler";
 import { authenticateJwt } from "./middleware/auth";
@@ -18,12 +19,20 @@ import { auditRouter } from "./modules/audit/audit.router";
 const app: Express = express();
 
 // ─── Middleware ───────────────────────────────────────────────
+// Enable GZIP / Deflate response compression for ultra-fast data transfer
+app.use(compression());
+
+// Permissive CORS for local & cloudflare tunnel review URLs
 app.use(
   cors({
-    origin: config.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      // Allow all origins (including trycloudflare.com and localhost)
+      callback(null, true);
+    },
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(authenticateJwt);

@@ -6,15 +6,17 @@ import { useApprovePhotoArrangement } from "@/hooks/useRealEstateApi";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, CheckCircle2, Check, Eye, RefreshCw, ShieldCheck, ArrowRightLeft } from "lucide-react";
+import { ListingImage } from "@/components/common/ListingImage";
+import { AlertCircle, CheckCircle2, Check, Eye, RefreshCw, ShieldCheck, ArrowRightLeft, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 interface PhotoComparisonGridProps {
   listing: Listing;
   discrepancies: Discrepancy[];
+  snapshots?: any[];
 }
 
-export function PhotoComparisonGrid({ listing, discrepancies }: PhotoComparisonGridProps) {
+export function PhotoComparisonGrid({ listing, discrepancies, snapshots = [] }: PhotoComparisonGridProps) {
   const photoDiscrepancy = discrepancies.find(
     (d) => d.field === "photos" && (d.status === "open" || d.status === "in_progress")
   );
@@ -56,12 +58,21 @@ export function PhotoComparisonGrid({ listing, discrepancies }: PhotoComparisonG
     toast.info("Simulated detection of a new external photo arrangement.");
   };
 
-  // Reordered array for portal arrangement preview
-  const portalPhotos = listing.photos.length >= 2
-    ? [listing.photos[1], listing.photos[0], ...listing.photos.slice(2)]
-    : listing.photos;
+  const targetSite = (photoDiscrepancy?.site || "zillow").toLowerCase();
+  const activeSnapshot = snapshots?.find((s) => s.site.toLowerCase() === targetSite);
 
-  const siteName = photoDiscrepancy?.site ? photoDiscrepancy.site.toUpperCase() : "REALTOR.COM";
+  // Portal photos: take from snapshot if present, otherwise simulate reorder
+  const portalPhotos: { url: string; order: number }[] =
+    activeSnapshot?.photos && Array.isArray(activeSnapshot.photos) && activeSnapshot.photos.length > 0
+      ? (activeSnapshot.photos as { url: string; order?: number }[]).map((p, idx) => ({
+          url: p.url,
+          order: p.order ?? idx + 1,
+        }))
+      : listing.photos.length >= 2
+      ? [listing.photos[1], listing.photos[0], ...listing.photos.slice(2)]
+      : listing.photos;
+
+  const siteName = photoDiscrepancy?.site ? photoDiscrepancy.site.toUpperCase() : "ZILLOW";
 
   return (
     <div className="space-y-4">
@@ -70,7 +81,7 @@ export function PhotoComparisonGrid({ listing, discrepancies }: PhotoComparisonG
         <div>
           <h3 className="text-base font-semibold text-foreground">Photo Sequence &amp; Arrangement Audit</h3>
           <p className="text-xs text-muted-foreground">
-            Verifying photo arrangements between MLS and external syndication portals
+            Verifying photo arrangements and asset integrity between MLS and external syndication portals
           </p>
         </div>
 
@@ -114,7 +125,7 @@ export function PhotoComparisonGrid({ listing, discrepancies }: PhotoComparisonG
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Photo order can intentionally differ between MLS feeds and external portals. Review the portal&apos;s arrangement below and approve it if intended.
+                  Photo sequence differs from MLS source (e.g. portal promoted interior/kitchen photo to primary slot). Review the arrangement below and approve as an accepted baseline if intended.
                 </p>
               </div>
 
@@ -186,20 +197,20 @@ export function PhotoComparisonGrid({ listing, discrepancies }: PhotoComparisonG
                 <span className="size-2 rounded-full bg-primary" />
                 MLS / Brokerage Engine Arrangement
               </span>
-              <span className="text-[11px] text-muted-foreground font-mono">Source of Truth</span>
+              <span className="text-[11px] text-muted-foreground font-mono">Source of Truth ({listing.photos.length} photos)</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
               {listing.photos.map((photo, index) => (
                 <div key={index} className="rounded-lg bg-muted/40 border border-border p-2 space-y-1.5 relative group">
                   <div className="aspect-video rounded overflow-hidden relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <ListingImage
                       src={photo.url}
                       alt={`MLS Photo ${photo.order}`}
                       className="object-cover size-full group-hover:scale-105 transition-transform"
+                      showGalleryButton
                     />
-                    <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-md text-foreground text-[9px] font-mono font-bold border border-border">
+                    <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-md text-foreground text-[9px] font-mono font-bold border border-border z-10">
                       Position #{photo.order}
                     </span>
                   </div>
@@ -225,17 +236,17 @@ export function PhotoComparisonGrid({ listing, discrepancies }: PhotoComparisonG
               {portalPhotos.map((photo, index) => (
                 <div key={index} className="rounded-lg bg-muted/40 border border-border p-2 space-y-1.5 relative group">
                   <div className="aspect-video rounded overflow-hidden relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <ListingImage
                       src={photo.url}
                       alt={`Portal Photo ${index + 1}`}
                       className="object-cover size-full group-hover:scale-105 transition-transform"
+                      showGalleryButton
                     />
-                    <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-md text-foreground text-[9px] font-mono font-bold border border-border">
+                    <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-md text-foreground text-[9px] font-mono font-bold border border-border z-10">
                       Portal #{index + 1}
                     </span>
                     {photo.order !== index + 1 && (
-                      <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-sky-500/90 text-white text-[9px] font-mono font-bold">
+                      <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-sky-500/90 text-white text-[9px] font-mono font-bold z-10">
                         MLS #{photo.order}
                       </span>
                     )}
@@ -253,31 +264,39 @@ export function PhotoComparisonGrid({ listing, discrepancies }: PhotoComparisonG
         </div>
       ) : (
         /* Standard Single Grid of Baseline Photos */
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {listing.photos.map((photo, index) => (
-            <div
-              key={index}
-              className="rounded-xl bg-card border border-border p-2.5 space-y-2 relative group"
-            >
-              <div className="aspect-video rounded-lg overflow-hidden relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.url}
-                  alt={`Photo ${photo.order}`}
-                  className="object-cover size-full group-hover:scale-105 transition-transform"
-                />
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-background/80 backdrop-blur-md text-foreground text-[10px] font-mono font-bold border border-border">
-                  Order #{photo.order}
-                </span>
-              </div>
-              <div className="text-[11px] text-muted-foreground flex items-center justify-between">
-                <span>Baseline Photo {index + 1}</span>
-                <span className="text-emerald-500 font-medium text-[10px] flex items-center gap-0.5">
-                  <Check className="size-3" /> Synced
-                </span>
-              </div>
+        <div className="space-y-3">
+          {listing.photos.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground rounded-xl border border-dashed border-border">
+              <p className="text-xs">No baseline photos recorded for this listing.</p>
             </div>
-          ))}
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {listing.photos.map((photo, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl bg-card border border-border p-2.5 space-y-2 relative group"
+                >
+                  <div className="aspect-video rounded-lg overflow-hidden relative">
+                    <ListingImage
+                      src={photo.url}
+                      alt={`Photo ${photo.order}`}
+                      className="object-cover size-full group-hover:scale-105 transition-transform"
+                      showGalleryButton
+                    />
+                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-background/80 backdrop-blur-md text-foreground text-[10px] font-mono font-bold border border-border z-10">
+                      Order #{photo.order}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+                    <span>Baseline Photo {index + 1}</span>
+                    <span className="text-emerald-500 font-medium text-[10px] flex items-center gap-0.5">
+                      <Check className="size-3" /> Synced
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

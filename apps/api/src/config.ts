@@ -27,6 +27,15 @@ const envSchema = z.object({
   APIFY_ZILLOW_ACTOR_ID: z.string().optional(),
   APIFY_REALTOR_ACTOR_ID: z.string().optional(),
   APIFY_LACDB_ACTOR_ID: z.string().optional(),
+
+  // Bright Data Integration
+  BRIGHTDATA_API_TOKEN: z.string().optional(),
+  BRIGHTDATA_PROXY_HOST: z.string().optional(),
+  BRIGHTDATA_PROXY_USERNAME: z.string().optional(),
+  BRIGHTDATA_PROXY_PASSWORD: z.string().optional(),
+  BRIGHTDATA_ZILLOW_DATASET_ID: z.string().optional(),
+  BRIGHTDATA_REALTOR_DATASET_ID: z.string().optional(),
+  BRIGHTDATA_LACDB_DATASET_ID: z.string().optional(),
 });
 
 const _parsed = envSchema.safeParse(process.env);

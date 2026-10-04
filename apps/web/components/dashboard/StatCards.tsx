@@ -8,13 +8,21 @@ interface StatCardsProps {
   totalListings: number;
   openDiscrepancies: number;
   totalAgents: number;
+  cleanListingsCount?: number;
+  affectedListingsCount?: number;
 }
 
 export function StatCards({
   totalListings,
   openDiscrepancies,
   totalAgents,
+  cleanListingsCount,
+  affectedListingsCount,
 }: StatCardsProps) {
+  const cleanCount = cleanListingsCount ?? Math.max(0, totalListings - (affectedListingsCount ?? (openDiscrepancies > 0 ? 1 : 0)));
+  const syncRate = totalListings > 0 ? Math.round((cleanCount / totalListings) * 100) : 100;
+  const flaggedCount = affectedListingsCount ?? (totalListings - cleanCount);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
       {/* Total Active Listings */}
@@ -29,8 +37,12 @@ export function StatCards({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-foreground tracking-tight">{totalListings}</div>
-          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-            <span className="text-emerald-500 font-medium">100% Synced</span> from Brokerage Engine
+          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+            <span className={syncRate === 100 ? "text-emerald-500 font-semibold" : "text-amber-500 font-semibold"}>
+              {syncRate}% Clean Portals
+            </span>
+            <span>•</span>
+            <span>{cleanCount}/{totalListings} Synced</span>
           </p>
         </CardContent>
       </Card>
@@ -47,8 +59,8 @@ export function StatCards({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-destructive tracking-tight">{openDiscrepancies}</div>
-          <Link href="/listings" className="text-xs text-destructive/80 hover:text-destructive mt-1 inline-flex items-center gap-1 group font-medium">
-            Review affected listings <ArrowUpRight className="size-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          <Link href="/listings?view=onlyWithIssues" className="text-xs text-destructive/80 hover:text-destructive mt-1 inline-flex items-center gap-1 group font-medium">
+            Review {flaggedCount} affected {flaggedCount === 1 ? "listing" : "listings"} <ArrowUpRight className="size-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
         </CardContent>
       </Card>

@@ -36,6 +36,10 @@ const SITES = [
 ];
 
 export function FieldComparisonMatrix({ listing, discrepancies, snapshots = [] }: FieldComparisonMatrixProps) {
+  const notFoundDiscrepancies = discrepancies.filter(
+    (d) => d.field === "not_found" && (d.status === "open" || d.status === "in_progress")
+  );
+
   const fields = [
     { key: "price", label: "List Price", sourceVal: `$${listing.price.toLocaleString()}` },
     { key: "address", label: "Property Address", sourceVal: `${listing.address.street}, ${listing.address.city}, ${listing.address.state} ${listing.address.zip}` },
@@ -48,11 +52,30 @@ export function FieldComparisonMatrix({ listing, discrepancies, snapshots = [] }
           ? `Lat: ${listing.mapCoordinates.lat}, Lng: ${listing.mapCoordinates.lng}`
           : "Not specified",
     },
+    { key: "propertyType", label: "Property Type", sourceVal: listing.propertyType || "Residential" },
+    { key: "photos", label: "Photo Sequence & Assets", sourceVal: `${listing.photos.length} Photos in Sequence` },
     { key: "legalDescription", label: "Legal Description", sourceVal: listing.legalDescription || "Not specified" },
   ];
 
   return (
     <div className="space-y-4">
+      {notFoundDiscrepancies.length > 0 && (
+        <div className="p-3.5 rounded-lg bg-destructive/10 border border-destructive/30 flex items-start gap-2.5 text-xs text-destructive">
+          <AlertCircle className="size-4 shrink-0 mt-0.5" />
+          <div>
+            <span className="font-semibold">Missing Portal Syndication: </span>
+            {notFoundDiscrepancies.map((d) => (
+              <span key={d.id} className="font-mono uppercase font-bold mr-2">
+                [{d.site}: {d.siteValue}]
+              </span>
+            ))}
+            <span className="text-muted-foreground block mt-0.5">
+              This property is active in Brokerage Engine / MLS but was not found during the external syndication audit.
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h3 className="text-base font-semibold text-foreground">Brokerage Engine Source vs Syndicated Portals</h3>

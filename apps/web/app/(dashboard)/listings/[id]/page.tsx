@@ -377,7 +377,7 @@ export default function ListingDetailAuditPage({
       <FieldComparisonMatrix listing={listing} discrepancies={discrepancies} snapshots={snapshots} />
 
       {/* Photo Order & Sequence Audit */}
-      <PhotoComparisonGrid listing={listing} discrepancies={discrepancies} />
+      <PhotoComparisonGrid listing={listing} discrepancies={discrepancies} snapshots={snapshots} />
 
       {/* Action Modal */}
       {activeModalDiscrepancy && (

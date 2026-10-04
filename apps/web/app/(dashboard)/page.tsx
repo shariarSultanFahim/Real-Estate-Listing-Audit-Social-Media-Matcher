@@ -24,6 +24,8 @@ export default function DashboardPage() {
 
   const activeDiscrepancies = discrepancies.filter((d) => d.status === "open" || d.status === "in_progress");
   const openCount = activeDiscrepancies.length;
+  const affectedListingsCount = new Set(activeDiscrepancies.map((d) => d.listingId)).size;
+  const cleanListingsCount = Math.max(0, listings.length - affectedListingsCount);
 
   const latestRun = auditRuns[0];
 
@@ -128,6 +130,8 @@ export default function DashboardPage() {
         totalListings={listings.length}
         openDiscrepancies={openCount}
         totalAgents={agents.length}
+        cleanListingsCount={cleanListingsCount}
+        affectedListingsCount={affectedListingsCount}
       />
 
       {/* Discrepancy Breakdown Section */}

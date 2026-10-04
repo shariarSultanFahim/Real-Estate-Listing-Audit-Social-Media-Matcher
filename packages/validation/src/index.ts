@@ -19,6 +19,15 @@ export const DiscrepancyFieldEnum = z.enum([
   "mapCoordinates",
   "photos",
   "legalDescription",
+  "beds",
+  "fullBaths",
+  "halfBaths",
+  "squareFeet",
+  "status",
+  "agent",
+  "lotSize",
+  "propertyType",
+  "not_found",
 ]);
 
 export const DiscrepancyStatusEnum = z.enum(["open", "in_progress", "resolved", "ignored"]);

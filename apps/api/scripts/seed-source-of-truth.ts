@@ -405,6 +405,8 @@ async function seedSourceOfTruth() {
   console.log(`✅ Successfully seeded ${SOURCE_OF_TRUTH_LISTINGS.length} Source of Truth listings.`);
 }
 
-seedSourceOfTruth()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+if (require.main === module) {
+  seedSourceOfTruth()
+    .catch(console.error)
+    .finally(() => prisma.$disconnect());
+}
