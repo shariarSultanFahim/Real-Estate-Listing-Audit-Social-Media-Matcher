@@ -53,6 +53,12 @@ app.get("/health", (_req, res) => {
       enabled: config.AUDIT_SCHEDULER_ENABLED,
       interval: config.AUDIT_SCHEDULE_INTERVAL,
     },
+    brightData: {
+      configured: !!config.BRIGHTDATA_API_TOKEN,
+      zillowDataset: !!config.BRIGHTDATA_ZILLOW_DATASET_ID,
+      realtorDataset: !!config.BRIGHTDATA_REALTOR_DATASET_ID,
+      proxyConfigured: !!(config.BRIGHTDATA_PROXY_HOST && config.BRIGHTDATA_PROXY_USERNAME),
+    },
     apify: {
       configured: !!config.APIFY_API_TOKEN,
     },
@@ -76,12 +82,13 @@ app.use(errorHandler);
 if (process.env.NODE_ENV !== "test") {
   app.listen(config.PORT, () => {
     console.log(`\n🏠 Real Estate Audit API`);
-    console.log(`   ├─ Port:      ${config.PORT}`);
-    console.log(`   ├─ Env:       ${config.NODE_ENV}`);
-    console.log(`   ├─ CORS:      ${config.CORS_ORIGIN}`);
-    console.log(`   ├─ Threshold: ${config.MATCH_CONFIDENCE_THRESHOLD}%`);
-    console.log(`   ├─ Scheduler: ${config.AUDIT_SCHEDULER_ENABLED ? config.AUDIT_SCHEDULE_INTERVAL : "Disabled"}`);
-    console.log(`   └─ Apify:     ${config.APIFY_API_TOKEN ? "✓ Configured" : "⚠ Not configured (add APIFY_API_TOKEN)"}`);
+    console.log(`   ├─ Port:        ${config.PORT}`);
+    console.log(`   ├─ Env:         ${config.NODE_ENV}`);
+    console.log(`   ├─ CORS:        ${config.CORS_ORIGIN}`);
+    console.log(`   ├─ Threshold:   ${config.MATCH_CONFIDENCE_THRESHOLD}%`);
+    console.log(`   ├─ Scheduler:   ${config.AUDIT_SCHEDULER_ENABLED ? config.AUDIT_SCHEDULE_INTERVAL : "Disabled"}`);
+    console.log(`   ├─ Bright Data: ${config.BRIGHTDATA_API_TOKEN ? "✓ Configured (Zillow & Realtor Datasets + Proxy)" : "⚠ Not configured"}`);
+    console.log(`   └─ Apify:       ${config.APIFY_API_TOKEN ? "✓ Configured" : "Disabled"}`);
     console.log(`\n   Health: http://localhost:${config.PORT}/health\n`);
 
     // Start background audit scheduler if enabled

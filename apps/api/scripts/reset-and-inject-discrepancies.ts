@@ -711,6 +711,139 @@ const ZILLOW_OVERRIDES: Record<string, FakeSnapshot> = {
   },
 };
 
+const REALTOR_OVERRIDES: Record<string, FakeSnapshot> = {
+  // 💰 PRICE MISMATCH: Realtor shows $265,000 instead of $259,000
+  "2573656": {
+    price: 265000,
+    street: "1201 Canal Street Unit 251",
+    city: "New Orleans",
+    state: "LA",
+    zip: "70112",
+  },
+
+  // 🏠 ADDRESS TYPO: Realtor shows 800 Louisiana 1085
+  "2573263": {
+    price: 150000,
+    street: "800 Louisiana 1085",
+    city: "Madisonville",
+    state: "LA",
+    zip: "70447",
+  },
+
+  // 📸 PHOTO ORDER MISMATCH: Realtor placed photo 3 first
+  "2565907": {
+    price: 850000,
+    street: "74438 Holly Lane",
+    city: "Covington",
+    state: "LA",
+    zip: "70435",
+    reorderPhotos: true,
+  },
+
+  // 💰 PRICE MISMATCH: Realtor shows $369,000 instead of $360,000
+  "2573655": {
+    price: 369000,
+    street: "13092 East Coles Creek Loop",
+    city: "Hammond",
+    state: "LA",
+    zip: "70403",
+  },
+
+  // ❌ NOT FOUND on Realtor
+  "4159867": null,
+
+  // 💰 PRICE MISMATCH + 📸 MISSING PHOTOS: $1,295,000 & 1 photo
+  "409364": {
+    price: 1295000,
+    street: "23008 Perdido Beach Blvd 606",
+    city: "Orange Beach",
+    state: "AL",
+    zip: "36561",
+    missingPhotos: true,
+  },
+
+  // 💰 PRICE MISMATCH + 🏠 ADDRESS TYPO: $370,000 & 2441 Gladiolus St
+  "2571857": {
+    price: 370000,
+    street: "2441 Gladiolus St",
+    city: "New Orleans",
+    state: "LA",
+    zip: "70122",
+  },
+
+  // ✅ No discrepancy on Realtor — exact match
+  "407058": {
+    price: 715000,
+    street: "455 East Beach Boulevard Unit 1813",
+    city: "Gulf Shores",
+    state: "AL",
+    zip: "36542",
+  },
+
+  // ❌ NOT FOUND on Realtor
+  "4158391": null,
+
+  // 📸 PHOTO ORDER MISMATCH: Realtor reordered photos
+  "2571279": {
+    price: 245000,
+    street: "38043 Strawn Lane",
+    city: "Ponchatoula",
+    state: "LA",
+    zip: "70454",
+    reorderPhotos: true,
+  },
+
+  // ❌ NOT FOUND on Realtor
+  "2571943": null,
+
+  // 💰 PRICE MISMATCH (Rental): Realtor shows $2,350/mo instead of $2,200/mo
+  "2569945": {
+    price: 2350,
+    street: "729 Lyons Street #A",
+    city: "New Orleans",
+    state: "LA",
+    zip: "70115",
+  },
+
+  // 📝 DESCRIPTION MISMATCH: Realtor has different description
+  "2565319": {
+    price: 4250,
+    street: "623 Kerlerec Street",
+    city: "New Orleans",
+    state: "LA",
+    zip: "70116",
+    description: "Victorian double near Frenchmen Street scene. 2 suites with full baths.",
+  },
+
+  // 💰 PRICE MISMATCH: Realtor shows $1,795,000 instead of $1,750,000
+  "2572211": {
+    price: 1795000,
+    street: "11 Tolawa Lane",
+    city: "Covington",
+    state: "LA",
+    zip: "70433",
+  },
+
+  // ✅ No discrepancy on Realtor — exact match
+  "2572776": {
+    price: 175000,
+    street: "TBD Tolawa Lane",
+    city: "Covington",
+    state: "LA",
+    zip: "70433",
+  },
+
+  // 📝 DESCRIPTION MISMATCH: Realtor has different copy
+  "2568606": {
+    price: 349000,
+    street: "41325 Crown Drive Extension",
+    city: "Ponchatoula",
+    state: "LA",
+    zip: "70454",
+    description: "Spacious rural estate with workshop and storage. Contact agent for details.",
+  },
+};
+
 async function main() {
   console.log("\n🗑️  Step 1: Wiping database...");
   await prisma.approvedPhotoArrangement.deleteMany();
@@ -803,123 +936,128 @@ async function main() {
   const auditRun = await prisma.auditRun.create({
     data: {
       triggeredBy: "reset-script",
-      platform: "ZILLOW",
+      platform: null,
       status: "running",
       startedAt: new Date(),
     },
   });
 
-  console.log(`\n🕵️  Step 5: Injecting Zillow snapshots & calculating discrepancies...\n`);
+  const PLATFORMS_TO_INJECT = [
+    { site: "zillow" as const, overrides: ZILLOW_OVERRIDES, label: "Zillow", domain: "zillow.com" },
+    { site: "realtor" as const, overrides: REALTOR_OVERRIDES, label: "Realtor.com", domain: "realtor.com" },
+  ];
+
   let totalDiscrepancies = 0;
-  let notFound = 0;
-  let matched = 0;
+  let totalMatched = 0;
+  let totalNotFound = 0;
 
-  for (const item of LISTINGS) {
-    const listingId = listingIdMap[item.mlsNumber];
-    if (!listingId) continue;
+  for (const portal of PLATFORMS_TO_INJECT) {
+    console.log(`\n🕵️  Step 5: Injecting ${portal.label} snapshots & calculating discrepancies...\n`);
 
-    const listing = await prisma.listing.findUnique({
-      where: { id: listingId },
-      include: { photos: true, listingAgent: true },
-    });
-    if (!listing) continue;
+    for (const item of LISTINGS) {
+      const listingId = listingIdMap[item.mlsNumber];
+      if (!listingId) continue;
 
-    const override = ZILLOW_OVERRIDES[item.mlsNumber];
+      const listing = await prisma.listing.findUnique({
+        where: { id: listingId },
+        include: { photos: true, listingAgent: true },
+      });
+      if (!listing) continue;
 
-    // Build snapshot photo list (support reordering, missing, and extra photos for testing)
-    let snapshotPhotos: { url: string; order: number }[] = [];
-    if (override && item.photos.length > 0) {
-      if (override.reorderPhotos && item.photos.length >= 2) {
-        // Different photo sequence (e.g. interior cover)
-        snapshotPhotos = [
-          { url: item.photos[1], order: 1 },
-          { url: item.photos[0], order: 2 },
-          ...item.photos.slice(2).map((url, idx) => ({ url, order: idx + 3 })),
-        ];
-      } else if (override.missingPhotos) {
-        // Missing photos: only 1 of 3 photos syndicated
-        snapshotPhotos = [{ url: item.photos[0], order: 1 }];
-      } else if (override.extraPhoto) {
-        // Extra/different unverified photo
-        snapshotPhotos = [
-          ...item.photos.map((url, idx) => ({ url, order: idx + 1 })),
-          { url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1000&q=80", order: item.photos.length + 1 },
-        ];
-      } else {
-        snapshotPhotos = item.photos.map((url, idx) => ({ url, order: idx + 1 }));
-      }
-    }
+      const override = portal.overrides[item.mlsNumber];
 
-    const snapshotData = override
-      ? {
-          listingId,
-          site: "zillow" as const,
-          price: new Prisma.Decimal(override.price ?? item.price),
-          street: override.street ?? item.street,
-          city: override.city ?? item.city,
-          state: override.state ?? item.state,
-          zip: override.zip ?? item.zip,
-          description: override.description ?? item.description,
-          sourceUrl: `https://zillow.com/homes/${item.mlsNumber}`,
-          fetchedAt: new Date(),
-          photos: snapshotPhotos,
+      // Build snapshot photo list (support reordering, missing, and extra photos for testing)
+      let snapshotPhotos: { url: string; order: number }[] = [];
+      if (override && item.photos.length > 0) {
+        if (override.reorderPhotos && item.photos.length >= 2) {
+          snapshotPhotos = [
+            { url: item.photos[1], order: 1 },
+            { url: item.photos[0], order: 2 },
+            ...item.photos.slice(2).map((url, idx) => ({ url, order: idx + 3 })),
+          ];
+        } else if (override.missingPhotos) {
+          snapshotPhotos = [{ url: item.photos[0], order: 1 }];
+        } else if (override.extraPhoto) {
+          snapshotPhotos = [
+            ...item.photos.map((url, idx) => ({ url, order: idx + 1 })),
+            { url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1000&q=80", order: item.photos.length + 1 },
+          ];
+        } else {
+          snapshotPhotos = item.photos.map((url, idx) => ({ url, order: idx + 1 }));
         }
-      : null;
-
-    let snapshot = null;
-    if (snapshotData) {
-      snapshot = await prisma.siteSnapshot.upsert({
-        where: { listingId_site: { listingId, site: "zillow" } },
-        update: snapshotData,
-        create: snapshotData,
-      });
-
-      await prisma.siteSnapshotHistory.create({
-        data: {
-          listingId,
-          site: "zillow",
-          auditRunId: auditRun.id,
-          price: snapshotData.price,
-          street: snapshotData.street,
-          city: snapshotData.city,
-          state: snapshotData.state,
-          zip: snapshotData.zip,
-          description: snapshotData.description,
-          photos: snapshotPhotos,
-          sourceUrl: snapshotData.sourceUrl,
-        },
-      });
-      matched++;
-    } else {
-      notFound++;
-    }
-
-    // Run comparison
-    const diffs = await compareListingToSnapshot({
-      listing,
-      snapshot,
-      site: "zillow",
-    });
-
-    if (diffs.length === 0) {
-      console.log(`   ✅ ${item.mlsNumber} — ${item.street.substring(0, 30)} — Synced (No Discrepancies)`);
-    } else {
-      console.log(`   ⚠️  ${item.mlsNumber} — ${item.street.substring(0, 30)} — ${diffs.length} discrepancy(s):`);
-      for (const d of diffs) {
-        console.log(`       • [${d.field}] MLS: "${d.sourceValue}" vs Zillow: "${d.siteValue}"`);
       }
-    }
 
-    for (const diff of diffs) {
-      await createOrUpdate({
-        listingId,
-        site: "zillow",
-        field: diff.field,
-        sourceValue: diff.sourceValue,
-        siteValue: diff.siteValue,
-        note: diff.note,
+      const snapshotData = override
+        ? {
+            listingId,
+            site: portal.site,
+            price: new Prisma.Decimal(override.price ?? item.price),
+            street: override.street ?? item.street,
+            city: override.city ?? item.city,
+            state: override.state ?? item.state,
+            zip: override.zip ?? item.zip,
+            description: override.description ?? item.description,
+            sourceUrl: `https://${portal.domain}/homes/${item.mlsNumber}`,
+            fetchedAt: new Date(),
+            photos: snapshotPhotos,
+          }
+        : null;
+
+      let snapshot = null;
+      if (snapshotData) {
+        snapshot = await prisma.siteSnapshot.upsert({
+          where: { listingId_site: { listingId, site: portal.site } },
+          update: snapshotData,
+          create: snapshotData,
+        });
+
+        await prisma.siteSnapshotHistory.create({
+          data: {
+            listingId,
+            site: portal.site,
+            auditRunId: auditRun.id,
+            price: snapshotData.price,
+            street: snapshotData.street,
+            city: snapshotData.city,
+            state: snapshotData.state,
+            zip: snapshotData.zip,
+            description: snapshotData.description,
+            photos: snapshotPhotos,
+            sourceUrl: snapshotData.sourceUrl,
+          },
+        });
+        totalMatched++;
+      } else {
+        totalNotFound++;
+      }
+
+      // Run comparison
+      const diffs = await compareListingToSnapshot({
+        listing,
+        snapshot,
+        site: portal.site,
       });
-      totalDiscrepancies++;
+
+      if (diffs.length === 0) {
+        console.log(`   ✅ [${portal.label}] ${item.mlsNumber} — ${item.street.substring(0, 30)} — Synced (No Discrepancies)`);
+      } else {
+        console.log(`   ⚠️  [${portal.label}] ${item.mlsNumber} — ${item.street.substring(0, 30)} — ${diffs.length} discrepancy(s):`);
+        for (const d of diffs) {
+          console.log(`       • [${d.field}] MLS: "${d.sourceValue}" vs ${portal.label}: "${d.siteValue}"`);
+        }
+      }
+
+      for (const diff of diffs) {
+        await createOrUpdate({
+          listingId,
+          site: portal.site,
+          field: diff.field,
+          sourceValue: diff.sourceValue,
+          siteValue: diff.siteValue,
+          note: diff.note,
+        });
+        totalDiscrepancies++;
+      }
     }
   }
 
@@ -928,18 +1066,18 @@ async function main() {
     data: {
       status: "completed",
       completedAt: new Date(),
-      listingsProcessed: LISTINGS.length,
-      listingsMatched: matched,
-      listingsUnmatched: notFound,
+      listingsProcessed: LISTINGS.length * PLATFORMS_TO_INJECT.length,
+      listingsMatched: totalMatched,
+      listingsUnmatched: totalNotFound,
       discrepanciesFound: totalDiscrepancies,
     },
   });
 
   console.log(`\n🎉 Reset complete!`);
   console.log(`   • Listings seeded: ${LISTINGS.length}`);
-  console.log(`   • Snapshots generated: ${matched}`);
-  console.log(`   • Missing on Zillow: ${notFound}`);
-  console.log(`   • Total Discrepancies injected: ${totalDiscrepancies}\n`);
+  console.log(`   • Snapshots generated across platforms: ${totalMatched}`);
+  console.log(`   • Unmatched/Missing across platforms: ${totalNotFound}`);
+  console.log(`   • Total Discrepancies injected (Zillow + Realtor): ${totalDiscrepancies}\n`);
 }
 
 main()

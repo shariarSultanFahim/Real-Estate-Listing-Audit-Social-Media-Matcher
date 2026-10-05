@@ -56,17 +56,17 @@ export default function ListingDetailAuditPage({
   }
 
   const handleRunAudit = async () => {
-    toast.info("Triggering Apify audit against Zillow and Realtor.com...");
+    toast.info("Triggering syndication audit against Zillow and Realtor.com...");
     triggerAuditMutation.mutate(
       { listingId: id },
       {
         onSuccess: (data: any) => {
           toast.success(
-            `Apify audit completed! Matched: ${data.listingsMatched || 0}, Discrepancies: ${data.discrepanciesFound || 0}`
+            `Portal audit completed! Matched: ${data.listingsMatched || 0}, Discrepancies: ${data.discrepanciesFound || 0}`
           );
         },
         onError: (err: any) => {
-          toast.error("Audit run failed. Check API logs or Apify tokens.");
+          toast.error("Audit run failed. Check API logs or Bright Data credentials.");
         },
       }
     );
@@ -105,7 +105,7 @@ export default function ListingDetailAuditPage({
               className="text-xs gap-1.5 bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
             >
               <RefreshCw className={`size-3.5 ${isAuditing ? "animate-spin" : ""}`} />
-              {isAuditing ? "Auditing with Apify..." : "Run Apify Audit"}
+              {isAuditing ? "Auditing Portals..." : "Run Portal Audit"}
             </Button>
             <Link href={`/listings/${id}/edit`}>
               <Button variant="outline" className="text-xs gap-1.5">
@@ -200,7 +200,7 @@ export default function ListingDetailAuditPage({
                   Pending Portal Audit
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Click &ldquo;Run Apify Audit&rdquo; to pull live listings from Zillow and Realtor.com.
+                  Click &ldquo;Run Portal Audit&rdquo; to pull live listings from Zillow and Realtor.com.
                 </p>
               </>
             )}
@@ -258,7 +258,7 @@ export default function ListingDetailAuditPage({
                 <p className="text-xs text-muted-foreground">
                   {snapshots.length > 0
                     ? "All verified syndication portals match the Source of Truth."
-                    : "No audit mismatches detected. Run an Apify audit to scan external portal feeds."}
+                    : "No audit mismatches detected. Run a portal audit to scan external portal feeds."}
                 </p>
               </div>
             ) : (
