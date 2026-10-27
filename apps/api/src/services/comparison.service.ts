@@ -33,7 +33,18 @@ export interface ComparisonInput {
   };
   snapshot: SiteSnapshot | null;
   site: SyndicationSite;
+  externalData?: {
+    squareFeet?: number | string | null;
+    lotSize?: number | string | null;
+    lotSizeAcres?: number | string | null;
+    beds?: number | string | null;
+    fullBaths?: number | string | null;
+    agentName?: string | null;
+    status?: string | null;
+    propertyType?: string | null;
+  } | null;
 }
+
 
 /**
  * Comparison Service
@@ -160,6 +171,46 @@ export async function compareListingToSnapshot(input: ComparisonInput): Promise<
           note: photoResult.explanation,
         });
       }
+    }
+  }
+
+  // ── 7. Building Square Footage (squareFeet) ──────────────────
+  const extSqFt = input.externalData?.squareFeet != null ? Number(input.externalData.squareFeet) : null;
+  if (listing.buildingAreaSqft != null && extSqFt != null && !isNaN(extSqFt)) {
+    const sourceSqFt = Math.round(Number(listing.buildingAreaSqft));
+    const siteSqFt = Math.round(extSqFt);
+    if (Math.abs(sourceSqFt - siteSqFt) > 5) {
+      diffs.push({
+        field: "squareFeet",
+        sourceValue: `${sourceSqFt.toLocaleString()} sq ft`,
+        siteValue: `${siteSqFt.toLocaleString()} sq ft`,
+        note: `Building square footage variance of ${Math.abs(sourceSqFt - siteSqFt).toLocaleString()} sq ft between MLS source and ${site}.`,
+      });
+    }
+  }
+
+  // ── 8. Lot Size (lotSize) ────────────────────────────────────
+  const extLot = input.externalData?.lotSize || input.externalData?.lotSizeAcres;
+  if (listing.lotSizeAcres != null && extLot != null) {
+    const sourceLotAcres = Number(listing.lotSizeAcres);
+    const parsedExtLot = typeof extLot === "number" ? extLot : parseFloat(String(extLot));
+    if (!isNaN(parsedExtLot)) {
+      const siteAcres = parsedExtLot > 100 ? parsedExtLot / 43560 : parsedExtLot;
+      if (Math.abs(sourceLotAcres - siteAcres) > 0.05) {
+        diffs.push({
+          field: "lotSize",
+          sourceValue: `${sourceLotAcres} acres`,
+          siteValue: `${String(extLot).includes("sq") || String(extLot).includes("acre") ? extLot : `${siteAcres.toFixed(2)} acres`}`,
+          note: `Lot size mismatch between MLS (${sourceLotAcres} acres) and ${site}.`,
+        });
+      }
+    } else if (String(extLot).trim()) {
+      diffs.push({
+        field: "lotSize",
+        sourceValue: `${sourceLotAcres} acres`,
+        siteValue: String(extLot),
+        note: `Lot size mismatch between MLS (${sourceLotAcres} acres) and ${site}.`,
+      });
     }
   }
 

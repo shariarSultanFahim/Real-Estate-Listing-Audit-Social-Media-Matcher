@@ -51,9 +51,11 @@ interface ListingEssentialsFormProps {
 const FEATURE_OPTIONS = [
   "Pool",
   "Quartz Countertops",
+  "Granite Countertops",
   "Patio",
   "Hardwood Floors",
   "2-Car Garage",
+  "3-Car Garage",
   "Waterfront",
   "Dock Access",
   "Wine Cellar",
@@ -67,6 +69,18 @@ const FEATURE_OPTIONS = [
   "Solar Panels",
   "Outdoor Kitchen",
   "Gated Community",
+  "Fireplace",
+  "Central HVAC / Air",
+  "Fenced Yard",
+  "Walk-in Closets",
+  "High / Vaulted Ceilings",
+  "Guest House / ADU",
+  "Security System",
+  "Generator / Whole-Home Backup",
+  "Irrigation / Sprinkler System",
+  "Hot Tub / Spa",
+  "Workshop / Storage Shed",
+  "EV Charger",
 ];
 
 const STATE_SUGGESTIONS = ["LA", "MS", "AL"];
@@ -74,10 +88,15 @@ const STATE_SUGGESTIONS = ["LA", "MS", "AL"];
 const PROPERTY_TYPE_SUGGESTIONS = [
   "Single Family",
   "Condo / Townhouse",
-  "Land / Lot",
-  "Commercial",
   "Multi-Family",
+  "Commercial",
+  "Land / Lot",
   "Industrial",
+  "Duplex / Triplex / Fourplex",
+  "Farm / Ranch",
+  "Manufactured / Mobile Home",
+  "Mixed Use",
+  "Residential Lease",
 ];
 
 const PROPERTY_SUBTYPE_SUGGESTIONS = [
@@ -86,6 +105,14 @@ const PROPERTY_SUBTYPE_SUGGESTIONS = [
   "Modern / Contemporary",
   "Creole Cottage",
   "French Provincial",
+  "Colonial",
+  "Victorian",
+  "Mid-Century Modern",
+  "Mediterranean",
+  "Ranch",
+  "Split Level",
+  "Loft / Penthouse",
+  "Historic / Landmark",
   "Office",
   "Retail",
   "Industrial / Warehouse",
@@ -94,10 +121,15 @@ const PROPERTY_SUBTYPE_SUGGESTIONS = [
 
 const LISTING_TYPE_SUGGESTIONS = [
   "Residential Sales",
+  "Residential Lease",
   "Commercial Lease",
   "Commercial Sale",
   "Land Sale",
+  "Multi-Family Sale",
+  "Industrial Lease",
+  "Industrial Sale",
 ];
+
 
 const LISTING_STATUS_SUGGESTIONS = ["active", "pending", "sold", "withdrawn"];
 
@@ -791,6 +823,20 @@ export function ListingEssentialsForm({
                 <p className="text-red-500 text-xs mt-1">{errors.listingAgentId.message}</p>
               )}
             </div>
+
+            <div className="space-y-1">
+              <FormLabel htmlFor="coListingAgentId">Co-Listing Agent (Optional)</FormLabel>
+              <Input
+                id="coListingAgentId"
+                type="text"
+                list="agent-suggestions"
+                placeholder="Co-Listing Agent ID or Name (Optional)"
+                className="h-10 text-sm bg-background font-mono"
+              />
+              <span className="text-[10px] text-muted-foreground block">
+                Designate a secondary / co-listing agent for dual-representation &amp; social cross-posting.
+              </span>
+            </div>
           </div>
         </Card>
       </div>
@@ -808,14 +854,39 @@ export function ListingEssentialsForm({
         </div>
 
         <div className="space-y-3">
-          <div className="relative max-w-md">
-            <Search className="size-3.5 text-muted-foreground absolute left-3 top-3" />
-            <Input
-              value={featureSearch}
-              onChange={(e) => setFeatureSearch(e.target.value)}
-              placeholder="Search Features (Pool, Quartz Countertops, Waterfront)..."
-              className="pl-9 h-10 text-xs bg-background"
-            />
+          <div className="flex items-center gap-2 max-w-md">
+            <div className="relative flex-1">
+              <Search className="size-3.5 text-muted-foreground absolute left-3 top-3" />
+              <Input
+                value={featureSearch}
+                onChange={(e) => setFeatureSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (featureSearch.trim()) {
+                      toggleFeature(featureSearch.trim());
+                      setFeatureSearch("");
+                    }
+                  }
+                }}
+                placeholder="Search or type custom feature & press Enter..."
+                className="pl-9 h-10 text-xs bg-background"
+              />
+            </div>
+            {featureSearch.trim() && !selectedFeatures.includes(featureSearch.trim()) && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  toggleFeature(featureSearch.trim());
+                  setFeatureSearch("");
+                }}
+                className="text-xs shrink-0 gap-1 h-10"
+              >
+                <Plus className="size-3.5" /> Add
+              </Button>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2 pt-1">
@@ -954,6 +1025,24 @@ export function ListingEssentialsForm({
               placeholder="Enter full comprehensive MLS listing remarks and property description..."
               className="w-full rounded-b-lg border border-t-0 border-border bg-background p-3 text-sm text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary"
             />
+          </div>
+
+          {/* Legal Description Field */}
+          <div className="space-y-1.5 pt-2 border-t border-border">
+            <FormLabel required htmlFor="legalDescription">Legal Description (Deed &amp; Plat Identification)</FormLabel>
+            <textarea
+              id="legalDescription"
+              rows={2}
+              {...register("legalDescription", { onChange: () => clearErrors("legalDescription") })}
+              placeholder="e.g. LOT 12 SQ 4 SUBDIVISION PH 1, PARCEL ID 204-891-002, TRACT 4 SECTION 12..."
+              className={`w-full rounded-lg border border-border bg-background p-3 text-sm text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary ${errors.legalDescription ? "border-red-500 ring-1 ring-red-500" : ""}`}
+            />
+            {errors.legalDescription && (
+              <p className="text-red-500 text-xs mt-1">{errors.legalDescription.message}</p>
+            )}
+            <p className="text-[11px] text-muted-foreground">
+              Official parcel, deed or plat reference recorded with parish/county. Used to verify MLS compliance across commercial and title feeds.
+            </p>
           </div>
         </div>
       </Card>

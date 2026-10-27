@@ -19,19 +19,26 @@ import { auditRouter } from "./modules/audit/audit.router";
 const app: Express = express();
 
 // ─── Middleware ───────────────────────────────────────────────
-// Enable GZIP / Deflate response compression for ultra-fast data transfer
-app.use(compression());
 
 // Permissive CORS for local & cloudflare tunnel review URLs
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow all origins (including trycloudflare.com and localhost)
-      callback(null, true);
-    },
-    credentials: true,
-  })
-);
+// Must be registered BEFORE all other middleware so preflight OPTIONS
+// requests receive Access-Control-Allow-* headers without hitting auth.
+const corsOptions: cors.CorsOptions = {
+  origin: (_origin, callback) => {
+    // Allow all origins (trycloudflare.com, localhost, etc.)
+    callback(null, true);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+// Respond to preflight OPTIONS requests immediately
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
+
+// Enable GZIP / Deflate response compression for ultra-fast data transfer
+app.use(compression());
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));

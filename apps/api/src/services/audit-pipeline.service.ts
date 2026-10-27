@@ -436,10 +436,21 @@ export async function executeAuditPipeline(opts: AuditRunOptions = {}): Promise<
             });
 
             // Stage 7: COMPARE
+            const rawData = (candidate.rawData || {}) as Record<string, any>;
             const diffs = await compareListingToSnapshot({
               listing,
               snapshot,
               site,
+              externalData: {
+                squareFeet: rawData.squareFeet ?? rawData.livingArea ?? rawData.sqft ?? rawData.buildingAreaSqft ?? null,
+                lotSize: rawData.lotSize ?? rawData.lotSizeAcres ?? rawData.lotAreaValue ?? null,
+                lotSizeAcres: rawData.lotSizeAcres ?? rawData.lotAreaValue ?? null,
+                beds: rawData.bedrooms ?? rawData.beds ?? null,
+                fullBaths: rawData.bathrooms ?? rawData.fullBaths ?? null,
+                propertyType: rawData.propertyType ?? rawData.homeType ?? null,
+                agentName: candidate.agentName,
+                status: rawData.status ?? rawData.homeStatus ?? null,
+              },
             });
 
             totalDiscrepanciesFound += diffs.length;

@@ -48,30 +48,11 @@ export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActi
       },
       {
         onSuccess: () => {
-          setLocalNotes((prev) => [
-            ...prev,
-            {
-              id: `note-${Date.now()}`,
-              author: currentUser?.name || "Staff",
-              text: noteText,
-              date: "Just now",
-            },
-          ]);
           setNewNote("");
-          toast.success("Note saved to database history.");
+          toast.success("Note saved to audit history.");
         },
         onError: () => {
-          setLocalNotes((prev) => [
-            ...prev,
-            {
-              id: `note-${Date.now()}`,
-              author: currentUser?.name || "Staff",
-              text: noteText,
-              date: "Just now",
-            },
-          ]);
-          setNewNote("");
-          toast.success("Note added.");
+          toast.error("Failed to add note.");
         },
       }
     );
@@ -100,6 +81,43 @@ export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActi
       }
     );
   };
+
+  // Build unified, deduplicated timeline events sorted chronologically (oldest to newest)
+  const timelineEvents = [
+    {
+      id: "event-created",
+      title: "Discrepancy Created",
+      subtitle: "",
+      note: null,
+      description: `Automated audit detected mismatch between Brokerage Engine and ${discrepancy.site}.`,
+      timestamp: new Date(discrepancy.detectedAt).getTime(),
+      dateFormatted: new Date(discrepancy.detectedAt).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      dotColor: "bg-destructive",
+      isCreation: true,
+    },
+    ...dbHistory.map((h: any) => ({
+      id: h.id,
+      title: h.action ? h.action.replace("_", " ") : "Status Change",
+      subtitle: h.toStatus ? `: ${h.toStatus}` : "",
+      note: h.note,
+      description: null,
+      timestamp: new Date(h.changedAt).getTime(),
+      dateFormatted: new Date(h.changedAt).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      dotColor: h.action === "note_added" ? "bg-primary" : "bg-amber-500",
+      isCreation: false,
+    })),
+  ].sort((a, b) => a.timestamp - b.timestamp);
 
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex items-center justify-center p-4">
@@ -177,67 +195,31 @@ export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActi
                 <MessageSquare className="size-3.5 text-primary" />
                 Discrepancy Notes &amp; Activity Timeline
               </span>
-              <span className="text-[11px] text-muted-foreground">{dbHistory.length + localNotes.length + 1} recorded events</span>
+              <span className="text-[11px] text-muted-foreground">{timelineEvents.length} recorded events</span>
             </div>
 
             <div className="space-y-2.5 pl-3 border-l-2 border-border/80">
-              {/* Event 1: Creation */}
-              <div className="space-y-0.5 relative">
-                <div className="size-2 rounded-full bg-destructive absolute -left-[17px] top-1.5" />
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-semibold text-foreground">Discrepancy Created</span>
-                  <span className="text-muted-foreground font-mono text-[10px]">
-                    {new Date(discrepancy.detectedAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Automated audit detected mismatch between Brokerage Engine and {discrepancy.site}.
-                </p>
-              </div>
-
-              {/* Database Audit History Records */}
-              {dbHistory.map((h: any) => (
-                <div key={h.id} className="space-y-0.5 relative pt-1">
-                  <div className="size-2 rounded-full bg-amber-500 absolute -left-[17px] top-2.5" />
+              {timelineEvents.map((event) => (
+                <div key={event.id} className="space-y-0.5 relative pt-1">
+                  <div className={`size-2 rounded-full ${event.dotColor} absolute -left-[17px] top-2.5`} />
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-medium text-foreground capitalize">
-                      {h.action ? h.action.replace("_", " ") : "Status Update"}: {h.toStatus || "Updated"}
+                    <span className="font-semibold text-foreground capitalize">
+                      {event.title}{event.subtitle}
                     </span>
                     <span className="text-muted-foreground font-mono text-[10px]">
-                      {new Date(h.changedAt).toLocaleString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {event.dateFormatted}
                     </span>
                   </div>
-                  {h.note && (
-                    <p className="text-xs text-foreground bg-card p-2 rounded border border-border italic">
-                      &ldquo;{h.note}&rdquo;
+                  {event.description && (
+                    <p className="text-[11px] text-muted-foreground">
+                      {event.description}
                     </p>
                   )}
-                </div>
-              ))}
-
-              {/* Local Realtime Notes */}
-              {localNotes.map((n) => (
-                <div key={n.id} className="space-y-0.5 relative pt-1">
-                  <div className="size-2 rounded-full bg-primary absolute -left-[17px] top-2.5" />
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-medium text-foreground flex items-center gap-1">
-                      <User className="size-3 text-muted-foreground" />
-                      Note added by <strong className="text-foreground">{n.author}</strong>
-                    </span>
-                    <span className="text-muted-foreground font-mono text-[10px]">{n.date}</span>
-                  </div>
-                  <p className="text-xs text-foreground bg-card p-2 rounded border border-border italic">
-                    &ldquo;{n.text}&rdquo;
-                  </p>
+                  {event.note && (
+                    <p className="text-xs text-foreground bg-card p-2 rounded border border-border italic">
+                      &ldquo;{event.note}&rdquo;
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -252,9 +234,16 @@ export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActi
                 onKeyDown={(e) => e.key === "Enter" && handleAddNote()}
                 className="bg-background border-input text-xs"
               />
-              <Button type="button" variant="secondary" size="sm" onClick={handleAddNote} className="text-xs shrink-0 gap-1">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleAddNote}
+                disabled={addNoteMutation.isPending || !newNote.trim()}
+                className="text-xs shrink-0 gap-1"
+              >
                 <Send className="size-3" />
-                Add Note
+                {addNoteMutation.isPending ? "Adding..." : "Add Note"}
               </Button>
             </div>
           </div>

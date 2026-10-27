@@ -11,23 +11,53 @@ import { z } from "zod";
 
 import { Combobox } from "@/components/ui/combobox";
 
+import { useAgents } from "@/hooks/useRealEstateApi";
+
 type FormData = z.infer<typeof MatchQuerySchema>;
 
-const SERVICE_CITIES = [
+const PRESET_SERVICE_CITIES = [
   "New Orleans",
+  "Uptown New Orleans",
+  "French Quarter",
+  "Downtown New Orleans",
+  "Garden District",
+  "Marigny",
+  "Bywater",
+  "Gentilly",
+  "Lakeview",
+  "Metairie",
+  "Kenner",
+  "Baton Rouge",
+  "Lafayette",
   "Covington",
   "Mandeville",
+  "Madisonville",
+  "Abita Springs",
   "Slidell",
   "Bush",
+  "Hammond",
+  "Ponchatoula",
+  "Northshore",
   "Gulfport",
   "Biloxi",
+  "Ocean Springs",
+  "Pascagoula",
   "Bay St. Louis",
+  "Pass Christian",
+  "Long Beach",
+  "Diamondhead",
+  "Saucier",
+  "Hattiesburg",
+  "Jackson",
   "Mobile",
   "Fairhope",
   "Daphne",
+  "Spanish Fort",
+  "Foley",
+  "Orange Beach",
+  "Gulf Shores",
+  "Pensacola",
 ];
-
-const cityOptions = SERVICE_CITIES.map((c) => ({ value: c, label: c }));
 
 interface SocialCrossPostFormProps {
   onSearch: (data: FormData) => void;
@@ -35,6 +65,15 @@ interface SocialCrossPostFormProps {
 }
 
 export function SocialCrossPostForm({ onSearch, isLoading }: SocialCrossPostFormProps) {
+  const { data: agents = [] } = useAgents();
+
+  // Combine preset cities with all live agent service areas from the database
+  const agentAreas = agents.flatMap((a) => a.serviceAreas || []);
+  const allCities = Array.from(new Set([...PRESET_SERVICE_CITIES, ...agentAreas])).sort((a, b) =>
+    a.localeCompare(b)
+  );
+  const cityOptions = allCities.map((c) => ({ value: c, label: c }));
+
   const {
     register,
     handleSubmit,

@@ -63,3 +63,22 @@ export async function update(
   });
   return mapAgent(row);
 }
+
+export async function remove(id: string): Promise<{ success: boolean; message: string }> {
+  const existing = await prisma.agent.findUnique({
+    where: { id },
+    include: { listings: { select: { id: true, mlsNumber: true } } },
+  });
+  if (!existing) throw createError(`Agent ${id} not found`, 404);
+
+  if (existing.listings.length > 0) {
+    throw createError(
+      `Cannot delete agent "${existing.name}" because they are currently assigned to ${existing.listings.length} active listing(s) (${existing.listings.map((l) => l.mlsNumber).slice(0, 3).join(", ")}). Please reassign their listing(s) to another agent first.`,
+      400
+    );
+  }
+
+  await prisma.agent.delete({ where: { id } });
+  return { success: true, message: `Agent ${existing.name} deleted successfully.` };
+}
+

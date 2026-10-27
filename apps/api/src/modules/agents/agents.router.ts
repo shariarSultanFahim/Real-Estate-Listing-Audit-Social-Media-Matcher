@@ -42,3 +42,14 @@ agentsRouter.patch("/:id", async (req: Request, res: Response, next: NextFunctio
     next(err);
   }
 });
+
+// DELETE /agents/:id
+agentsRouter.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await agentsService.remove(String(req.params.id));
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+

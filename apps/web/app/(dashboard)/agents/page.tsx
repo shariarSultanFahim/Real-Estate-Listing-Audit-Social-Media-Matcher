@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useAgents, useCreateAgent, useUpdateAgent } from "@/hooks/useRealEstateApi";
+import { useAgents, useCreateAgent, useUpdateAgent, useDeleteAgent } from "@/hooks/useRealEstateApi";
 import { AgentForm } from "./components/AgentForm";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Agent } from "@real-estate/types";
-import { Plus, Edit2, Facebook, Instagram, Users, Search } from "lucide-react";
+import { Plus, Edit2, Trash2, Facebook, Instagram, Users, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -30,11 +30,32 @@ export default function AgentsPage() {
   const { data: agents = [], isLoading } = useAgents();
   const createAgent = useCreateAgent();
   const updateAgent = useUpdateAgent();
+  const deleteAgent = useDeleteAgent();
 
   const [searchQuery, setSearchQuery] = useQueryState("q", parseAsString.withDefault(""));
   const [selectedState, setSelectedState] = useQueryState("state", parseAsString.withDefault("all"));
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
+  const [deletingAgentId, setDeletingAgentId] = useState<string | null>(null);
+
+  const handleDeleteAgent = (agent: Agent) => {
+    if (!confirm(`Are you sure you want to delete agent "${agent.name}"? This action cannot be undone.`)) {
+      return;
+    }
+    setDeletingAgentId(agent.id);
+    deleteAgent.mutate(agent.id, {
+      onSuccess: () => {
+        toast.success(`Agent ${agent.name} has been deleted.`);
+        setDeletingAgentId(null);
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.message || err?.message || "Failed to delete agent.";
+        toast.error(msg);
+        setDeletingAgentId(null);
+      },
+    });
+  };
+
 
   const filteredAgents = agents.filter((agent) => {
     if (selectedState !== "all" && agent.officeState !== selectedState) return false;
@@ -136,7 +157,7 @@ export default function AgentsPage() {
               <TableHead>Service Areas Covered</TableHead>
               <TableHead>Cross-Post Preference</TableHead>
               <TableHead>Social Links</TableHead>
-              <TableHead className="text-right">Edit</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -188,17 +209,30 @@ export default function AgentsPage() {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setEditingAgent(agent);
-                      setIsFormOpen(true);
-                    }}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    <Edit2 className="size-3.5" />
-                  </Button>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditingAgent(agent);
+                        setIsFormOpen(true);
+                      }}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                      title="Edit Agent"
+                    >
+                      <Edit2 className="size-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={deletingAgentId === agent.id}
+                      onClick={() => handleDeleteAgent(agent)}
+                      className="text-xs text-destructive hover:bg-destructive/10"
+                      title="Delete Agent"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

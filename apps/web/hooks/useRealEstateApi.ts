@@ -102,6 +102,20 @@ export function useUpdateAgent() {
   });
 }
 
+export function useDeleteAgent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.delete(`/agents/${id}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+    },
+  });
+}
+
+
 // ─── Discrepancies ─────────────────────────────────────────────
 export function useDiscrepancies(listingId?: string) {
   return useQuery<Discrepancy[]>({
