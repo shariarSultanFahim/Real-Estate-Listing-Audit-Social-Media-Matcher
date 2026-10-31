@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import { useAgents } from "@/hooks/useRealEstateApi";
 import { AddressLookupStep } from "@/components/listings/AddressLookupStep";
 import { ListingEssentialsForm } from "@/components/listings/ListingEssentialsForm";
+import { BulkImportModal } from "@/components/listings/BulkImportModal";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { FileSpreadsheet } from "lucide-react";
 
 import { RequirePermission } from "@/components/auth/RequirePermission";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -15,6 +18,7 @@ export default function NewListingPage() {
   const router = useRouter();
   const { data: agents = [] } = useAgents();
   const [step, setStep] = useState<1 | 2>(1);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<{
     street: string;
     city: string;
@@ -49,10 +53,26 @@ export default function NewListingPage() {
           }
           showBackButton={step === 2}
           onBack={() => setStep(1)}
+          actions={
+            step === 1 ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsImportModalOpen(true)}
+                className="gap-1.5 h-9 border-primary/20 hover:border-primary/40 text-xs font-semibold"
+              >
+                <FileSpreadsheet className="size-3.5 text-emerald-600" />
+                Bulk Import Excel / CSV
+              </Button>
+            ) : undefined
+          }
         />
 
         {step === 1 && (
-          <AddressLookupStep onSelectAddress={handleSelectAddress} />
+          <AddressLookupStep
+            onSelectAddress={handleSelectAddress}
+            onOpenImport={() => setIsImportModalOpen(true)}
+          />
         )}
 
         {step === 2 && (
@@ -65,6 +85,13 @@ export default function NewListingPage() {
             onBack={() => setStep(1)}
           />
         )}
+
+        {/* Bulk Import Modal */}
+        <BulkImportModal
+          open={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
+          onImportComplete={() => router.push("/listings")}
+        />
       </div>
     </RequirePermission>
   );

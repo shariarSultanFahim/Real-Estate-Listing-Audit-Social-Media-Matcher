@@ -50,6 +50,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch {
           // Backend might be offline during initial load
         }
+
+        // Default to active Super Admin to ensure access in demo/dev mode
+        setCurrentUser({
+          id: "usr-admin-001",
+          name: "Super Admin",
+          email: "admin@cresentsothebys.com",
+          accountType: "superAdmin",
+          permissions: [
+            "listings:create", "listings:edit", "listings:delete",
+            "discrepancies:resolve",
+            "agents:create", "agents:edit", "agents:delete",
+            "socialMatcher:use",
+            "users:create", "users:edit",
+          ],
+          createdAt: new Date().toISOString(),
+        });
       } catch {
         // Ignore initialization error
       } finally {

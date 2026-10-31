@@ -6,9 +6,10 @@ import { ListingsTable } from "./components/ListingsTable";
 import { FilterBar } from "./components/FilterBar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, CheckCircle, Plus } from "lucide-react";
+import { AlertCircle, CheckCircle, Plus, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
 import { RequirePermission } from "@/components/auth/RequirePermission";
+import { BulkImportModal } from "@/components/listings/BulkImportModal";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
 
@@ -18,6 +19,8 @@ export default function ListingsAuditPage() {
   const { data: listings = [], isLoading: isLoadingListings } = useListings();
   const { data: discrepancies = [], isLoading: isLoadingDiscrepancies } = useDiscrepancies();
   const { data: agents = [], isLoading: isLoadingAgents } = useAgents();
+
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // URL search state via NUQS
   const [viewMode, setViewMode] = useQueryState(
@@ -100,6 +103,16 @@ export default function ListingsAuditPage() {
               </Button>
             </div>
 
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsImportModalOpen(true)}
+              className="gap-1.5 h-9 border-primary/20 hover:border-primary/40 text-xs font-semibold"
+            >
+              <FileSpreadsheet className="size-3.5 text-emerald-600" />
+              Import Excel / CSV
+            </Button>
+
             <RequirePermission permission="listings:create" fallback={null}>
               <Link href="/listings/new">
                 <Button size="sm" className="gap-1.5 h-9">
@@ -137,6 +150,12 @@ export default function ListingsAuditPage() {
           agents={agents}
         />
       )}
+
+      {/* Bulk Import Modal */}
+      <BulkImportModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+      />
     </div>
   );
 }
