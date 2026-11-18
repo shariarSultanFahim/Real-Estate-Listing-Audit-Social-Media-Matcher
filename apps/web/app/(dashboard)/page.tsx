@@ -28,6 +28,17 @@ export default function DashboardPage() {
   const cleanListingsCount = Math.max(0, listings.length - affectedListingsCount);
 
   const latestRun = auditRuns[0];
+  const lastRunTimestamp = latestRun?.completedAt || latestRun?.finishedAt || latestRun?.startedAt;
+  const formattedLastRunDate = lastRunTimestamp
+    ? new Date(lastRunTimestamp).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : null;
 
   const handleTriggerAudit = () => {
     triggerAuditMutation.mutate(undefined, {
@@ -97,7 +108,9 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-foreground">Automated Syndication Audit Pipeline</span>
                 <Badge variant="outline" className="text-[10px] border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                  {latestRun ? `Last Run: ${latestRun.status.toUpperCase()}` : "Active • Monitored"}
+                  {latestRun
+                    ? `Last Run: ${latestRun.status.toUpperCase()}${formattedLastRunDate ? ` • ${formattedLastRunDate}` : ""}`
+                    : "Active • Monitored"}
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -110,6 +123,13 @@ export default function DashboardPage() {
             <div>
               <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Audit Schedule</span>
               <span className="font-semibold text-foreground text-sm">Every 6 Hours</span>
+            </div>
+            <div className="h-7 w-px bg-border hidden sm:block" />
+            <div>
+              <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Last Audit Executed</span>
+              <span className="font-medium text-foreground text-xs font-mono">
+                {formattedLastRunDate || "Pending Initial Run"}
+              </span>
             </div>
             <div className="h-7 w-px bg-border hidden sm:block" />
             <div>

@@ -53,6 +53,16 @@ export function FieldComparisonMatrix({ listing, discrepancies, snapshots = [] }
           : "Not specified",
     },
     { key: "propertyType", label: "Property Type", sourceVal: listing.propertyType || "Residential" },
+    {
+      key: "squareFeet",
+      label: "Building Area (sq. ft.)",
+      sourceVal: listing.buildingAreaSqft ? `${Number(listing.buildingAreaSqft).toLocaleString()} sq ft` : "Not specified",
+    },
+    {
+      key: "lotSize",
+      label: "Lot Size (acres)",
+      sourceVal: listing.lotSizeAcres ? `${Number(listing.lotSizeAcres)} acres` : "Not specified",
+    },
     { key: "photos", label: "Photo Sequence & Assets", sourceVal: `${listing.photos.length} Photos in Sequence` },
     { key: "legalDescription", label: "Legal Description", sourceVal: listing.legalDescription || "Not specified" },
   ];
@@ -128,7 +138,12 @@ export function FieldComparisonMatrix({ listing, discrepancies, snapshots = [] }
               {SITES.map((site) => {
                 const snapshot = snapshots.find((s) => s.site === site.id);
                 const disc = discrepancies.find(
-                  (d) => d.site === site.id && d.field === field.key && (d.status === "open" || d.status === "in_progress")
+                  (d) =>
+                    d.site === site.id &&
+                    (d.field === field.key ||
+                      (field.key === "squareFeet" && ((d.field as string) === "buildingAreaSqft" || (d.field as string) === "squareFeet")) ||
+                      (field.key === "lotSize" && ((d.field as string) === "lotSizeAcres" || (d.field as string) === "lotSize"))) &&
+                    (d.status === "open" || d.status === "in_progress")
                 );
 
                 // Case 1: Discrepancy Found

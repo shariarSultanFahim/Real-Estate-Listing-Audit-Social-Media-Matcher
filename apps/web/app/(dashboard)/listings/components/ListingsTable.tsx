@@ -59,6 +59,7 @@ export function ListingsTable({
               (d) => d.listingId === listing.id && d.status === "in_progress"
             );
             const agent = agents.find((a) => a.id === listing.listingAgentId);
+            const coAgent = listing.coListingAgentId ? agents.find((a) => a.id === listing.coListingAgentId) : null;
             const affectedSites = Array.from(
               new Set(activeDiscrepancies.map((d) => d.site))
             );
@@ -91,7 +92,13 @@ export function ListingsTable({
                   ${listing.price.toLocaleString()}
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground">
-                  {agent ? agent.name : "Unassigned"}
+                  <div className="font-medium text-foreground">{agent ? agent.name : "Unassigned"}</div>
+                  {coAgent && (
+                    <div className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                      <span className="text-[9px] uppercase font-mono px-1 rounded bg-muted">Co</span>
+                      {coAgent.name}
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>
                   <ListingStatusBadge

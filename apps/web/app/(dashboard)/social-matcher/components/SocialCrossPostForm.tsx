@@ -16,47 +16,207 @@ import { useAgents } from "@/hooks/useRealEstateApi";
 type FormData = z.infer<typeof MatchQuerySchema>;
 
 const PRESET_SERVICE_CITIES = [
-  "New Orleans",
-  "Uptown New Orleans",
-  "French Quarter",
-  "Downtown New Orleans",
-  "Garden District",
-  "Marigny",
-  "Bywater",
-  "Gentilly",
-  "Lakeview",
-  "Metairie",
-  "Kenner",
-  "Baton Rouge",
-  "Lafayette",
-  "Covington",
-  "Mandeville",
-  "Madisonville",
+  // A
   "Abita Springs",
-  "Slidell",
-  "Bush",
-  "Hammond",
-  "Ponchatoula",
-  "Northshore",
-  "Gulfport",
-  "Biloxi",
-  "Ocean Springs",
-  "Pascagoula",
+  "Addis",
+  "Albany",
+  "Alton",
+  "Amite",
+  "Amite City",
+  "Avondale",
+  "Axis",
+
+  // B
+  "Baker",
+  "Baptist",
+  "Barataria",
+  "Baton Rouge",
+  "Bay Minette",
   "Bay St. Louis",
-  "Pass Christian",
-  "Long Beach",
-  "Diamondhead",
-  "Saucier",
-  "Hattiesburg",
-  "Jackson",
-  "Mobile",
-  "Fairhope",
+  "Bayou La Batre",
+  "Biloxi",
+  "Bon Secour",
+  "Bridge City",
+  "Brownfields",
+  "Brusly",
+  "Bucks",
+  "Bush",
+  "Bywater",
+
+  // C
+  "Central",
+  "Centreville",
+  "Chalmette",
+  "Charlottesville",
+  "Chickasaw",
+  "Chunchula",
+  "Citronelle",
+  "Colyell",
+  "Concord",
+  "Covington",
+  "Creola",
+  "Crosby",
+
+  // D
   "Daphne",
-  "Spanish Fort",
+  "Dauphin Island",
+  "Denham Springs",
+  "D'Iberville",
+  "Diamondhead",
+  "Downtown New Orleans",
+
+  // E
+  "Eden Isle",
+  "Elberta",
+  "Elmwood",
+  "Estelle",
+
+  // F
+  "Fairhope",
+  "Fluker",
   "Foley",
-  "Orange Beach",
+  "Folsom",
+  "Fortville",
+  "French Quarter",
+  "French Settlement",
+
+  // G
+  "Garden District",
+  "Gentilly",
+  "Gloster",
+  "Grand Bay",
+  "Grand Isle",
+  "Greenfield",
+  "Greenwell Springs",
+  "Gretna",
   "Gulf Shores",
+  "Gulfport",
+
+  // H
+  "Hammond",
+  "Harahan",
+  "Harvey",
+  "Hattiesburg",
+  "Hilltop",
+  "Holden",
+  "Husser",
+
+  // I
+  "Independence",
+
+  // J
+  "Jackson",
+  "Jean Lafitte",
+  "Jefferson",
+
+  // K
+  "Kenner",
+  "Kentwood",
+  "Killian",
+
+  // L
+  "Lacombe",
+  "Lafayette",
+  "Lafitte",
+  "Lakeview",
+  "LaPlace",
+  "Liberty",
+  "Lillian",
+  "Livingston",
+  "Long Beach",
+  "Loranger",
+  "Loxley",
+
+  // M
+  "Madisonville",
+  "Magnolia Springs",
+  "Manchac",
+  "Mandeville",
+  "Marigny",
+  "Marrero",
+  "Maurepas",
+  "McCordsville",
+  "Meansville",
+  "Merrydale",
+  "Metairie",
+  "Mobile",
+  "Molena",
+  "Monticello",
+  "Mount Vernon",
+  "Movico",
+
+  // N
+  "Natalbany",
+  "Natchez",
+  "New Orleans",
+  "New Palestine",
+  "Nicholson",
+  "Northshore",
+
+  // O
+  "Ocean Springs",
+  "Orange Beach",
+
+  // P
+  "Pascagoula",
+  "Pass Christian",
+  "Pearl River",
   "Pensacola",
+  "Picayune",
+  "Point Clear",
+  "Ponchatoula",
+  "Poplarville",
+  "Port Allen",
+  "Port Vincent",
+  "Prichard",
+
+  // R
+  "River Ridge",
+  "Robert",
+  "Robertsdale",
+  "Roseland",
+
+  // S
+  "Saraland",
+  "Satsuma",
+  "Saucier",
+  "Semmes",
+  "Silverhill",
+  "Slidell",
+  "Spanish Fort",
+  "Spring Lake",
+  "Springfield",
+  "Stapleton",
+  "Stockton",
+  "Summerdale",
+  "Sun",
+
+  // T
+  "Tangi",
+  "Tangipahoa",
+  "Terrytown",
+  "Theodore",
+  "Tickfaw",
+  "Tillmans Corner",
+  "Timberlane",
+
+  // U
+  "Uptown",
+  "Uptown New Orleans",
+
+  // W
+  "Waggaman",
+  "Walker",
+  "Watson",
+  "Waveland",
+  "Westwego",
+  "Wilkinson",
+  "Williamson",
+  "Woodmere",
+
+  // Z
+  "Zachary",
+  "Zebulon",
 ];
 
 interface SocialCrossPostFormProps {

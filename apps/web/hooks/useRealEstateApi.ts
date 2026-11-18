@@ -157,8 +157,9 @@ export function useUpdateDiscrepancy() {
       const res = await apiClient.patch("/discrepancies", payload);
       return DiscrepancySchema.parse(res.data);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["discrepancies"] });
+      queryClient.invalidateQueries({ queryKey: ["discrepancies", variables.id, "history"] });
     },
   });
 }

@@ -30,6 +30,8 @@ export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActi
   const { data: dbHistory = [] } = useDiscrepancyHistory(discrepancy.id);
 
   const [newNote, setNewNote] = useState("");
+  const [showResolutionPrompt, setShowResolutionPrompt] = useState(false);
+  const [resolutionNoteInput, setResolutionNoteInput] = useState("");
   const [currentStatus, setCurrentStatus] = useState<"open" | "in_progress" | "resolved" | "ignored">(
     discrepancy.status as "open" | "in_progress" | "resolved" | "ignored"
   );
@@ -58,12 +60,16 @@ export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActi
     );
   };
 
-  const handleSetStatus = (status: "open" | "in_progress" | "resolved" | "ignored") => {
+  const handleSetStatus = (
+    status: "open" | "in_progress" | "resolved" | "ignored",
+    customNote?: string
+  ) => {
+    const noteToSave = customNote !== undefined ? customNote : newNote.trim() ? newNote.trim() : undefined;
     updateDiscrepancy.mutate(
       {
         id: discrepancy.id,
         status,
-        note: newNote.trim() ? newNote.trim() : undefined,
+        note: noteToSave,
         changedBy: currentUser?.id,
       },
       {
@@ -249,31 +255,85 @@ export function DiscrepancyActionModal({ discrepancy, onClose }: DiscrepancyActi
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4 shrink-0">
-          <Button variant="ghost" size="sm" onClick={() => handleSetStatus("ignored")} className="text-xs text-muted-foreground">
-            <EyeOff className="size-3.5 mr-1" />
-            Ignore
-          </Button>
+        <CardFooter className="flex flex-col gap-3 border-t border-border pt-4 shrink-0">
+          {showResolutionPrompt ? (
+            <div className="w-full space-y-2.5 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                  <CheckCircle2 className="size-3.5" /> Resolution Note (Audit Trail)
+                </span>
+                <span className="text-[10px] text-muted-foreground">Recorded in resolution history</span>
+              </div>
+              <Input
+                type="text"
+                placeholder="e.g. MLS price verified, syndication feed synced, or verified on Realtor.com..."
+                value={resolutionNoteInput}
+                onChange={(e) => setResolutionNoteInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSetStatus("resolved", resolutionNoteInput.trim() || newNote.trim() || "Issue verified and resolved");
+                  }
+                }}
+                className="text-xs bg-background h-8"
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowResolutionPrompt(false)}
+                  className="text-xs h-7"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    handleSetStatus(
+                      "resolved",
+                      resolutionNoteInput.trim() || newNote.trim() || "Issue verified and resolved"
+                    )
+                  }
+                  className="text-xs h-7 bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
+                >
+                  <CheckCircle2 className="size-3" /> Confirm &amp; Mark Resolved
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="w-full flex flex-wrap items-center justify-between gap-2">
+              <Button variant="ghost" size="sm" onClick={() => handleSetStatus("ignored")} className="text-xs text-muted-foreground">
+                <EyeOff className="size-3.5 mr-1" />
+                Ignore
+              </Button>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleSetStatus("in_progress")}
-              className="text-xs text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
-            >
-              <Clock className="size-3.5 mr-1" />
-              Mark In Progress
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => handleSetStatus("resolved")}
-              className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
-            >
-              <CheckCircle2 className="size-3.5 mr-1" />
-              Mark Resolved
-            </Button>
-          </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSetStatus("in_progress")}
+                  className="text-xs text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+                >
+                  <Clock className="size-3.5 mr-1" />
+                  Mark In Progress
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    if (newNote.trim()) {
+                      handleSetStatus("resolved", newNote.trim());
+                    } else {
+                      setShowResolutionPrompt(true);
+                    }
+                  }}
+                  className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  <CheckCircle2 className="size-3.5 mr-1" />
+                  Mark Resolved
+                </Button>
+              </div>
+            </div>
+          )}
         </CardFooter>
       </Card>
     </div>

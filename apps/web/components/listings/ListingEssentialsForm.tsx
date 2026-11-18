@@ -195,6 +195,7 @@ export function ListingEssentialsForm({
       price: initialValues?.price ?? undefined,
       status: initialValues?.status || "active",
       listingAgentId: initialValues?.listingAgentId || agents[0]?.id || "",
+      coListingAgentId: initialValues?.coListingAgentId || "",
       description: fullDesc,
       legalDescription: initialValues?.legalDescription || "",
       mapCoordinates: initialValues?.mapCoordinates || undefined,
@@ -316,6 +317,8 @@ export function ListingEssentialsForm({
 
     onSubmit({
       ...data,
+      coListingAgentId: data.coListingAgentId?.trim() ? data.coListingAgentId.trim() : null,
+      legalDescription: data.legalDescription?.trim() ? data.legalDescription.trim() : "",
       mapCoordinates: lat !== undefined && lng !== undefined ? { lat, lng } : null,
       propertyStyle: data.propertyStyle ? data.propertyStyle : null,
       listingType: data.listingType ? data.listingType : null,
@@ -830,6 +833,7 @@ export function ListingEssentialsForm({
                 id="coListingAgentId"
                 type="text"
                 list="agent-suggestions"
+                {...register("coListingAgentId")}
                 placeholder="Co-Listing Agent ID or Name (Optional)"
                 className="h-10 text-sm bg-background font-mono"
               />
@@ -1029,7 +1033,7 @@ export function ListingEssentialsForm({
 
           {/* Legal Description Field */}
           <div className="space-y-1.5 pt-2 border-t border-border">
-            <FormLabel required htmlFor="legalDescription">Legal Description (Deed &amp; Plat Identification)</FormLabel>
+            <FormLabel htmlFor="legalDescription">Legal Description (Deed &amp; Plat Identification) (Optional)</FormLabel>
             <textarea
               id="legalDescription"
               rows={2}

@@ -7,6 +7,7 @@ import { Prisma } from "@prisma/client";
 const LISTING_INCLUDE = {
   photos: true,
   listingAgent: true,
+  coListingAgent: true,
 } as const;
 
 // ─── Queries ─────────────────────────────────────────────────
@@ -79,6 +80,7 @@ export interface CreateListingInput {
   expirationDate: string;
   anticipatedLaunchDate?: string;
   listingAgentId?: string;
+  coListingAgentId?: string | null;
   listingOfficeId?: string;
   mlsSource?: string;
   photos?: Array<{ url: string; order: number }>;
@@ -110,6 +112,19 @@ export async function create(input: CreateListingInput): Promise<Listing> {
       const firstOffice = await prisma.listingOffice.findFirst();
       if (firstOffice) listingOfficeId = firstOffice.id;
       else throw createError(`Office ${listingOfficeId} not found`, 404);
+    }
+  }
+
+  let coListingAgentId: string | null = null;
+  if (input.coListingAgentId) {
+    const coAgent = await prisma.agent.findUnique({ where: { id: input.coListingAgentId } });
+    if (coAgent) {
+      coListingAgentId = coAgent.id;
+    } else {
+      const coByName = await prisma.agent.findFirst({
+        where: { name: { equals: input.coListingAgentId, mode: "insensitive" } },
+      });
+      if (coByName) coListingAgentId = coByName.id;
     }
   }
 
@@ -146,7 +161,7 @@ export async function create(input: CreateListingInput): Promise<Listing> {
       newConstruction: input.newConstruction ?? false,
       listingType: input.listingType || "Residential Sales",
       description: input.description || "",
-      legalDescription: input.legalDescription || "LOT 12 SQ 4 SUBDIVISION PH 1",
+      legalDescription: input.legalDescription || null,
       lat: lat != null ? new Prisma.Decimal(lat) : undefined,
       lng: lng != null ? new Prisma.Decimal(lng) : undefined,
       listDate: new Date(input.listDate || Date.now()),
@@ -156,6 +171,7 @@ export async function create(input: CreateListingInput): Promise<Listing> {
         : undefined,
       features: input.features ?? [],
       listingAgentId,
+      coListingAgentId,
       listingOfficeId,
       mlsSource: input.mlsSource || "Crescent Sotheby's MLS",
       photos: {
@@ -212,6 +228,7 @@ export interface UpdateListingInput {
   expirationDate?: string;
   anticipatedLaunchDate?: string;
   listingAgentId?: string;
+  coListingAgentId?: string | null;
   listingOfficeId?: string;
   photos?: Array<{ url: string; order: number }>;
 }
@@ -263,7 +280,26 @@ export async function update(
   if (input.newConstruction !== undefined) data.newConstruction = input.newConstruction;
   if (input.listingType !== undefined) data.listingType = input.listingType || "Residential Sales";
   if (input.description !== undefined) data.description = input.description;
-  if (input.legalDescription !== undefined) data.legalDescription = input.legalDescription;
+  if (input.legalDescription !== undefined) data.legalDescription = input.legalDescription || null;
+  if (input.coListingAgentId !== undefined) {
+    if (!input.coListingAgentId) {
+      data.coListingAgent = { disconnect: true };
+    } else {
+      const coAgent = await prisma.agent.findUnique({ where: { id: input.coListingAgentId } });
+      if (coAgent) {
+        data.coListingAgent = { connect: { id: coAgent.id } };
+      } else {
+        const coByName = await prisma.agent.findFirst({
+          where: { name: { equals: input.coListingAgentId, mode: "insensitive" } },
+        });
+        if (coByName) {
+          data.coListingAgent = { connect: { id: coByName.id } };
+        } else {
+          data.coListingAgent = { disconnect: true };
+        }
+      }
+    }
+  }
   if (lat !== undefined) {
     data.lat = lat != null && !isNaN(Number(lat)) ? new Prisma.Decimal(lat) : null;
   }

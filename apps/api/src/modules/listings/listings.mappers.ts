@@ -3,7 +3,8 @@ import { Listing, Photo, Address } from "@real-estate/types";
 
 type ListingWithRelations = PrismaListing & {
   photos: ListingPhoto[];
-  listingAgent?: Agent;
+  listingAgent?: Agent | null;
+  coListingAgent?: Agent | null;
 };
 
 /**
@@ -35,8 +36,9 @@ export function mapListing(
     price: Number(row.price),
     status: row.status as Listing["status"],
     listingAgentId: row.listingAgentId,
+    coListingAgentId: row.coListingAgentId ?? undefined,
     description: row.description,
-    legalDescription: row.legalDescription,
+    legalDescription: row.legalDescription ?? "",
     mapCoordinates: {
       lat: row.lat ? Number(row.lat) : 0,
       lng: row.lng ? Number(row.lng) : 0,

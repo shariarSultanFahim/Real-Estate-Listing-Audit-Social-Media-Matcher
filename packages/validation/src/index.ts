@@ -77,8 +77,9 @@ export const ListingSchema = z.object({
   price: z.number().positive("Price must be positive"),
   status: ListingStatusEnum,
   listingAgentId: z.string(),
+  coListingAgentId: z.string().optional().nullable(),
   description: z.string(),
-  legalDescription: z.string(),
+  legalDescription: z.string().optional().nullable(),
   mapCoordinates: MapCoordinatesSchema.optional().nullable(),
   photos: z.array(PhotoSchema),
   features: z.array(z.string()),
@@ -128,6 +129,7 @@ export const DiscrepancySchema = z.object({
   detectedAt: z.string(),
   resolvedAt: z.string().optional(),
   note: z.string().optional(),
+  resolutionNote: z.string().optional(),
 });
 
 export const AgentSchema = z.object({

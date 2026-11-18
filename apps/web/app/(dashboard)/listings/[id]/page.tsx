@@ -73,9 +73,24 @@ export default function ListingDetailAuditPage({
   };
 
   const agent = agents.find((a) => a.id === listing.listingAgentId);
+  const coAgent = listing.coListingAgentId ? agents.find((a) => a.id === listing.coListingAgentId) : null;
   const activeDiscrepancies = discrepancies.filter((d) => d.status === "open" || d.status === "in_progress");
   const resolvedDiscrepancies = discrepancies.filter((d) => d.status === "resolved" || d.status === "ignored");
   const isAuditing = triggerAuditMutation.isPending;
+
+  const latestAuditTime =
+    snapshots.length > 0
+      ? new Date(
+          Math.max(...snapshots.map((s: any) => new Date(s.fetchedAt || s.createdAt || Date.now()).getTime()))
+        ).toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : null;
 
   return (
     <div className="space-y-8">
@@ -143,16 +158,37 @@ export default function ListingDetailAuditPage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Listing Agent
+              {coAgent ? "Listing Agents" : "Listing Agent"}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-1">
-            <div className="text-base font-semibold text-card-foreground flex items-center gap-2">
-              <User className="size-4 text-primary" />
-              {agent ? agent.name : "Unassigned"}
+          <CardContent className="space-y-3">
+            <div className="space-y-1">
+              {coAgent && (
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
+                  Primary Agent
+                </span>
+              )}
+              <div className="text-base font-semibold text-card-foreground flex items-center gap-2">
+                <User className="size-4 text-primary" />
+                {agent ? agent.name : "Unassigned"}
+              </div>
+              <p className="text-xs text-muted-foreground">{agent?.email || "No email"}</p>
+              <p className="text-xs text-muted-foreground/80 font-mono">Office: {agent?.officeState || "N/A"}</p>
             </div>
-            <p className="text-xs text-muted-foreground">{agent?.email || "No email"}</p>
-            <p className="text-xs text-muted-foreground/80 font-mono">Office: {agent?.officeState || "N/A"}</p>
+
+            {coAgent && (
+              <div className="pt-2.5 border-t border-border space-y-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-primary block">
+                  Co-Listing Agent
+                </span>
+                <div className="text-sm font-semibold text-card-foreground flex items-center gap-2">
+                  <User className="size-3.5 text-primary/80" />
+                  {coAgent.name}
+                </div>
+                <p className="text-xs text-muted-foreground">{coAgent.email || "No email"}</p>
+                <p className="text-xs text-muted-foreground/80 font-mono">Office: {coAgent.officeState || "N/A"}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -182,6 +218,11 @@ export default function ListingDetailAuditPage({
                   {discrepancies.filter((d) => d.status === "open").length} open,{" "}
                   {discrepancies.filter((d) => d.status === "in_progress").length} in progress.
                 </p>
+                {latestAuditTime && (
+                  <p className="text-[10px] text-muted-foreground font-mono">
+                    Last Audited: {latestAuditTime}
+                  </p>
+                )}
               </>
             ) : snapshots.length > 0 ? (
               <>
@@ -192,6 +233,11 @@ export default function ListingDetailAuditPage({
                 <p className="text-xs text-emerald-500/80">
                   {snapshots.length} syndication portal {snapshots.length === 1 ? "snapshot" : "snapshots"} verified.
                 </p>
+                {latestAuditTime && (
+                  <p className="text-[10px] text-muted-foreground font-mono">
+                    Last Audited: {latestAuditTime}
+                  </p>
+                )}
               </>
             ) : (
               <>
@@ -352,9 +398,9 @@ export default function ListingDetailAuditPage({
                       <span>Source: <strong className="text-foreground">{disc.sourceValue}</strong></span>
                       <span>Resolved Site Value: <strong className="text-emerald-600 dark:text-emerald-400">{disc.siteValue}</strong></span>
                     </div>
-                    {disc.note && (
+                    {(disc.resolutionNote || disc.note) && (
                       <p className="text-xs text-muted-foreground italic">
-                        Resolution Note: &ldquo;{disc.note}&rdquo;
+                        Resolution Note: &ldquo;{disc.resolutionNote || disc.note}&rdquo;
                       </p>
                     )}
                   </div>

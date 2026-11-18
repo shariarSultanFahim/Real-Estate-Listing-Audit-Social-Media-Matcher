@@ -158,7 +158,8 @@ model Agent {
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
-  listings            Listing[]
+  listings            Listing[]           @relation("ListingAgent")
+  coListings          Listing[]           @relation("CoListingAgent")
 
   @@index([officeState])
   @@map("agents")
@@ -202,7 +203,7 @@ model Listing {
 
   // ── Descriptions ──
   description      String  @db.Text
-  legalDescription String  @db.Text
+  legalDescription String? @db.Text
 
   // ── Map ──
   lat  Decimal? @db.Decimal(10, 7)
@@ -222,7 +223,10 @@ model Listing {
 
   // ── Relations ──
   listingAgentId  String
-  listingAgent    Agent          @relation(fields: [listingAgentId], references: [id])
+  listingAgent    Agent          @relation("ListingAgent", fields: [listingAgentId], references: [id])
+
+  coListingAgentId String?
+  coListingAgent   Agent?        @relation("CoListingAgent", fields: [coListingAgentId], references: [id])
 
   listingOfficeId String
   listingOffice   ListingOffice  @relation(fields: [listingOfficeId], references: [id])
@@ -239,6 +243,7 @@ model Listing {
   @@index([state])
   @@index([status])
   @@index([listingAgentId])
+  @@index([coListingAgentId])
   @@map("listings")
 }
 

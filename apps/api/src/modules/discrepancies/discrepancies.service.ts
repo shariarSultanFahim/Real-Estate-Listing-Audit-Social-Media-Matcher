@@ -23,6 +23,7 @@ export async function findAll(opts: FindDiscrepanciesOptions = {}): Promise<Disc
     orderBy: { detectedAt: "desc" },
     include: {
       notes: { orderBy: { createdAt: "desc" } },
+      history: { orderBy: { changedAt: "desc" } },
     },
   });
   return mapDiscrepancies(rows);
@@ -69,7 +70,7 @@ export async function update(input: UpdateDiscrepancyInput): Promise<Discrepancy
         ? "manual_resolution"
         : "status_change";
 
-  const [updated] = await prisma.$transaction([
+  await prisma.$transaction([
     prisma.discrepancy.update({
       where: { id: input.id },
       data: {
@@ -113,7 +114,7 @@ export async function update(input: UpdateDiscrepancyInput): Promise<Discrepancy
       : []),
   ]);
 
-  return mapDiscrepancy(updated);
+  return findById(input.id);
 }
 
 /**
@@ -138,6 +139,12 @@ export async function addNote(discrepancyId: string, authorId: string | null, co
         action: "note_added",
         fromStatus: existing.status,
         toStatus: existing.status,
+        note: content,
+      },
+    }),
+    prisma.discrepancy.update({
+      where: { id: discrepancyId },
+      data: {
         note: content,
       },
     }),

@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   PlusCircle,
   ListFilter,
+  Archive,
   UserCheck,
   User,
 } from "lucide-react"
@@ -67,6 +68,11 @@ const data: { info: { title: string; subtitle: string }; navMain: NavGroup[] } =
           title: "All Listings",
           url: "/listings",
           icon: ListFilter,
+        },
+        {
+          title: "Offline Listings",
+          url: "/listings/offline",
+          icon: Archive,
         },
         {
           title: "Add New Listing",

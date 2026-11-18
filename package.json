@@ -10,6 +10,8 @@
     "start": "pnpm start",
     "build:web": "pnpm --filter web build",
     "start:web": "pnpm --filter web start",
+    "build:api": "pnpm --filter api build",
+    "start:api": "pnpm --filter api start",
     "lint": "turbo lint",
     "check-types": "turbo check-types",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",

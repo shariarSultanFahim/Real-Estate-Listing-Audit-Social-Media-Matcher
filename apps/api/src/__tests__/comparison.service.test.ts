@@ -37,6 +37,7 @@ describe("Comparison Service", () => {
     mlsSource: "Crescent MLS",
     approvedPhotoArrangementHash: null,
     listingAgentId: "agent-4",
+    coListingAgentId: null,
     listingOfficeId: "off-la-01",
     photos: [
       { url: "https://photos.example.com/front.jpg", position: 1 },

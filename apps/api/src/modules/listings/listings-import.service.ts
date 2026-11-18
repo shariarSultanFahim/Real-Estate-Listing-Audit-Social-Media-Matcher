@@ -138,6 +138,27 @@ export function normalizeListingRow(row: Record<string, any>) {
     getVal("Agent Information", "Agent Name", "Listing Agent", "Agent", "agent") || ""
   ).trim();
 
+  const coAgentName = String(
+    getVal(
+      "Co-Listing Agent",
+      "Co Listing Agent",
+      "CoAgent",
+      "Co Agent",
+      "coListingAgent",
+      "coAgentName"
+    ) || ""
+  ).trim();
+
+  const legalDescriptionRaw = getVal(
+    "Legal Description",
+    "LegalDescription",
+    "legalDescription"
+  );
+  const legalDescription =
+    legalDescriptionRaw !== undefined && legalDescriptionRaw !== null
+      ? String(legalDescriptionRaw).trim()
+      : null;
+
   const rawPhotos = getVal("Photos/photo URLs", "Photos", "Photo URLs", "Photo URL", "photos", "Photo");
   let photos: string[] = [];
   if (Array.isArray(rawPhotos)) {
@@ -169,6 +190,8 @@ export function normalizeListingRow(row: Record<string, any>) {
     status,
     description,
     agentName,
+    coAgentName,
+    legalDescription,
     photos,
     mlsSource,
   };
@@ -355,6 +378,9 @@ export async function bulkImportListings(
       }
 
       const agentId = await resolveAgent(normalized.agentName, normalized.state);
+      const coAgentId = normalized.coAgentName
+        ? await resolveAgent(normalized.coAgentName, normalized.state)
+        : null;
       const officeId = await resolveOffice(normalized.state);
 
       // Check if listing already exists
@@ -395,8 +421,10 @@ export async function bulkImportListings(
             propertyType: normalized.propertyType,
             propertyStyle: normalized.propertyStyle,
             description: normalized.description,
+            legalDescription: normalized.legalDescription !== null ? normalized.legalDescription : undefined,
             mlsSource: normalized.mlsSource,
             listingAgentId: agentId,
+            ...(coAgentId ? { coListingAgentId: coAgentId } : {}),
             listingOfficeId: officeId,
             lastUpdatedAt: new Date(),
           },
@@ -465,11 +493,12 @@ export async function bulkImportListings(
             propertyStyle: normalized.propertyStyle,
             listingType: "Residential Sales",
             description: normalized.description,
-            legalDescription: "Authoritative MLS recorded parcel",
+            legalDescription: normalized.legalDescription || null,
             mlsSource: normalized.mlsSource,
             listDate: new Date(),
             expirationDate: new Date(Date.now() + 180 * 86400000),
             listingAgentId: agentId,
+            coListingAgentId: coAgentId || null,
             listingOfficeId: officeId,
             photos: {
               create: (normalized.photos.length > 0

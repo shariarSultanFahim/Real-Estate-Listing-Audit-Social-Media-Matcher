@@ -28,9 +28,10 @@ export function matchAgentsForListing(
     }
 
     if (agent.crossPostPreference === "areaAndPrice") {
-      const coversArea = agent.serviceAreas.some(
-        (area) => area.toLowerCase() === normalizedCity
-      );
+      const coversArea = agent.serviceAreas.some((area) => {
+        const a = area.toLowerCase().trim();
+        return a === normalizedCity || a.includes(normalizedCity) || normalizedCity.includes(a);
+      });
       const min = agent.priceRangeMin ?? 0;
       const max = agent.priceRangeMax ?? Infinity;
 

@@ -6,7 +6,7 @@ import { ListingsTable } from "./components/ListingsTable";
 import { FilterBar } from "./components/FilterBar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, CheckCircle, Plus, FileSpreadsheet } from "lucide-react";
+import { AlertCircle, CheckCircle, Plus, FileSpreadsheet, Archive } from "lucide-react";
 import Link from "next/link";
 import { RequirePermission } from "@/components/auth/RequirePermission";
 import { BulkImportModal } from "@/components/listings/BulkImportModal";
@@ -33,8 +33,12 @@ export default function ListingsAuditPage() {
 
   const isLoading = isLoadingListings || isLoadingDiscrepancies || isLoadingAgents;
 
+  // Active Listings (Source of Truth): Closed, Expired, and Withdrawn listings are housed separately on the Offline page
+  const activeListings = listings.filter((l) => l.status !== "sold" && l.status !== "withdrawn");
+  const offlineCount = listings.filter((l) => l.status === "sold" || l.status === "withdrawn").length;
+
   // Filter listings
-  const filteredListings = listings.filter((listing) => {
+  const filteredListings = activeListings.filter((listing) => {
     const listingDiscrepancies = discrepancies.filter(
       (d) => d.listingId === listing.id && (d.status === "open" || d.status === "in_progress")
     );
@@ -70,7 +74,7 @@ export default function ListingsAuditPage() {
     return true;
   });
 
-  const issuesCount = listings.filter((l) =>
+  const issuesCount = activeListings.filter((l) =>
     discrepancies.some((d) => d.listingId === l.id && (d.status === "open" || d.status === "in_progress"))
   ).length;
 
@@ -99,9 +103,20 @@ export default function ListingsAuditPage() {
                 className="text-xs gap-1.5 h-8"
               >
                 <CheckCircle className="size-3.5" />
-                All Listings ({listings.length})
+                Active Listings ({activeListings.length})
               </Button>
             </div>
+
+            <Link href="/listings/offline">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 h-9 border-border text-xs text-muted-foreground hover:text-foreground"
+              >
+                <Archive className="size-3.5 text-muted-foreground" />
+                Offline Archive ({offlineCount})
+              </Button>
+            </Link>
 
             <Button
               variant="outline"
